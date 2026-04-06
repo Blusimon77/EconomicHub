@@ -15,6 +15,7 @@ from openai import OpenAI
 from datetime import datetime, timedelta, timezone
 from config.settings import settings
 from config.logging import get_logger
+from config.http_client import scrape_get
 
 logger = get_logger("agents.competitor_analyst")
 
@@ -128,8 +129,7 @@ ANALYSIS_SCHEMA = """{
 def _scrape_url(url: str) -> str:
     """Scarica e pulisce il testo di una pagina web."""
     try:
-        resp = httpx.get(url, timeout=HTTP_TIMEOUT, follow_redirects=True,
-                         headers={"User-Agent": "Mozilla/5.0"})
+        resp = scrape_get(url, timeout=HTTP_TIMEOUT)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
         for tag in soup(["style", "script"]):

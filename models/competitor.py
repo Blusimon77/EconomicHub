@@ -40,6 +40,8 @@ class Competitor(Base):
 
     socials = relationship("CompetitorSocial", back_populates="competitor", cascade="all, delete-orphan")
     observations = relationship("CompetitorObservation", back_populates="competitor", cascade="all, delete-orphan", order_by="CompetitorObservation.created_at.desc()")
+    products = relationship("CompetitorProduct", back_populates="competitor", cascade="all, delete-orphan", order_by="CompetitorProduct.found_at.desc()")
+    dealers = relationship("CompetitorDealer", back_populates="competitor", cascade="all, delete-orphan", order_by="CompetitorDealer.name")
 
 
 class CompetitorSocial(Base):
@@ -70,6 +72,60 @@ class CompetitorObservation(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     competitor = relationship("Competitor", back_populates="observations")
+
+
+class CompetitorDealer(Base):
+    """Concessionario/rivenditore ufficiale di un concorrente (costruttore)."""
+    __tablename__ = "competitor_dealers"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    competitor_id = Column(Integer, ForeignKey("competitors.id"), nullable=False)
+    name = Column(String(500), nullable=False)
+    website = Column(String(1000), default="")
+    address = Column(String(500), default="")
+    city = Column(String(200), default="")
+    region = Column(String(200), default="")
+    country = Column(String(100), default="")
+    phone = Column(String(100), default="")
+    email = Column(String(200), default="")
+    notes = Column(Text, default="")
+    source = Column(String(100), default="")        # "website" | "tavily" | "manual"
+    source_url = Column(String(1000), default="")   # pagina da cui è stato estratto
+    found_at = Column(DateTime, default=datetime.utcnow)
+
+    competitor = relationship("Competitor", back_populates="dealers")
+    # I prodotti tecnici trovati sul sito di questo dealer
+    products = relationship("CompetitorProduct", back_populates="dealer", cascade="all, delete-orphan")
+
+
+class CompetitorProduct(Base):
+    """Dato tecnico / brochure di prodotto trovato per un concorrente.
+    Può provenire dal sito del costruttore o dal sito di un suo dealer."""
+    __tablename__ = "competitor_products"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    competitor_id = Column(Integer, ForeignKey("competitors.id"), nullable=False)
+    dealer_id = Column(Integer, ForeignKey("competitor_dealers.id"), nullable=True)  # None = sito costruttore
+
+    # Identificazione prodotto
+    name = Column(String(500), default="")          # nome prodotto / titolo documento
+    product_line = Column(String(300), default="")  # linea di prodotto / famiglia
+    category = Column(String(200), default="")      # categoria (es. "Datasheet", "Manuale", "Scheda tecnica")
+
+    # Specifiche tecniche strutturate
+    tech_specs = Column(Text, default="")           # JSON: [{key, value, unit}] — coppie chiave-valore estratte
+    tech_summary = Column(Text, default="")         # Testo riassuntivo delle specifiche
+
+    # Documento
+    brochure_url = Column(String(1000), default="") # URL originale del PDF
+    brochure_filename = Column(String(300), default="")  # nome file salvato in locale
+    page_url = Column(String(1000), default="")     # pagina web sorgente
+    source = Column(String(100), default="")        # "manufacturer_site" | "dealer_site" | "tavily"
+    file_size_kb = Column(Integer, default=0)
+    found_at = Column(DateTime, default=datetime.utcnow)
+
+    competitor = relationship("Competitor", back_populates="products")
+    dealer = relationship("CompetitorDealer", back_populates="products")
 
 
 class CompetitorAnalysis(Base):

@@ -23,12 +23,16 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from config.settings import settings
 from config.logging import get_logger
+from config.http_client import scrape_headers
 
 logger = get_logger("dashboard")
 from models.post import Base, Post, Comment, PostStatus, Platform
 from models.context import CompanyContext, ContextWebsite
 import json
-from models.competitor import Competitor, CompetitorSocial, CompetitorObservation, CompetitorAnalysis
+from models.competitor import Competitor, CompetitorSocial, CompetitorObservation, CompetitorAnalysis, CompetitorProduct, CompetitorDealer
+from datetime import datetime, timezone
+from pathlib import Path as FilePath
+from fastapi.responses import FileResponse
 
 MAX_SCRAPED_CONTENT = 8000
 MAX_RAW_RESPONSE = 10000
@@ -429,7 +433,7 @@ async def scrape_website(site_id: int, db: Session = Depends(get_db)):
         return RedirectResponse("/context?error=invalid_url", status_code=303)
     try:
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT, follow_redirects=True) as client:
-            resp = await client.get(site.url, headers={"User-Agent": "Mozilla/5.0"})
+            resp = await client.get(site.url, headers=scrape_headers())
             resp.raise_for_status()
             soup = BeautifulSoup(resp.text, "html.parser")
             for tag in soup(["style", "script"]):
@@ -614,7 +618,7 @@ async def scrape_competitor(cid: int, db: Session = Depends(get_db)):
         return RedirectResponse(f"/competitors?sel={cid}&error=invalid_url", status_code=303)
     try:
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT, follow_redirects=True) as client:
-            resp = await client.get(c.website, headers={"User-Agent": "Mozilla/5.0"})
+            resp = await client.get(c.website, headers=scrape_headers())
             resp.raise_for_status()
             text = re.sub(r"<style[^>]*>.*?</style>", " ", resp.text, flags=re.DOTALL)
             text = re.sub(r"<script[^>]*>.*?</script>", " ", text, flags=re.DOTALL)
@@ -723,6 +727,191 @@ async def api_competitor(cid: int, db: Session = Depends(get_db)):
             for o in c.observations
         ],
     })
+
+
+@app.get("/api/competitors/{cid}/products")
+async def api_competitor_products(cid: int, db: Session = Depends(get_db)):
+    products = db.query(CompetitorProduct).filter(
+        CompetitorProduct.competitor_id == cid
+    ).order_by(CompetitorProduct.found_at.desc()).all()
+    return JSONResponse([
+        {
+            "id": p.id,
+            "name": p.name,
+            "product_line": p.product_line,
+            "category": p.category,
+            "brochure_url": p.brochure_url,
+            "brochure_filename": p.brochure_filename,
+            "page_url": p.page_url,
+            "source": p.source,
+            "dealer_id": p.dealer_id,
+            "file_size_kb": p.file_size_kb,
+            "tech_summary": p.tech_summary or "",
+            "found_at": p.found_at.strftime("%d/%m/%Y %H:%M") if p.found_at else "",
+            "has_local_file": bool(p.brochure_filename),
+        }
+        for p in products
+    ])
+
+
+@app.post("/competitors/{cid}/products/search")
+async def competitor_products_search(cid: int, db: Session = Depends(get_db)):
+    c = db.query(Competitor).filter(Competitor.id == cid).first()
+    if not c:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    try:
+        from agents.product_scout import search_and_download
+        saved = search_and_download(cid, db)
+        return JSONResponse({"ok": True, "found": len(saved), "products": saved})
+    except Exception as exc:
+        logger.error("Errore product search per competitor %d: %s", cid, exc)
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.get("/competitors/{cid}/brochures/{filename}")
+async def serve_brochure(cid: int, filename: str, db: Session = Depends(get_db)):
+    # Verifica che il file appartenga al competitor e sanitizza il nome
+    if "/" in filename or "\\" in filename or ".." in filename:
+        return JSONResponse({"error": "invalid"}, status_code=400)
+    brochure_path = FilePath(__file__).parent.parent / "storage" / "brochures" / str(cid) / filename
+    if not brochure_path.exists():
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return FileResponse(str(brochure_path), media_type="application/pdf", filename=filename)
+
+
+@app.post("/competitors/{cid}/products/{pid}/delete")
+async def delete_competitor_product(cid: int, pid: int, db: Session = Depends(get_db)):
+    product = db.query(CompetitorProduct).filter(
+        CompetitorProduct.id == pid,
+        CompetitorProduct.competitor_id == cid,
+    ).first()
+    if product:
+        # Elimina il file locale se esiste
+        if product.brochure_filename:
+            local = FilePath(__file__).parent.parent / "storage" / "brochures" / str(cid) / product.brochure_filename
+            if local.exists():
+                local.unlink()
+        db.delete(product)
+        db.commit()
+    return RedirectResponse(f"/competitors?sel={cid}&msg=saved", status_code=303)
+
+
+@app.get("/api/competitors/{cid}/dealers")
+async def api_competitor_dealers(cid: int, db: Session = Depends(get_db)):
+    dealers = db.query(CompetitorDealer).filter(
+        CompetitorDealer.competitor_id == cid
+    ).order_by(CompetitorDealer.name).all()
+    return JSONResponse([
+        {
+            "id": d.id,
+            "name": d.name,
+            "website": d.website,
+            "address": d.address,
+            "city": d.city,
+            "region": d.region,
+            "country": d.country,
+            "phone": d.phone,
+            "email": d.email,
+            "notes": d.notes,
+            "source": d.source,
+            "source_url": d.source_url,
+            "found_at": d.found_at.strftime("%d/%m/%Y") if d.found_at else "",
+        }
+        for d in dealers
+    ])
+
+
+@app.post("/competitors/{cid}/dealers/search")
+async def competitor_dealers_search(cid: int, db: Session = Depends(get_db)):
+    c = db.query(Competitor).filter(Competitor.id == cid).first()
+    if not c:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    try:
+        from agents.dealer_scout import search_and_save_dealers
+        saved = search_and_save_dealers(cid, db)
+        return JSONResponse({"ok": True, "found": len(saved), "dealers": saved})
+    except Exception as exc:
+        logger.error("Errore dealer search per competitor %d: %s", cid, exc)
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
+@app.post("/competitors/{cid}/dealers/add")
+async def add_dealer_manual(
+    cid: int,
+    name: str = Form(...),
+    website: str = Form(default=""),
+    address: str = Form(default=""),
+    city: str = Form(default=""),
+    region: str = Form(default=""),
+    country: str = Form(default=""),
+    phone: str = Form(default=""),
+    email: str = Form(default=""),
+    notes: str = Form(default=""),
+    db: Session = Depends(get_db),
+):
+    c = db.query(Competitor).filter(Competitor.id == cid).first()
+    if not c:
+        return RedirectResponse(f"/competitors", status_code=303)
+    dealer = CompetitorDealer(
+        competitor_id=cid,
+        name=name[:500],
+        website=website[:1000],
+        address=address[:500],
+        city=city[:200],
+        region=region[:200],
+        country=country[:100],
+        phone=phone[:100],
+        email=email[:200],
+        notes=notes,
+        source="manual",
+        found_at=datetime.now(timezone.utc).replace(tzinfo=None),
+    )
+    db.add(dealer)
+    db.commit()
+    return RedirectResponse(f"/competitors?sel={cid}&msg=saved", status_code=303)
+
+
+@app.post("/competitors/{cid}/dealers/{did}/update")
+async def update_dealer(
+    cid: int,
+    did: int,
+    name: str = Form(...),
+    website: str = Form(default=""),
+    address: str = Form(default=""),
+    city: str = Form(default=""),
+    region: str = Form(default=""),
+    country: str = Form(default=""),
+    phone: str = Form(default=""),
+    email: str = Form(default=""),
+    notes: str = Form(default=""),
+    db: Session = Depends(get_db),
+):
+    dealer = db.query(CompetitorDealer).filter(
+        CompetitorDealer.id == did, CompetitorDealer.competitor_id == cid
+    ).first()
+    if dealer:
+        dealer.name = name[:500]
+        dealer.website = website[:1000]
+        dealer.address = address[:500]
+        dealer.city = city[:200]
+        dealer.region = region[:200]
+        dealer.country = country[:100]
+        dealer.phone = phone[:100]
+        dealer.email = email[:200]
+        dealer.notes = notes
+        db.commit()
+    return RedirectResponse(f"/competitors?sel={cid}&msg=saved", status_code=303)
+
+
+@app.post("/competitors/{cid}/dealers/{did}/delete")
+async def delete_dealer(cid: int, did: int, db: Session = Depends(get_db)):
+    dealer = db.query(CompetitorDealer).filter(
+        CompetitorDealer.id == did, CompetitorDealer.competitor_id == cid
+    ).first()
+    if dealer:
+        db.delete(dealer)
+        db.commit()
+    return RedirectResponse(f"/competitors?sel={cid}&msg=saved", status_code=303)
 
 
 @app.get("/settings", response_class=HTMLResponse)
