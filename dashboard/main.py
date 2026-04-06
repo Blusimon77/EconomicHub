@@ -144,39 +144,99 @@ def _generate_csrf_token() -> str:
     return secrets.token_hex(32)
 
 
-def _get_or_set_csrf(request: Request, response=None) -> str:
-    """Restituisce il token CSRF dal cookie, o ne genera uno nuovo."""
-    token = request.cookies.get(_CSRF_COOKIE)
-    if not token:
-        token = _generate_csrf_token()
-    if response:
-        response.set_cookie(_CSRF_COOKIE, token, httponly=True, samesite="strict")
-    return token
+def _extract_cookie(cookie_header: str, name: str) -> str:
+    """Estrae il valore di un cookie dall'header Cookie raw."""
+    for part in cookie_header.split(";"):
+        part = part.strip()
+        if part.startswith(f"{name}="):
+            return part[len(name) + 1:].strip()
+    return ""
 
 
-class CSRFMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        if request.method == "POST":
-            # Escludi login (non ha ancora il token)
-            if request.url.path not in _PUBLIC_PATHS:
-                cookie_token = request.cookies.get(_CSRF_COOKIE, "")
-                # Leggi il token dal form body
-                form = await request.form()
-                form_token = form.get(_CSRF_FIELD, "")
-                if not cookie_token or not hmac.compare_digest(cookie_token, form_token):
-                    return RedirectResponse(request.url.path + "?error=csrf", status_code=303)
-                # Ricostruisci il body perché è già stato consumato
-                from starlette.datastructures import FormData
-                request._form = form
+class CSRFMiddleware:
+    """
+    Middleware ASGI puro per protezione CSRF.
+    Legge e ri-inietta il body del form senza consumarlo,
+    evitando il bug di BaseHTTPMiddleware con form data.
+    """
 
-        response = await call_next(request)
+    def __init__(self, app):
+        self.app = app
 
-        # Assicura che il cookie CSRF esista sempre
-        if not request.cookies.get(_CSRF_COOKIE):
-            token = _generate_csrf_token()
-            response.set_cookie(_CSRF_COOKIE, token, httponly=True, samesite="strict")
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
 
-        return response
+        # Leggi il cookie CSRF dalla richiesta
+        headers = dict(scope.get("headers", []))
+        cookie_header = headers.get(b"cookie", b"").decode("utf-8", errors="replace")
+        csrf_token = _extract_cookie(cookie_header, _CSRF_COOKIE)
+
+        # Genera token se non esiste — sarà impostato nella response
+        if not csrf_token:
+            csrf_token = _generate_csrf_token()
+
+        # Memorizza nel scope per uso da _template_response
+        scope["csrf_token"] = csrf_token
+
+        method = scope.get("method", "")
+        path = scope.get("path", "")
+
+        if method == "POST" and path not in _PUBLIC_PATHS:
+            # Leggi il body completo
+            chunks: list[bytes] = []
+            more_body = True
+            while more_body:
+                message = await receive()
+                chunks.append(message.get("body", b""))
+                more_body = message.get("more_body", False)
+            body = b"".join(chunks)
+
+            # Estrai csrf_token dal form URL-encoded
+            from urllib.parse import parse_qs
+            try:
+                params = parse_qs(body.decode("utf-8", errors="replace"), keep_blank_values=True)
+                form_token = params.get(_CSRF_FIELD, [""])[0]
+            except Exception:
+                form_token = ""
+
+            if not csrf_token or not form_token or not hmac.compare_digest(csrf_token, form_token):
+                location = (path + "?error=csrf").encode()
+                await send({"type": "http.response.start", "status": 303,
+                            "headers": [[b"location", location]]})
+                await send({"type": "http.response.body", "body": b""})
+                return
+
+            # Ri-inietta il body così il route handler lo riceve intatto
+            body_sent = False
+
+            async def cached_receive():
+                nonlocal body_sent
+                if not body_sent:
+                    body_sent = True
+                    return {"type": "http.request", "body": body, "more_body": False}
+                return {"type": "http.disconnect"}
+
+            receive = cached_receive
+
+        # Wrappa send per impostare il cookie CSRF nella response se assente
+        async def send_with_csrf_cookie(message):
+            if message["type"] == "http.response.start":
+                hdrs = list(message.get("headers", []))
+                has_cookie = any(
+                    k == b"set-cookie" and _CSRF_COOKIE.encode() in v
+                    for k, v in hdrs
+                )
+                if not has_cookie:
+                    cookie_val = (
+                        f"{_CSRF_COOKIE}={csrf_token}; HttpOnly; SameSite=strict; Path=/"
+                    )
+                    hdrs.append([b"set-cookie", cookie_val.encode()])
+                    message = {**message, "headers": hdrs}
+            await send(message)
+
+        await self.app(scope, receive, send_with_csrf_cookie)
 
 
 app.add_middleware(CSRFMiddleware)
@@ -208,7 +268,8 @@ templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 def _template_response(request: Request, name: str, context: dict) -> HTMLResponse:
     """Wrapper che inietta automaticamente csrf_token nel contesto del template."""
-    csrf = request.cookies.get(_CSRF_COOKIE, _generate_csrf_token())
+    # Usa il token già generato/estratto dal middleware (sempre coerente con il cookie)
+    csrf = request.scope.get("csrf_token") or request.cookies.get(_CSRF_COOKIE, _generate_csrf_token())
     context["request"] = request
     context["csrf_token"] = csrf
     return templates.TemplateResponse(name, context)
