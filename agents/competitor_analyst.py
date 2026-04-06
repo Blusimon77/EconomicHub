@@ -7,6 +7,7 @@ Non gli viene mai chiesto di attingere alla propria memoria di training.
 """
 from __future__ import annotations
 import json
+import re
 import httpx
 from bs4 import BeautifulSoup
 import anthropic
@@ -23,6 +24,63 @@ MAX_PROMPT_SCRAPED = 3000
 SCRAPED_PREVIEW = 300
 HTTP_TIMEOUT = 12
 AI_MAX_TOKENS = 4096
+
+# Pattern per rilevare URL di profili social (escludi pagine generiche)
+_SOCIAL_PATTERNS: dict[str, re.Pattern] = {
+    "linkedin": re.compile(
+        r'https?://(?:www\.)?linkedin\.com/company/[\w\-\.%]+',
+        re.IGNORECASE,
+    ),
+    "facebook": re.compile(
+        r'https?://(?:www\.)?(?:facebook|fb)\.com/'
+        r'(?!share(?:r)?/|pages/create|hashtag|groups/create|watch|events|marketplace)'
+        r'[\w\.\-]{3,}',
+        re.IGNORECASE,
+    ),
+    "instagram": re.compile(
+        r'https?://(?:www\.)?instagram\.com/'
+        r'(?!p/|reel/|reels/|explore/|stories/|accounts/)'
+        r'[\w\.]{2,}',
+        re.IGNORECASE,
+    ),
+}
+
+
+def _find_social_urls(text: str) -> dict[str, str]:
+    """Estrae URL di profili social dal testo, uno per piattaforma."""
+    found: dict[str, str] = {}
+    for platform, pattern in _SOCIAL_PATTERNS.items():
+        match = pattern.search(text)
+        if match:
+            found[platform] = match.group(0).rstrip("/")
+    return found
+
+
+def _search_social_profiles(name: str, sector: str = "") -> dict[str, str]:
+    """
+    Cerca i profili social ufficiali del competitor tramite Tavily.
+    Ritorna un dict {platform: url} con i profili trovati.
+    """
+    if not settings.tavily_api_key or settings.tavily_api_key == "tvly-your_key_here":
+        return {}
+
+    sector_str = f" {sector}" if sector else ""
+    query = f'"{name}"{sector_str} linkedin.com/company OR facebook.com OR instagram.com profilo ufficiale'
+    results = _search_tavily(query)
+
+    found: dict[str, str] = {}
+    for r in results:
+        # Prima controlla l'URL del risultato stesso (es: linkedin.com/company/nome)
+        for platform, url in _find_social_urls(r.get("url", "")).items():
+            if platform not in found:
+                found[platform] = url
+        # Poi cerca nel testo del risultato
+        snippet = r.get("content", "") + " " + r.get("title", "")
+        for platform, url in _find_social_urls(snippet).items():
+            if platform not in found:
+                found[platform] = url
+
+    return found
 
 
 # ── Sistema prompt ──────────────────────────────────────────────────────────────
@@ -108,27 +166,38 @@ def _gather_competitor_data(competitor) -> dict:
     """
     Raccoglie dati freschi per un singolo competitor:
     1. Scraping sito web (se URL presente e non aggiornato di recente)
-    2. Ricerca Tavily su social media e strategia
-    Restituisce un dict con tutto il materiale raccolto.
+    2. Ricerca Tavily su strategia social
+    3. Ricerca Tavily dedicata ai profili social mancanti
+    Restituisce un dict con tutto il materiale raccolto + found_socials.
     """
-    gathered = {"scraped": "", "search_results": [], "sources": []}
+    gathered: dict = {"scraped": "", "search_results": [], "sources": [], "found_socials": {}}
 
     # 1. Scraping sito
     if competitor.website:
         needs_scrape = (
-            not competitor.scraped_content or
-            not competitor.last_scraped_at or
-            datetime.now(timezone.utc) - competitor.last_scraped_at > timedelta(days=7)
+            not competitor.scraped_content
+            or not competitor.last_scraped_at
+            or (
+                datetime.now(timezone.utc).replace(tzinfo=None)
+                - (competitor.last_scraped_at.replace(tzinfo=None) if competitor.last_scraped_at else datetime.min)
+            ) > timedelta(days=7)
         )
         if needs_scrape:
-            gathered["scraped"] = _scrape_url(competitor.website)
+            scraped = _scrape_url(competitor.website)
+            gathered["scraped"] = scraped
             gathered["sources"].append("sito_web")
+            # Cerca URL social nel testo del sito (spesso sono in footer/header)
+            found = _find_social_urls(scraped)
+            gathered["found_socials"].update(found)
         elif competitor.scraped_content:
             gathered["scraped"] = competitor.scraped_content[:MAX_SCRAPED_CONTENT]
             gathered["sources"].append("sito_web_cache")
+            found = _find_social_urls(competitor.scraped_content)
+            gathered["found_socials"].update(found)
 
-    # 2. Ricerca Tavily — due query mirate
-    if settings.tavily_api_key and settings.tavily_api_key != "tvly-your_key_here":
+    # 2. Ricerca Tavily — due query mirate sulla strategia
+    tavily_ok = bool(settings.tavily_api_key and settings.tavily_api_key != "tvly-your_key_here")
+    if tavily_ok:
         sector = f" {competitor.sector}" if competitor.sector else ""
         queries = [
             f'"{competitor.name}"{sector} social media marketing strategy',
@@ -137,8 +206,28 @@ def _gather_competitor_data(competitor) -> dict:
         for q in queries:
             results = _search_tavily(q)
             gathered["search_results"].extend(results)
+            # Cerca URL social anche nei risultati Tavily
+            for r in results:
+                for platform, url in _find_social_urls(r.get("url", "") + " " + r.get("content", "")).items():
+                    if platform not in gathered["found_socials"]:
+                        gathered["found_socials"][platform] = url
         if gathered["search_results"]:
             gathered["sources"].append("tavily")
+
+    # 3. Se mancano profili social, cerca specificamente con Tavily
+    existing_platforms = {s.platform for s in competitor.socials if s.profile_url}
+    missing_platforms = {"linkedin", "facebook", "instagram"} - existing_platforms - set(gathered["found_socials"])
+    if missing_platforms and tavily_ok:
+        logger.info("Cercando profili social mancanti per %s: %s", competitor.name, missing_platforms)
+        social_found = _search_social_profiles(competitor.name, competitor.sector or "")
+        for platform, url in social_found.items():
+            if platform in missing_platforms and platform not in gathered["found_socials"]:
+                gathered["found_socials"][platform] = url
+        if social_found:
+            gathered["sources"].append("tavily_social")
+
+    if gathered["found_socials"]:
+        logger.info("Profili social trovati per %s: %s", competitor.name, gathered["found_socials"])
 
     return gathered
 
@@ -244,6 +333,8 @@ def run_analysis(competitors: list, company_ctx=None, db_session=None) -> dict:
     4. Restituisce dict strutturato con sources_used e data_quality
     """
     # Step 1: raccolta dati web + persistenza sul competitor
+    from models.competitor import CompetitorSocial
+
     web_data: dict[int, dict] = {}
     for c in competitors:
         data = _gather_competitor_data(c)
@@ -257,6 +348,36 @@ def run_analysis(competitors: list, company_ctx=None, db_session=None) -> dict:
             if data.get("search_results"):
                 c.search_results = json.dumps(data["search_results"], ensure_ascii=False)
                 c.last_searched_at = datetime.now(timezone.utc)
+
+            # Salva i profili social trovati automaticamente
+            found_socials: dict[str, str] = data.get("found_socials", {})
+            if found_socials:
+                # Mappa platform → record esistente
+                existing: dict[str, object] = {s.platform: s for s in c.socials}
+                for platform, url in found_socials.items():
+                    if platform in existing:
+                        # Aggiorna solo se il profilo non ha già un URL
+                        social = existing[platform]
+                        if not social.profile_url:
+                            social.profile_url = url
+                            logger.info(
+                                "Aggiornato profilo %s per %s: %s",
+                                platform, c.name, url,
+                            )
+                    else:
+                        # Crea nuovo record social
+                        new_social = CompetitorSocial(
+                            competitor_id=c.id,
+                            platform=platform,
+                            profile_url=url,
+                            notes="Trovato automaticamente durante l'analisi",
+                        )
+                        db_session.add(new_social)
+                        logger.info(
+                            "Aggiunto profilo %s per %s: %s",
+                            platform, c.name, url,
+                        )
+
     if db_session:
         db_session.commit()
 
@@ -282,6 +403,7 @@ def run_analysis(competitors: list, company_ctx=None, db_session=None) -> dict:
             "types": data.get("sources", []),
             "search_results": data.get("search_results", []),
             "scraped_preview": data.get("scraped", "")[:SCRAPED_PREVIEW] if data.get("scraped") else "",
+            "found_socials": data.get("found_socials", {}),
         }
     result["sources_used"] = sources_used
 
