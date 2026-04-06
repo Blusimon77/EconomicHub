@@ -8,18 +8,18 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from rich.console import Console
-from rich.table import Table
 from datetime import datetime
 
 from config.settings import settings
+from config.logging import setup_logging, get_logger
 from models.post import Base, Platform, Post, PostStatus, Comment
 from agents.monitor import MonitorAgent
 from agents.reply_agent import ReplyAgent
 from agents.analytics import AnalyticsAgent
 from agents.content_generator import ContentGeneratorAgent
 
-console = Console()
+setup_logging()
+logger = get_logger("orchestrator")
 
 
 class Orchestrator:
@@ -33,7 +33,6 @@ class Orchestrator:
 
     def start(self):
         """Avvia tutti i job schedulati."""
-        # Monitoring ogni N minuti
         self.scheduler.add_job(
             self._run_monitor,
             IntervalTrigger(minutes=settings.monitor_interval_minutes),
@@ -41,7 +40,6 @@ class Orchestrator:
             replace_existing=True,
         )
 
-        # Analytics ogni ora
         self.scheduler.add_job(
             self._run_analytics,
             IntervalTrigger(hours=1),
@@ -49,7 +47,6 @@ class Orchestrator:
             replace_existing=True,
         )
 
-        # Reply drafts ogni 30 minuti
         self.scheduler.add_job(
             self._run_reply_drafts,
             IntervalTrigger(minutes=30),
@@ -58,7 +55,7 @@ class Orchestrator:
         )
 
         self.scheduler.start()
-        console.print("[green]Orchestrator avviato.[/green] Premi Ctrl+C per fermare.")
+        logger.info("Orchestrator avviato. Premi Ctrl+C per fermare.")
 
         try:
             import time
@@ -66,7 +63,7 @@ class Orchestrator:
                 time.sleep(60)
         except (KeyboardInterrupt, SystemExit):
             self.scheduler.shutdown()
-            console.print("[yellow]Orchestrator fermato.[/yellow]")
+            logger.info("Orchestrator fermato.")
 
     def generate_post(
         self,
@@ -76,46 +73,57 @@ class Orchestrator:
     ) -> list[Post]:
         """Genera post per le piattaforme specificate e li mette in stato PENDING."""
         platforms = platforms or [Platform.LINKEDIN, Platform.FACEBOOK, Platform.INSTAGRAM]
-        session = self.Session()
         created = []
 
-        for platform in platforms:
-            result = self.content_agent.generate(topic=topic, platform=platform, tone=tone)
-            post = Post(
-                platform=platform,
-                status=PostStatus.PENDING,
-                content=result["content"],
-                hashtags=result["hashtags"],
-                topic=topic,
-                tone=tone,
-                generated_by=result["generated_by"],
-            )
-            session.add(post)
-            session.commit()
-            created.append(post)
-            console.print(f"[blue]Post generato[/blue] per {platform.value} (ID: {post.id}) — in attesa di approvazione")
+        with self.Session() as session:
+            for platform in platforms:
+                try:
+                    result = self.content_agent.generate(topic=topic, platform=platform, tone=tone)
+                    post = Post(
+                        platform=platform,
+                        status=PostStatus.PENDING,
+                        content=result["content"],
+                        hashtags=result["hashtags"],
+                        topic=topic,
+                        tone=tone,
+                        generated_by=result["generated_by"],
+                    )
+                    session.add(post)
+                    session.commit()
+                    created.append(post)
+                    logger.info("Post generato per %s (ID: %s)", platform.value, post.id)
+                except Exception:
+                    session.rollback()
+                    logger.exception("Errore generazione post per %s", platform.value)
 
-        session.close()
         return created
 
     def _run_monitor(self):
-        session = self.Session()
-        agent = MonitorAgent(db_session=session)
-        results = agent.run_full_check()
-        total = sum(len(v) for v in results.values() if isinstance(v, list))
-        if total:
-            console.print(f"[cyan][Monitor][/cyan] {total} nuove interazioni rilevate alle {datetime.now().strftime('%H:%M')}")
-        session.close()
+        try:
+            with self.Session() as session:
+                agent = MonitorAgent(db_session=session)
+                results = agent.run_full_check()
+                total = sum(len(v) for v in results.values() if isinstance(v, list))
+                if total:
+                    logger.info("[Monitor] %d nuove interazioni rilevate", total)
+        except Exception:
+            logger.exception("[Monitor] Errore durante il check")
 
     def _run_reply_drafts(self):
-        session = self.Session()
-        agent = ReplyAgent(db_session=session)
-        drafts = agent.generate_reply_drafts()
-        if drafts:
-            console.print(f"[cyan][ReplyAgent][/cyan] {len(drafts)} bozze generate — in attesa di approvazione")
-        session.close()
+        try:
+            with self.Session() as session:
+                agent = ReplyAgent(db_session=session)
+                drafts = agent.generate_reply_drafts()
+                if drafts:
+                    logger.info("[ReplyAgent] %d bozze generate", len(drafts))
+        except Exception:
+            logger.exception("[ReplyAgent] Errore durante la generazione bozze")
 
     def _run_analytics(self):
-        metrics = self.analytics_agent.collect_all()
-        console.print(f"[cyan][Analytics][/cyan] Metriche aggiornate alle {datetime.now().strftime('%H:%M')}")
-        return metrics
+        try:
+            metrics = self.analytics_agent.collect_all()
+            logger.info("[Analytics] Metriche aggiornate")
+            return metrics
+        except Exception:
+            logger.exception("[Analytics] Errore durante la raccolta metriche")
+            return {}

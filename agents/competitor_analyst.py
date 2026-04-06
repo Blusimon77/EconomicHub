@@ -13,6 +13,9 @@ import anthropic
 from openai import OpenAI
 from datetime import datetime, timedelta
 from config.settings import settings
+from config.logging import get_logger
+
+logger = get_logger("agents.competitor_analyst")
 
 
 # ── Sistema prompt ──────────────────────────────────────────────────────────────
@@ -69,6 +72,7 @@ def _scrape_url(url: str) -> str:
         text = re.sub(r"\s+", " ", text).strip()
         return text[:4000]
     except Exception as e:
+        logger.warning("Errore scraping %s: %s", url, e)
         return f"[errore scraping: {e}]"
 
 
@@ -89,6 +93,7 @@ def _search_tavily(query: str) -> list[dict]:
             for r in resp.get("results", [])
         ]
     except Exception:
+        logger.warning("Errore ricerca Tavily per: %s", query)
         return []
 
 
@@ -307,6 +312,7 @@ def _try_anthropic(prompt: str) -> tuple[dict | None, str]:
         )
         return _parse_json(msg.content[0].text), "anthropic"
     except Exception:
+        logger.warning("Errore Anthropic in analisi competitor", exc_info=True)
         return None, ""
 
 
@@ -328,6 +334,7 @@ def _try_openai(prompt: str) -> tuple[dict | None, str]:
         )
         return _parse_json(resp.choices[0].message.content or ""), "openai"
     except Exception:
+        logger.warning("Errore OpenAI in analisi competitor", exc_info=True)
         return None, ""
 
 

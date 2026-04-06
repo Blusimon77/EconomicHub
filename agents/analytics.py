@@ -2,10 +2,15 @@
 Analytics Agent
 Raccoglie e analizza le metriche di performance dai social.
 """
+from __future__ import annotations
+
 import httpx
 from datetime import datetime
 from config.settings import settings
+from config.logging import get_logger
 from models.post import Platform
+
+logger = get_logger("agents.analytics")
 
 
 class AnalyticsAgent:
@@ -41,8 +46,9 @@ class AnalyticsAgent:
                         "shares": stats.get("shareCount", 0),
                         "engagement_rate": stats.get("engagement", 0),
                     }
-        except httpx.RequestError as e:
-            return {"error": str(e)}
+        except httpx.RequestError:
+            logger.warning("Errore connessione LinkedIn Analytics API")
+            return {"error": "Connessione fallita"}
         return {}
 
     def _collect_facebook(self) -> dict:
@@ -69,8 +75,9 @@ class AnalyticsAgent:
                     if values:
                         metrics[name] = values[-1].get("value", 0)
                 return metrics
-        except httpx.RequestError as e:
-            return {"error": str(e)}
+        except httpx.RequestError:
+            logger.warning("Errore connessione Facebook Analytics API")
+            return {"error": "Connessione fallita"}
         return {}
 
     def _collect_instagram(self) -> dict:
@@ -97,6 +104,7 @@ class AnalyticsAgent:
                     if values:
                         metrics[name] = values[-1].get("value", 0)
                 return metrics
-        except httpx.RequestError as e:
-            return {"error": str(e)}
+        except httpx.RequestError:
+            logger.warning("Errore connessione Instagram Analytics API")
+            return {"error": "Connessione fallita"}
         return {}

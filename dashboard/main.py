@@ -21,6 +21,9 @@ import httpx
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from config.settings import settings
+from config.logging import get_logger
+
+logger = get_logger("dashboard")
 from models.post import Base, Post, Comment, PostStatus, Platform
 from models.context import CompanyContext, ContextWebsite
 import json
@@ -370,7 +373,7 @@ async def scrape_website(site_id: int, db: Session = Depends(get_db)):
             site.last_scraped_at = datetime.utcnow()
             db.commit()
     except Exception:
-        pass
+        logger.warning("Errore scraping sito %s", site.url, exc_info=True)
     return RedirectResponse("/context", status_code=303)
 
 
@@ -555,7 +558,7 @@ async def scrape_competitor(cid: int, db: Session = Depends(get_db)):
             c.last_scraped_at = datetime.utcnow()
             db.commit()
     except Exception:
-        pass
+        logger.warning("Errore scraping competitor %s", c.website, exc_info=True)
     return RedirectResponse(f"/competitors?sel={cid}", status_code=303)
 
 

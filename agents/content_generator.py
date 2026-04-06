@@ -7,7 +7,10 @@ from __future__ import annotations
 import anthropic
 from openai import OpenAI
 from config.settings import settings
+from config.logging import get_logger
 from models.post import Platform
+
+logger = get_logger("agents.content_generator")
 
 
 def _load_company_context() -> str:
@@ -23,6 +26,7 @@ def _load_company_context() -> str:
         db.close()
         return ctx.to_prompt_block() if ctx else ""
     except Exception:
+        logger.warning("Impossibile caricare il contesto aziendale dal DB")
         return ""
 
 

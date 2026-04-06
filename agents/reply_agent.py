@@ -2,11 +2,15 @@
 ReplyAgent
 Genera bozze di risposta ai commenti (richiede approvazione umana prima della pubblicazione).
 """
+from __future__ import annotations
+
 import anthropic
 from openai import OpenAI
 from config.settings import settings
+from config.logging import get_logger
 from models.post import Platform, Comment, PostStatus
 
+logger = get_logger("agents.reply")
 
 REPLY_SYSTEM_PROMPT = """Sei il social media manager di {company}.
 Genera risposte brevi, educate e professionali ai commenti sui social.
@@ -35,11 +39,15 @@ class ReplyAgent:
         )
         drafts = []
         for comment in pending_comments:
-            draft = self._generate_draft(comment)
-            comment.reply_draft = draft
-            comment.reply_status = PostStatus.PENDING
-            self.db.commit()
-            drafts.append({"comment_id": comment.id, "draft": draft})
+            try:
+                draft = self._generate_draft(comment)
+                comment.reply_draft = draft
+                comment.reply_status = PostStatus.PENDING
+                self.db.commit()
+                drafts.append({"comment_id": comment.id, "draft": draft})
+            except Exception:
+                self.db.rollback()
+                logger.exception("Errore generazione bozza per commento %d", comment.id)
         return drafts
 
     def _generate_draft(self, comment: Comment) -> str:
@@ -51,20 +59,27 @@ class ReplyAgent:
         system = REPLY_SYSTEM_PROMPT.format(company=settings.company_name)
 
         if settings.ai_primary_provider == "anthropic":
-            msg = self._anthropic.messages.create(
-                model=settings.anthropic_model,
-                max_tokens=256,
-                system=system,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            return msg.content[0].text.strip()
+            try:
+                msg = self._anthropic.messages.create(
+                    model=settings.anthropic_model,
+                    max_tokens=256,
+                    system=system,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return msg.content[0].text.strip()
+            except Exception:
+                logger.warning("Anthropic fallita per reply, provo OpenAI")
 
-        response = self._openai.chat.completions.create(
-            model=settings.openai_compatible_model,
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": prompt},
-            ],
-            max_tokens=256,
-        )
-        return (response.choices[0].message.content or "").strip()
+        try:
+            response = self._openai.chat.completions.create(
+                model=settings.openai_compatible_model,
+                messages=[
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt},
+                ],
+                max_tokens=256,
+            )
+            return (response.choices[0].message.content or "").strip()
+        except Exception:
+            logger.exception("Entrambi i provider AI falliti per reply")
+            raise

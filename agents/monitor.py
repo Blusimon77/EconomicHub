@@ -7,7 +7,10 @@ from __future__ import annotations
 import httpx
 from datetime import datetime, timedelta
 from config.settings import settings
+from config.logging import get_logger
 from models.post import Platform, Comment
+
+logger = get_logger("agents.monitor")
 
 
 class MonitorAgent:
@@ -52,7 +55,7 @@ class MonitorAgent:
                     if comment:
                         new_interactions.append(comment)
         except httpx.RequestError:
-            pass
+            logger.warning("Errore connessione LinkedIn API")
 
         return new_interactions
 
@@ -84,7 +87,7 @@ class MonitorAgent:
                         if saved:
                             new_interactions.append(saved)
         except httpx.RequestError:
-            pass
+            logger.warning("Errore connessione Facebook API")
 
         return new_interactions
 
@@ -115,7 +118,7 @@ class MonitorAgent:
                         if saved:
                             new_interactions.append(saved)
         except httpx.RequestError:
-            pass
+            logger.warning("Errore connessione Instagram API")
 
         return new_interactions
 
