@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Concorrenti — Social Media Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
+    nav a:hover { color: white; }
+    nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
+
+    .workspace { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar lista ── */
+    .sidebar { width: 280px; background: white; border-right: 1px solid #e5e7eb; display: flex; flex-direction: column; flex-shrink: 0; }
+    .sidebar-header { padding: 1rem; border-bottom: 1px solid #eee; }
+    .sidebar-header h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #888; margin-bottom: 0.75rem; }
+    .btn-add { width: 100%; padding: 0.55rem; background: #1a1a2e; color: white; border: none; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 500; }
+    .btn-add:hover { background: #2d2d4e; }
+    .comp-list { overflow-y: auto; flex: 1; }
+    .comp-item { padding: 0.8rem 1rem; cursor: pointer; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 0.6rem; transition: background 0.1s; }
+    .comp-item:hover { background: #f8f9ff; }
+    .comp-item.active { background: #eef2ff; border-left: 3px solid #1a1a2e; }
+    .comp-name { font-size: 0.9rem; font-weight: 500; flex: 1; }
+    .comp-sector { font-size: 0.75rem; color: #888; margin-top: 0.1rem; }
+    .threat { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .threat-1 { background: #86efac; }
+    .threat-2 { background: #fbbf24; }
+    .threat-3 { background: #f87171; }
+    .empty-sidebar { padding: 2rem 1rem; text-align: center; color: #bbb; font-size: 0.85rem; }
+
+    /* ── Pannello dettaglio ── */
+    .detail { flex: 1; overflow-y: auto; padding: 1.5rem; }
+    .detail-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #ccc; gap: 0.5rem; }
+    .detail-placeholder span { font-size: 3rem; }
+    .detail-placeholder p { font-size: 0.9rem; }
+
+    .card { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 1.25rem; overflow: hidden; }
+    .card-header { padding: 0.85rem 1.25rem; background: #f8f8f8; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .card-header h3 { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #555; }
+    .card-body { padding: 1.25rem; }
+
+    /* Schede navigazione */
+    .tabs { display: flex; gap: 0; border-bottom: 1px solid #eee; background: white; border-radius: 10px 10px 0 0; overflow: hidden; margin-bottom: 0; }
+    .tab-btn { padding: 0.75rem 1.25rem; border: none; background: none; font-size: 0.85rem; font-weight: 500; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+    .tab-btn:hover { color: #333; }
+    .tab-btn.active { color: #1a1a2e; border-bottom-color: #1a1a2e; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Competitor header */
+    .comp-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; }
+    .comp-title { flex: 1; }
+    .comp-title h2 { font-size: 1.4rem; font-weight: 700; }
+    .comp-title .meta { font-size: 0.85rem; color: #888; margin-top: 0.2rem; }
+    .comp-title .meta a { color: #1a1a2e; }
+    .threat-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .threat-badge-1 { background: #dcfce7; color: #16a34a; }
+    .threat-badge-2 { background: #fef3c7; color: #d97706; }
+    .threat-badge-3 { background: #fee2e2; color: #dc2626; }
+    .comp-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+
+    /* Form fields */
+    .field { margin-bottom: 0.9rem; }
+    .field label { display: block; font-size: 0.8rem; font-weight: 500; color: #555; margin-bottom: 0.25rem; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 0.88rem; font-family: inherit; transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1a1a2e; }
+    .field textarea { resize: vertical; min-height: 72px; }
+    .field .hint { font-size: 0.73rem; color: #aaa; margin-top: 0.2rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+
+    /* Pulsanti */
+    .btn { padding: 0.4rem 1rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.82rem; font-weight: 500; }
+    .btn-primary { background: #1a1a2e; color: white; }
+    .btn-primary:hover { background: #2d2d4e; }
+    .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
+    .btn-outline:hover { background: #f5f5f5; }
+    .btn-danger { background: #fee2e2; color: #dc2626; border: none; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-scrape { background: #eff6ff; color: #2563eb; border: none; }
+    .btn-scrape:hover { background: #dbeafe; }
+    .btn-sm { padding: 0.25rem 0.65rem; font-size: 0.75rem; }
+    .save-bar { display: flex; justify-content: flex-end; gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid #eee; margin-top: 0.75rem; }
+
+    /* Social cards */
+    .platform-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; flex-shrink: 0; }
+    .pi-linkedin { background: #0077b5; }
+    .pi-facebook { background: #1877f2; }
+    .pi-instagram { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+    .social-card { border: 1px solid #eee; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+    .social-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .social-card-header .title { font-weight: 600; font-size: 0.9rem; flex: 1; }
+    .social-card-header .handle { font-size: 0.8rem; color: #888; }
+    .social-stats { display: flex; gap: 1.5rem; margin-bottom: 0.75rem; }
+    .stat { text-align: center; }
+    .stat .val { font-size: 1rem; font-weight: 700; color: #1a1a2e; }
+    .stat .lbl { font-size: 0.72rem; color: #aaa; }
+    .social-note { font-size: 0.82rem; color: #666; margin-top: 0.5rem; }
+    .add-social-form { border: 2px dashed #e5e7eb; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; }
+    .add-social-form h4 { font-size: 0.8rem; font-weight: 600; color: #888; text-transform: uppercase; margin-bottom: 0.75rem; }
+
+    /* Osservazioni */
+    .obs-card { border-left: 3px solid #e5e7eb; padding: 0.6rem 0.9rem; margin-bottom: 0.6rem; background: #fafafa; border-radius: 0 6px 6px 0; }
+    .obs-card .obs-cat { display: inline-block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; padding: 0.1rem 0.5rem; border-radius: 3px; margin-bottom: 0.3rem; }
+    .cat-contenuto { background: #dbeafe; color: #1d4ed8; }
+    .cat-tono { background: #fce7f3; color: #9d174d; }
+    .cat-audience { background: #d1fae5; color: #065f46; }
+    .cat-campagna { background: #fef3c7; color: #92400e; }
+    .cat-generale { background: #f3f4f6; color: #374151; }
+    .obs-card .obs-text { font-size: 0.87rem; color: #333; }
+    .obs-card .obs-date { font-size: 0.72rem; color: #aaa; margin-top: 0.3rem; }
+    .obs-card-footer { display: flex; justify-content: flex-end; margin-top: 0.4rem; }
+    .add-obs-form { border: 2px dashed #e5e7eb; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; }
+    .add-obs-form h4 { font-size: 0.8rem; font-weight: 600; color: #888; text-transform: uppercase; margin-bottom: 0.75rem; }
+
+    /* Scrape preview */
+    .scrape-box { background: #f9fafb; border: 1px solid #eee; border-radius: 6px; padding: 0.75rem; font-size: 0.78rem; color: #666; max-height: 120px; overflow-y: auto; line-height: 1.5; }
+
+    /* Modal aggiunta competitor */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 1.5rem; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+    .modal h2 { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #22c55e; color: white; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.88rem; z-index: 200; animation: fadeIn 0.2s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 700px) {
+      .sidebar { width: 100%; border-right: none; border-bottom: 1px solid #eee; max-height: 220px; }
+      .workspace { flex-direction: column; }
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context">Contesto</a>
+    <a href="/competitors" class="active">Concorrenti</a>
+    <a href="/competitors/analysis">Analisi</a>
+    <a href="/settings">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="workspace">
+
+  <!-- ── Sidebar ─────────────────────────────── -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>Concorrenti ({{ competitors|length }})</h2>
+      <button class="btn-add" onclick="openModal()">+ Aggiungi</button>
+    </div>
+    <div class="comp-list">
+      {% if not competitors %}
+        <div class="empty-sidebar">Nessun concorrente aggiunto.</div>
+      {% endif %}
+      {% for c in competitors %}
+      <div class="comp-item {% if request.query_params.get('sel')|int == c.id %}active{% endif %}"
+           onclick="loadCompetitor({{ c.id }}, this)">
+        <span class="threat threat-{{ c.threat_level }}"></span>
+        <div>
+          <div class="comp-name">{{ c.name }}</div>
+          <div class="comp-sector">{{ c.sector or '—' }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Pannello dettaglio ─────────────────── -->
+  <div class="detail" id="detail">
+    <div class="detail-placeholder" id="placeholder">
+      <span>🏁</span>
+      <p>Seleziona un concorrente o aggiungine uno nuovo</p>
+    </div>
+    <div id="comp-detail" style="display:none"></div>
+  </div>
+
+</div>
+
+<!-- ── Modal aggiunta ───────────────────────── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Aggiungi concorrente</h2>
+    <form method="post" action="/competitors/add">
+      <div class="field">
+        <label>Nome *</label>
+        <input type="text" name="name" required placeholder="Es: Acme S.r.l.">
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Sito web</label>
+          <input type="url" name="website" placeholder="https://...">
+        </div>
+        <div class="field">
+          <label>Settore</label>
+          <input type="text" name="sector" placeholder="Es: SaaS, Retail">
+        </div>
+      </div>
+      <div class="field">
+        <label>Descrizione breve</label>
+        <textarea name="description" rows="2" placeholder="Chi sono, cosa fanno"></textarea>
+      </div>
+      <div class="field">
+        <label>Livello di minaccia</label>
+        <select name="threat_level">
+          <option value="1">🟢 Basso</option>
+          <option value="2" selected>🟡 Medio</option>
+          <option value="3">🔴 Alto</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">Annulla</button>
+        <button type="submit" class="btn btn-primary">Aggiungi</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if msg == 'saved' or msg == 'added' %}
+<div class="toast" id="toast">{{ '✓ Salvato' if msg == 'saved' else '✓ Concorrente aggiunto' }}</div>
+{% endif %}
+
+<script>
+const THREAT_LABELS = {1: '🟢 Basso', 2: '🟡 Medio', 3: '🔴 Alto'};
+const THREAT_CLASSES = {1: 'threat-badge-1', 2: 'threat-badge-2', 3: 'threat-badge-3'};
+const PLATFORM_ICONS = {linkedin: 'pi-linkedin', facebook: 'pi-facebook', instagram: 'pi-instagram'};
+const CAT_CLASSES = {contenuto:'cat-contenuto', tono:'cat-tono', audience:'cat-audience', campagna:'cat-campagna', generale:'cat-generale'};
+
+let currentId = null;
+
+// Auto-load se sel=N nella query string
+const urlParams = new URLSearchParams(window.location.search);
+const selId = urlParams.get('sel');
+if (selId) {
+  const item = document.querySelector(`.comp-item[onclick*="loadCompetitor(${selId},"]`);
+  if (item) loadCompetitor(parseInt(selId), item);
+}
+
+// Auto-hide toast
+const toast = document.getElementById('toast');
+if (toast) setTimeout(() => toast.remove(), 3000);
+
+function openModal() { document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+async function loadCompetitor(id, el) {
+  currentId = id;
+  document.querySelectorAll('.comp-item').forEach(i => i.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('placeholder').style.display = 'none';
+  const detail = document.getElementById('comp-detail');
+  detail.style.display = 'block';
+  detail.innerHTML = '<div style="padding:2rem;color:#ccc;text-align:center">Caricamento…</div>';
+
+  const data = await fetch(`/api/competitors/${id}`).then(r => r.json());
+  detail.innerHTML = renderDetail(data);
+
+  // Ripristina tab attiva (da hash)
+  const hash = window.location.hash.replace('#','');
+  if (hash) activateTab(hash);
+  else activateTab('profilo');
+}
+
+function activateTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === `tab-${name}`));
+}
+
+function renderDetail(c) {
+  const threatClass = THREAT_CLASSES[c.threat_level] || 'threat-badge-2';
+  const websiteLink = c.website ? `<a href="${c.website}" target="_blank">${c.website}</a>` : '—';
+
+  return `
+  <div class="comp-header">
+    <div class="comp-title">
+      <h2>${escHtml(c.name)}</h2>
+      <div class="meta">${escHtml(c.sector || '')} ${c.sector && c.website ? '·' : ''} ${websiteLink}</div>
+    </div>
+    <div class="comp-actions">
+      <span class="threat-badge ${threatClass}">${THREAT_LABELS[c.threat_level]}</span>
+      <form method="post" action="/competitors/${c.id}/delete" style="display:inline"
+            onsubmit="return confirm('Eliminare questo concorrente?')">
+        <button class="btn btn-danger btn-sm">Elimina</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="profilo" onclick="activateTab('profilo')">Profilo</button>
+    <button class="tab-btn" data-tab="social" onclick="activateTab('social')">Social (${c.socials.length})</button>
+    <button class="tab-btn" data-tab="strategia" onclick="activateTab('strategia')">Strategia</button>
+    <button class="tab-btn" data-tab="osservazioni" onclick="activateTab('osservazioni')">Note (${c.observations.length})</button>
+  </div>
+
+  <!-- TAB: Profilo -->
+  <div class="tab-content active card" id="tab-profilo" style="border-radius:0 0 10px 10px">
+    <div class="card-body">
+      <form method="post" action="/competitors/${c.id}/update">
+        <div class="grid2">
+          <div class="field">
+            <label>Nome</label>
+            <input type="text" name="name" value="${escAttr(c.name)}" required>
+          </div>
+          <div class="field">
+            <label>Settore</label>
+            <input type="text" name="sector" value="${escAttr(c.sector)}">
+          </div>
+          <div class="field">
+            <label>Sito web</label>
+            <input type="url" name="website" value="${escAttr(c.website)}">
+          </div>
+          <div class="field">
+            <label>Livello di minaccia</label>
+            <select name="threat_level">
+              <option value="1" ${c.threat_level==1?'selected':''}>🟢 Basso</option>
+              <option value="2" ${c.threat_level==2?'selected':''}>🟡 Medio</option>
+              <option value="3" ${c.threat_level==3?'selected':''}>🔴 Alto</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Descrizione</label>
+          <textarea name="description" rows="3">${escHtml(c.description)}</textarea>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Punti di forza</label>
+            <textarea name="strengths" rows="3">${escHtml(c.strengths)}</textarea>
+          </div>
+          <div class="field">
+            <label>Punti di debolezza</label>
+            <textarea name="weaknesses" rows="3">${escHtml(c.weaknesses)}</textarea>
+          </div>
+        </div>
+        <div class="save-bar">
+          ${c.website ? `<form method="post" action="/competitors/${c.id}/scrape" style="display:inline">
+            <button type="submit" class="btn btn-scrape">Scansiona sito</button>
+          </form>` : ''}
+          <button type="submit" class="btn btn-primary">Salva profilo</button>
+        </div>
+      </form>
+      ${c.scraped_content ? `
+        <div style="margin-top:0.75rem">
+          <div style="font-size:0.78rem;color:#aaa;margin-bottom:0.3rem">Contenuto scansionato ${c.last_scraped_at ? '· '+c.last_scraped_at.substring(0,10) : ''}</div>
+          <div class="scrape-box">${escHtml(c.scraped_content)}</div>
+        </div>` : ''}
+    </div>
+  </div>
+
+  <!-- TAB: Social -->
+  <div class="tab-content card" id="tab-social" style="border-radius:0 0 10px 10px">
+    <div class="card-body">
+      ${['linkedin','facebook','instagram'].map(platform => {
+        const s = c.socials.find(x => x.platform === platform);
+        return renderSocialCard(c.id, platform, s);
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- TAB: Strategia -->
+  <div class="tab-content card" id="tab-strategia" style="border-radius:0 0 10px 10px">
+    <div class="card-body">
+      <form method="post" action="/competitors/${c.id}/update">
+        <input type="hidden" name="name" value="${escAttr(c.name)}">
+        <input type="hidden" name="website" value="${escAttr(c.website)}">
+        <input type="hidden" name="sector" value="${escAttr(c.sector)}">
+        <input type="hidden" name="description" value="${escAttr(c.description)}">
+        <input type="hidden" name="threat_level" value="${c.threat_level}">
+        <input type="hidden" name="strengths" value="${escAttr(c.strengths)}">
+        <input type="hidden" name="weaknesses" value="${escAttr(c.weaknesses)}">
+        <div class="field">
+          <label>Strategia di contenuto</label>
+          <textarea name="content_strategy" rows="3" placeholder="Che tipo di contenuti pubblica? Con quale approccio?">${escHtml(c.content_strategy)}</textarea>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Pubblico di riferimento</label>
+            <textarea name="target_audience" rows="3" placeholder="A chi si rivolgono?">${escHtml(c.target_audience)}</textarea>
+          </div>
+          <div class="field">
+            <label>Tono di voce</label>
+            <textarea name="tone_of_voice" rows="3" placeholder="Come comunicano? Formale, ironico, tecnico?">${escHtml(c.tone_of_voice)}</textarea>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Argomenti forti</label>
+            <textarea name="unique_topics" rows="2" placeholder="Su cosa sono particolarmente forti?">${escHtml(c.unique_topics)}</textarea>
+          </div>
+          <div class="field">
+            <label>Frequenza di pubblicazione</label>
+            <input type="text" name="posting_frequency" value="${escAttr(c.posting_frequency)}" placeholder="Es: 3 post/settimana su LinkedIn">
+          </div>
+        </div>
+        <div class="save-bar">
+          <button type="submit" class="btn btn-primary">Salva strategia</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TAB: Osservazioni -->
+  <div class="tab-content card" id="tab-osservazioni" style="border-radius:0 0 10px 10px">
+    <div class="card-body">
+      ${c.observations.length === 0 ? '<p style="color:#bbb;font-size:0.88rem;margin-bottom:1rem">Nessuna nota ancora.</p>' : ''}
+      ${c.observations.map(o => `
+        <div class="obs-card">
+          <span class="obs-cat ${CAT_CLASSES[o.category] || 'cat-generale'}">${o.category}</span>
+          <div class="obs-text">${escHtml(o.content)}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.3rem">
+            <div class="obs-date">${o.created_at}</div>
+            <form method="post" action="/competitors/${c.id}/observations/${o.id}/delete" style="display:inline">
+              <button class="btn btn-danger btn-sm">×</button>
+            </form>
+          </div>
+        </div>
+      `).join('')}
+      <div class="add-obs-form">
+        <h4>Aggiungi osservazione</h4>
+        <form method="post" action="/competitors/${c.id}/observations/add">
+          <div class="grid2" style="margin-bottom:0.75rem">
+            <div class="field" style="margin:0">
+              <label>Categoria</label>
+              <select name="category">
+                <option value="generale">Generale</option>
+                <option value="contenuto">Contenuto</option>
+                <option value="tono">Tono di voce</option>
+                <option value="audience">Audience</option>
+                <option value="campagna">Campagna</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <textarea name="content" rows="3" placeholder="Es: Usa molto video brevi su Instagram, engagement molto alto sui post di cultura aziendale…" required></textarea>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button type="submit" class="btn btn-primary">Aggiungi nota</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  `;
+}
+
+function renderSocialCard(cid, platform, s) {
+  const iconClass = PLATFORM_ICONS[platform] || '';
+  const label = platform.charAt(0).toUpperCase() + platform.slice(1);
+  const hasData = !!s;
+
+  return `
+  <div class="social-card">
+    <div class="social-card-header">
+      <div class="platform-icon ${iconClass}">${label.substring(0,2).toUpperCase()}</div>
+      <div class="title">${label}</div>
+      ${hasData && s.handle ? `<div class="handle">@${escHtml(s.handle)}</div>` : ''}
+      ${hasData && s.profile_url ? `<a href="${escAttr(s.profile_url)}" target="_blank" class="btn btn-outline btn-sm">Apri</a>` : ''}
+      ${hasData ? `<form method="post" action="/competitors/${cid}/socials/${s.id}/delete" style="display:inline">
+        <button class="btn btn-danger btn-sm">×</button></form>` : ''}
+    </div>
+    ${hasData ? `
+    <div class="social-stats">
+      <div class="stat"><div class="val">${s.followers || '—'}</div><div class="lbl">Follower</div></div>
+      <div class="stat"><div class="val">${s.avg_likes || '—'}</div><div class="lbl">Like medi</div></div>
+      <div class="stat"><div class="val">${s.avg_comments || '—'}</div><div class="lbl">Commenti medi</div></div>
+    </div>
+    ${s.posting_days ? `<div style="font-size:0.8rem;color:#666;margin-bottom:0.4rem">📅 ${escHtml(s.posting_days)}</div>` : ''}
+    ${s.content_types ? `<div style="font-size:0.8rem;color:#666;margin-bottom:0.4rem">📌 ${escHtml(s.content_types)}</div>` : ''}
+    ${s.notes ? `<div class="social-note">${escHtml(s.notes)}</div>` : ''}
+    ` : '<div style="font-size:0.82rem;color:#bbb;margin-bottom:0.5rem">Nessun dato inserito.</div>'}
+    <details style="margin-top:0.5rem">
+      <summary style="font-size:0.8rem;color:#888;cursor:pointer">${hasData ? 'Modifica dati' : 'Aggiungi dati'}</summary>
+      <form method="post" action="/competitors/${cid}/socials/add" style="margin-top:0.75rem">
+        <input type="hidden" name="platform" value="${platform}">
+        <div class="grid2">
+          <div class="field"><label>URL profilo</label><input type="url" name="profile_url" value="${hasData ? escAttr(s.profile_url) : ''}"></div>
+          <div class="field"><label>Handle / Username</label><input type="text" name="handle" value="${hasData ? escAttr(s.handle) : ''}"></div>
+          <div class="field"><label>Follower</label><input type="text" name="followers" placeholder="Es: 12.4K" value="${hasData ? escAttr(s.followers) : ''}"></div>
+          <div class="field"><label>Like medi</label><input type="text" name="avg_likes" placeholder="Es: 150" value="${hasData ? escAttr(s.avg_likes) : ''}"></div>
+          <div class="field"><label>Commenti medi</label><input type="text" name="avg_comments" placeholder="Es: 20" value="${hasData ? escAttr(s.avg_comments) : ''}"></div>
+          <div class="field"><label>Giorni di posting</label><input type="text" name="posting_days" placeholder="Es: lun, mer, ven" value="${hasData ? escAttr(s.posting_days) : ''}"></div>
+        </div>
+        <div class="field"><label>Tipi di contenuto</label><input type="text" name="content_types" placeholder="Es: video, caroselli, post testuali" value="${hasData ? escAttr(s.content_types) : ''}"></div>
+        <div class="field"><label>Note</label><textarea name="notes" rows="2">${hasData ? escHtml(s.notes) : ''}</textarea></div>
+        <div style="display:flex;justify-content:flex-end">
+          <button type="submit" class="btn btn-primary">Salva</button>
+        </div>
+      </form>
+    </details>
+  </div>`;
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) { return escHtml(s); }
+</script>
+</body>
+</html>

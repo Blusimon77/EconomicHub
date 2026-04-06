@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Analytics — Social Media Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
+    nav a:hover { color: white; }
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    h2 { margin-bottom: 1rem; font-size: 1.1rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    th { background: #1a1a2e; color: white; padding: 0.75rem 1rem; text-align: left; font-size: 0.85rem; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+    tr:last-child td { border-bottom: none; }
+    .badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .platform-linkedin { background: #0077b5; color: white; }
+    .platform-facebook { background: #1877f2; color: white; }
+    .platform-instagram { background: #e1306c; color: white; }
+    .empty { color: #aaa; font-style: italic; padding: 1rem 0; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context">Contesto</a>
+    <a href="/competitors">Concorrenti</a>
+    <a href="/competitors/analysis">Analisi</a>
+    <a href="/settings">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Post pubblicati di recente</h2>
+
+  {% if not posts %}
+    <p class="empty">Nessun post pubblicato ancora.</p>
+  {% else %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Piattaforma</th>
+        <th>Argomento</th>
+        <th>Pubblicato il</th>
+        <th>Contenuto</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr>
+        <td>#{{ post.id }}</td>
+        <td><span class="badge platform-{{ post.platform.value }}">{{ post.platform.value }}</span></td>
+        <td>{{ post.topic or '—' }}</td>
+        <td>{{ post.published_at.strftime('%d/%m/%Y %H:%M') if post.published_at else '—' }}</td>
+        <td>{{ post.content[:80] }}{% if post.content|length > 80 %}…{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+</body>
+</html>

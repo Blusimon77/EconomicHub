@@ -1,0 +1,32 @@
+# AI
+anthropic>=0.40.0
+openai>=1.0.0
+
+# Web dashboard
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+jinja2>=3.1.4
+python-multipart>=0.0.12
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.14.0
+
+# Social media APIs
+linkedin-api>=2.2.0
+facebook-sdk>=3.1.0
+requests>=2.32.0
+httpx>=0.28.0
+
+# Scheduling
+apscheduler>=3.10.0
+
+# Environment & config
+python-dotenv>=1.0.0
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+
+# Utilities
+rich>=13.9.0
+typer>=0.15.0
+tavily-python>=0.7.0

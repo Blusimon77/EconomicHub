@@ -1,0 +1,102 @@
+"""
+Analytics Agent
+Raccoglie e analizza le metriche di performance dai social.
+"""
+import httpx
+from datetime import datetime
+from config.settings import settings
+from models.post import Platform
+
+
+class AnalyticsAgent:
+    def collect_all(self) -> dict:
+        """Raccoglie metriche da tutte le piattaforme configurate."""
+        return {
+            "linkedin": self._collect_linkedin(),
+            "facebook": self._collect_facebook(),
+            "instagram": self._collect_instagram(),
+            "collected_at": datetime.utcnow().isoformat(),
+        }
+
+    def _collect_linkedin(self) -> dict:
+        if not settings.linkedin_access_token:
+            return {"error": "Token non configurato"}
+
+        headers = {"Authorization": f"Bearer {settings.linkedin_access_token}"}
+        org_id = settings.linkedin_organization_id
+
+        try:
+            url = f"https://api.linkedin.com/v2/organizationalEntityShareStatistics?q=organizationalEntity&organizationalEntity=urn:li:organization:{org_id}"
+            response = httpx.get(url, headers=headers, timeout=15)
+            if response.status_code == 200:
+                data = response.json()
+                elements = data.get("elements", [])
+                if elements:
+                    stats = elements[0].get("totalShareStatistics", {})
+                    return {
+                        "impressions": stats.get("impressionCount", 0),
+                        "clicks": stats.get("clickCount", 0),
+                        "reactions": stats.get("likeCount", 0),
+                        "comments": stats.get("commentCount", 0),
+                        "shares": stats.get("shareCount", 0),
+                        "engagement_rate": stats.get("engagement", 0),
+                    }
+        except httpx.RequestError as e:
+            return {"error": str(e)}
+        return {}
+
+    def _collect_facebook(self) -> dict:
+        if not settings.facebook_access_token:
+            return {"error": "Token non configurato"}
+
+        token = settings.facebook_access_token
+        page_id = settings.facebook_page_id
+
+        try:
+            url = f"https://graph.facebook.com/v19.0/{page_id}/insights"
+            params = {
+                "access_token": token,
+                "metric": "page_impressions,page_engaged_users,page_fans,page_reactions_total",
+                "period": "week",
+            }
+            response = httpx.get(url, params=params, timeout=15)
+            if response.status_code == 200:
+                data = response.json()
+                metrics = {}
+                for item in data.get("data", []):
+                    name = item.get("name", "")
+                    values = item.get("values", [])
+                    if values:
+                        metrics[name] = values[-1].get("value", 0)
+                return metrics
+        except httpx.RequestError as e:
+            return {"error": str(e)}
+        return {}
+
+    def _collect_instagram(self) -> dict:
+        if not settings.instagram_business_account_id or not settings.facebook_access_token:
+            return {"error": "Token/Account ID non configurato"}
+
+        token = settings.facebook_access_token
+        account_id = settings.instagram_business_account_id
+
+        try:
+            url = f"https://graph.facebook.com/v19.0/{account_id}/insights"
+            params = {
+                "access_token": token,
+                "metric": "impressions,reach,profile_views,follower_count",
+                "period": "week",
+            }
+            response = httpx.get(url, params=params, timeout=15)
+            if response.status_code == 200:
+                data = response.json()
+                metrics = {}
+                for item in data.get("data", []):
+                    name = item.get("name", "")
+                    values = item.get("values", [])
+                    if values:
+                        metrics[name] = values[-1].get("value", 0)
+                return metrics
+        except httpx.RequestError as e:
+            return {"error": str(e)}
+        return {}

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contesto — Social Media Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
+    nav a:hover { color: white; }
+    nav a.active { color: white; border-bottom: 2px solid #fff; padding-bottom: 2px; }
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem 4rem; }
+
+    .toast { background: #22c55e; color: white; padding: 0.75rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem; }
+
+    .section { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); margin-bottom: 1.5rem; overflow: hidden; }
+    .section-header { padding: 0.9rem 1.25rem; background: #f8f8f8; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; }
+    .section-header h2 { font-size: 0.9rem; font-weight: 600; color: #333; text-transform: uppercase; letter-spacing: 0.04em; flex: 1; }
+    .section-header .arrow { font-size: 0.7rem; color: #aaa; transition: transform 0.2s; }
+    .section-header.open .arrow { transform: rotate(180deg); }
+    .section-body { padding: 1.25rem; display: grid; gap: 1rem; }
+    .section-body.collapsed { display: none; }
+
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field label { font-size: 0.82rem; font-weight: 500; color: #555; }
+    .field input, .field select, .field textarea {
+      padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 0.9rem; font-family: inherit; transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1a1a2e; }
+    .field .hint { font-size: 0.75rem; color: #999; }
+    .field textarea { resize: vertical; min-height: 80px; }
+
+    .two-col { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Websites */
+    .website-list { display: flex; flex-direction: column; gap: 0.75rem; }
+    .website-card { border: 1px solid #eee; border-radius: 8px; padding: 0.9rem 1rem; display: flex; gap: 1rem; align-items: flex-start; }
+    .website-card .info { flex: 1; min-width: 0; }
+    .website-card .url { font-size: 0.85rem; font-weight: 500; color: #1a1a2e; word-break: break-all; }
+    .website-card .label { font-size: 0.8rem; color: #666; margin-top: 0.15rem; }
+    .website-card .category-badge { display: inline-block; background: #eef2ff; color: #4f46e5; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 20px; margin-top: 0.3rem; }
+    .website-card .notes-text { font-size: 0.8rem; color: #888; margin-top: 0.35rem; white-space: pre-wrap; }
+    .website-card .scraped-preview { font-size: 0.75rem; color: #aaa; margin-top: 0.4rem; background: #f9f9f9; padding: 0.4rem 0.6rem; border-radius: 4px; max-height: 60px; overflow: hidden; }
+    .website-card .actions { display: flex; flex-direction: column; gap: 0.4rem; flex-shrink: 0; }
+
+    .btn { padding: 0.4rem 0.9rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.82rem; font-weight: 500; white-space: nowrap; }
+    .btn-primary { background: #1a1a2e; color: white; }
+    .btn-primary:hover { background: #2d2d4e; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-scrape { background: #eff6ff; color: #2563eb; }
+    .btn-scrape:hover { background: #dbeafe; }
+
+    .add-site-form { border: 2px dashed #ddd; border-radius: 8px; padding: 1.25rem; }
+    .add-site-form h3 { font-size: 0.85rem; font-weight: 600; color: #555; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; }
+
+    .sticky-footer { position: sticky; bottom: 0; background: white; border-top: 1px solid #eee; padding: 0.9rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; z-index: 10; }
+
+    .empty-state { color: #bbb; font-size: 0.9rem; font-style: italic; text-align: center; padding: 1.5rem 0; }
+
+    .scrape-ts { font-size: 0.72rem; color: #bbb; margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context" class="active">Contesto</a>
+    <a href="/competitors">Concorrenti</a>
+    <a href="/competitors/analysis">Analisi</a>
+    <a href="/settings">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  {% if saved %}
+  <div class="toast">Contesto salvato. Verrà usato dall'AI nella prossima generazione di contenuti.</div>
+  {% endif %}
+
+  <!-- ── Identità aziendale ───────────────────── -->
+  <form method="post" action="/context">
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <span>🏢</span>
+      <h2>Identità aziendale</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="section-body two-col">
+      <div class="field">
+        <label>Nome azienda</label>
+        <input type="text" name="company_name" value="{{ ctx.company_name if ctx else '' }}" placeholder="Es: Acme S.r.l.">
+      </div>
+      <div class="field">
+        <label>Settore / Industria</label>
+        <input type="text" name="sector" value="{{ ctx.sector if ctx else '' }}" placeholder="Es: Software B2B, Retail, Moda">
+      </div>
+      <div class="field" style="grid-column: span 2">
+        <label>Descrizione</label>
+        <textarea name="description" rows="3" placeholder="Chi siete, cosa fate, qual è la vostra storia">{{ ctx.description if ctx else '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>Mission / Vision</label>
+        <textarea name="mission" rows="3" placeholder="La vostra mission aziendale">{{ ctx.mission if ctx else '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>Valori aziendali</label>
+        <textarea name="values" rows="3" placeholder="Es: innovazione, sostenibilità, trasparenza">{{ ctx.values if ctx else '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>Anno fondazione / Note storiche</label>
+        <input type="text" name="founded" value="{{ ctx.founded if ctx else '' }}" placeholder="Es: Fondata nel 2010 a Milano">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Mercato ──────────────────────────────── -->
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <span>🎯</span>
+      <h2>Mercato e pubblico</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Prodotti / Servizi</label>
+        <textarea name="products_services" rows="3" placeholder="Descrivi i principali prodotti o servizi offerti">{{ ctx.products_services if ctx else '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>Pubblico di riferimento (target audience)</label>
+        <textarea name="target_audience" rows="3" placeholder="Es: PMI del settore manifatturiero, età 35-55, decision maker">{{ ctx.target_audience if ctx else '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>Principali concorrenti</label>
+        <textarea name="competitors" rows="2" placeholder="Es: Azienda X, Azienda Y — cosa li differenzia da voi?">{{ ctx.competitors if ctx else '' }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Comunicazione ────────────────────────── -->
+  <div class="section">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <span>💬</span>
+      <h2>Comunicazione e contenuti</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="section-body">
+      <div class="field">
+        <label>Tono di voce</label>
+        <textarea name="tone_of_voice" rows="2" placeholder="Es: professionale ma accessibile, mai formale, usa il tu, evita tecnicismi">{{ ctx.tone_of_voice if ctx else '' }}</textarea>
+        <span class="hint">L'AI userà queste indicazioni per calibrare lo stile di ogni post</span>
+      </div>
+      <div class="field">
+        <label>Pilastri di contenuto</label>
+        <textarea name="content_pillars" rows="3" placeholder="Es: innovazione tecnologica, casi studio clienti, cultura aziendale, aggiornamenti di settore">{{ ctx.content_pillars if ctx else '' }}</textarea>
+        <span class="hint">I temi ricorrenti attorno a cui ruota la comunicazione social</span>
+      </div>
+      <div class="field">
+        <label>Argomenti da evitare</label>
+        <textarea name="topics_to_avoid" rows="2" placeholder="Es: politica, concorrenti per nome, prezzi, controversie">{{ ctx.topics_to_avoid if ctx else '' }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Note libere ──────────────────────────── -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span>📝</span>
+      <h2>Note aggiuntive</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="section-body collapsed">
+      <div class="field">
+        <label>Qualsiasi altra informazione utile all'AI</label>
+        <textarea name="additional_notes" rows="5" placeholder="Campagne in corso, eventi imminenti, messaggi chiave, FAQ, certificazioni, premi ricevuti…">{{ ctx.additional_notes if ctx else '' }}</textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="sticky-footer">
+    <button type="submit" class="btn btn-primary">Salva contesto aziendale</button>
+  </div>
+  </form>
+
+  <!-- ── Siti web di riferimento ──────────────── -->
+  <div class="section" style="margin-top: 1rem">
+    <div class="section-header open" onclick="toggleSection(this)">
+      <span>🌐</span>
+      <h2>Siti web di riferimento ({{ websites|length }})</h2>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="section-body">
+
+      {% if not websites %}
+        <p class="empty-state">Nessun sito aggiunto. Aggiungi il tuo sito aziendale, blog, competitor o fonti di settore.</p>
+      {% else %}
+      <div class="website-list">
+        {% for site in websites %}
+        <div class="website-card">
+          <div class="info">
+            <div class="url">
+              <a href="{{ site.url }}" target="_blank" rel="noopener" style="color:inherit">{{ site.url }}</a>
+            </div>
+            {% if site.label %}<div class="label">{{ site.label }}</div>{% endif %}
+            {% if site.category %}<span class="category-badge">{{ site.category }}</span>{% endif %}
+            {% if site.notes %}<div class="notes-text">{{ site.notes }}</div>{% endif %}
+            {% if site.scraped_content %}
+              <div class="scraped-preview">{{ site.scraped_content[:200] }}…</div>
+              {% if site.last_scraped_at %}
+                <div class="scrape-ts">Scansionato il {{ site.last_scraped_at.strftime('%d/%m/%Y %H:%M') }}</div>
+              {% endif %}
+            {% endif %}
+          </div>
+          <div class="actions">
+            <form method="post" action="/context/websites/{{ site.id }}/scrape">
+              <button class="btn btn-scrape" type="submit" title="Leggi il contenuto del sito">Scansiona</button>
+            </form>
+            <form method="post" action="/context/websites/{{ site.id }}/delete">
+              <button class="btn btn-danger" type="submit">Rimuovi</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Form aggiunta sito -->
+      <form method="post" action="/context/websites/add" class="add-site-form">
+        <h3>Aggiungi sito web</h3>
+        <div class="two-col" style="display:grid; gap:0.75rem; margin-bottom:0.75rem">
+          <div class="field" style="grid-column: span 2">
+            <label>URL</label>
+            <input type="url" name="url" placeholder="https://www.esempio.com" required>
+          </div>
+          <div class="field">
+            <label>Etichetta</label>
+            <input type="text" name="label" placeholder="Es: Sito aziendale, Blog, LinkedIn">
+          </div>
+          <div class="field">
+            <label>Categoria</label>
+            <select name="category">
+              <option value="">— seleziona —</option>
+              <option value="sito_aziendale">Sito aziendale</option>
+              <option value="blog">Blog</option>
+              <option value="competitor">Competitor</option>
+              <option value="settore">Fonte di settore</option>
+              <option value="social">Social media</option>
+              <option value="altro">Altro</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column: span 2">
+            <label>Note</label>
+            <input type="text" name="notes" placeholder="Es: Il nostro blog principale, aggiornato settimanalmente">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Aggiungi sito</button>
+      </form>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleSection(header) {
+  header.classList.toggle('open');
+  const body = header.nextElementSibling;
+  body.classList.toggle('collapsed');
+}
+// Chiudi sezioni non aperte al caricamento
+document.querySelectorAll('.section-header:not(.open) + .section-body').forEach(b => b.classList.add('collapsed'));
+</script>
+</body>
+</html>

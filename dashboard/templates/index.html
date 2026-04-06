@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Media Manager — Approvazioni</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
+    nav a:hover { color: white; }
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    h2 { margin-bottom: 1rem; font-size: 1.1rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
+    .card { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); padding: 1.25rem; margin-bottom: 1rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+    .platform-badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .platform-linkedin { background: #0077b5; color: white; }
+    .platform-facebook { background: #1877f2; color: white; }
+    .platform-instagram { background: #e1306c; color: white; }
+    .content-preview { background: #f9f9f9; border-left: 3px solid #ddd; padding: 0.75rem; border-radius: 0 4px 4px 0; font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; }
+    .hashtags { color: #0077b5; font-size: 0.85rem; margin-top: 0.5rem; }
+    .actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .btn { padding: 0.4rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+    .btn-approve { background: #22c55e; color: white; }
+    .btn-reject { background: #ef4444; color: white; }
+    .btn-edit { background: #f59e0b; color: white; }
+    .btn:hover { opacity: 0.85; }
+    textarea { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-family: inherit; font-size: 0.9rem; resize: vertical; }
+    input[type="text"] { width: 100%; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; }
+    .meta { font-size: 0.75rem; color: #888; margin-top: 0.5rem; }
+    .empty { color: #aaa; font-style: italic; padding: 1rem 0; }
+    .edit-form { margin-top: 0.75rem; display: none; }
+    .edit-form.open { display: block; }
+    details summary { cursor: pointer; font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context">Contesto</a>
+    <a href="/competitors">Concorrenti</a>
+    <a href="/competitors/analysis">Analisi</a>
+    <a href="/settings">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <h2>Post in attesa di approvazione ({{ pending_posts|length }})</h2>
+
+  {% if not pending_posts %}
+    <p class="empty">Nessun post in attesa.</p>
+  {% endif %}
+
+  {% for post in pending_posts %}
+  <div class="card">
+    <div class="card-header">
+      <span class="platform-badge platform-{{ post.platform.value }}">{{ post.platform.value }}</span>
+      <span class="meta">ID #{{ post.id }} · Generato il {{ post.created_at.strftime('%d/%m/%Y %H:%M') }} · via {{ post.generated_by }}</span>
+    </div>
+
+    <div class="content-preview">{{ post.content }}</div>
+    {% if post.hashtags %}
+      <div class="hashtags">{{ post.hashtags }}</div>
+    {% endif %}
+    <div class="meta">Argomento: {{ post.topic or '—' }} · Tono: {{ post.tone }}</div>
+
+    <!-- Azioni rapide -->
+    <div class="actions">
+      <form method="post" action="/posts/{{ post.id }}/approve" style="display:inline">
+        <input type="hidden" name="note" value="">
+        <button class="btn btn-approve" type="submit">Approva</button>
+      </form>
+      <form method="post" action="/posts/{{ post.id }}/reject" style="display:inline">
+        <input type="hidden" name="note" value="">
+        <button class="btn btn-reject" type="submit">Rifiuta</button>
+      </form>
+      <button class="btn btn-edit" type="button" onclick="toggleEdit({{ post.id }})">Modifica</button>
+    </div>
+
+    <!-- Form modifica inline -->
+    <div class="edit-form" id="edit-{{ post.id }}">
+      <form method="post" action="/posts/{{ post.id }}/edit">
+        <textarea name="content" rows="5">{{ post.content }}</textarea>
+        <input type="text" name="hashtags" value="{{ post.hashtags }}" placeholder="Hashtag" style="margin-top:0.4rem">
+        <div class="actions" style="margin-top:0.5rem">
+          <button class="btn btn-edit" type="submit">Salva modifiche</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+
+  <h2 style="margin-top:2rem">Risposte ai commenti in attesa ({{ pending_replies|length }})</h2>
+
+  {% if not pending_replies %}
+    <p class="empty">Nessuna risposta in attesa.</p>
+  {% endif %}
+
+  {% for comment in pending_replies %}
+  <div class="card">
+    <div class="card-header">
+      <span class="platform-badge platform-{{ comment.platform.value }}">{{ comment.platform.value }}</span>
+      <span class="meta">ID #{{ comment.id }} · {{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+    </div>
+    <div class="meta" style="margin-bottom:0.4rem">
+      <strong>{{ comment.author_name }}</strong>: {{ comment.content }}
+    </div>
+    <div class="content-preview">Bozza risposta: {{ comment.reply_draft }}</div>
+    <div class="actions">
+      <form method="post" action="/replies/{{ comment.id }}/approve" style="display:inline">
+        <button class="btn btn-approve" type="submit">Approva risposta</button>
+      </form>
+      <form method="post" action="/replies/{{ comment.id }}/reject" style="display:inline">
+        <button class="btn btn-reject" type="submit">Rifiuta</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+
+<script>
+function toggleEdit(id) {
+  const el = document.getElementById('edit-' + id);
+  el.classList.toggle('open');
+}
+</script>
+</body>
+</html>

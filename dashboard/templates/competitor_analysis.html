@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisi Concorrenza — Social Media Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
+    nav a:hover { color: white; }
+    nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
+
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem 4rem; }
+
+    /* Hero trigger */
+    .trigger-bar { background: white; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .trigger-bar .info h2 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .trigger-bar .info p { font-size: 0.85rem; color: #888; }
+    .btn-generate { padding: 0.7rem 1.8rem; background: #1a1a2e; color: white; border: none; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+    .btn-generate:hover { background: #2d2d4e; }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-sm { padding: 0.35rem 0.8rem; border: none; border-radius: 5px; font-size: 0.78rem; cursor: pointer; font-weight: 500; }
+    .btn-danger-sm { background: #fee2e2; color: #dc2626; }
+    .btn-danger-sm:hover { background: #fecaca; }
+    .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
+    .btn-outline-sm:hover { background: #f5f5f5; }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 5rem 2rem; color: #ccc; }
+    .empty-state .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+    .empty-state p { font-size: 0.95rem; }
+
+    /* Meta bar */
+    .meta-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+    .meta-bar .meta-text { font-size: 0.82rem; color: #aaa; }
+    .meta-bar .actions { display: flex; gap: 0.5rem; }
+
+    /* Summary card */
+    .summary-card { background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%);
+      color: white; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
+    .summary-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 0.5rem; }
+    .summary-card .summary-text { font-size: 1.05rem; line-height: 1.6; }
+    .summary-card .landscape-text { font-size: 0.88rem; line-height: 1.7; opacity: 0.85; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.15); }
+
+    /* Grid layout */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
+    @media (max-width: 768px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+
+    /* Section header */
+    .section-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; color: #888; font-weight: 600; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.4rem; }
+
+    /* Competitor cards */
+    .comp-card { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); padding: 1.25rem; }
+    .comp-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .comp-card-name { font-weight: 700; font-size: 1rem; }
+    .verdict-badge { padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .v-forte { background: #fee2e2; color: #dc2626; }
+    .v-medio { background: #fef3c7; color: #d97706; }
+    .v-debole { background: #dcfce7; color: #16a34a; }
+    .social-score-bar { margin-bottom: 0.75rem; }
+    .score-label { font-size: 0.75rem; color: #888; margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+    .score-track { background: #f0f0f0; border-radius: 4px; height: 6px; }
+    .score-fill { height: 6px; border-radius: 4px; background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+    .comp-field { margin-bottom: 0.6rem; }
+    .comp-field .field-label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.05em; color: #aaa; margin-bottom: 0.15rem; }
+    .comp-field .field-val { font-size: 0.85rem; line-height: 1.5; color: #444; }
+
+    /* Lists */
+    .list-card { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); padding: 1.25rem; }
+    .list-item { display: flex; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid #f5f5f5; align-items: flex-start; }
+    .list-item:last-child { border-bottom: none; }
+    .list-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .dot-opp { background: #22c55e; }
+    .dot-threat { background: #ef4444; }
+    .dot-gap { background: #6366f1; }
+    .list-text { font-size: 0.87rem; line-height: 1.5; color: #444; }
+
+    /* Recommendations */
+    .rec-card { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); padding: 1.25rem; margin-bottom: 1.5rem; }
+    .rec-item { display: flex; gap: 1rem; padding: 0.9rem 0; border-bottom: 1px solid #f5f5f5; align-items: flex-start; }
+    .rec-item:last-child { border-bottom: none; }
+    .priority-badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; flex-shrink: 0; }
+    .p-alta { background: #fee2e2; color: #dc2626; }
+    .p-media { background: #fef3c7; color: #d97706; }
+    .p-bassa { background: #dcfce7; color: #16a34a; }
+    .rec-content .rec-action { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .rec-content .rec-rationale { font-size: 0.82rem; color: #777; line-height: 1.5; }
+
+    /* Fonti */
+    .sources-details { margin-top: 0.75rem; border-top: 1px solid #f0f0f0; padding-top: 0.6rem; }
+    .sources-details summary { font-size: 0.75rem; color: #aaa; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 0.4rem; }
+    .sources-details summary::-webkit-details-marker { display: none; }
+    .sources-details summary::before { content: '▶'; font-size: 0.6rem; transition: transform 0.2s; }
+    .sources-details[open] summary::before { transform: rotate(90deg); }
+    .source-tag { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 3px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; }
+    .source-sito_web { background: #e0f2fe; color: #0369a1; }
+    .source-tavily { background: #f3e8ff; color: #7c3aed; }
+    .source-manuale { background: #f0fdf4; color: #166534; }
+    .sources-list { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .source-item a { font-size: 0.8rem; color: #1a1a2e; text-decoration: none; font-weight: 500; display: block; }
+    .source-item a:hover { text-decoration: underline; }
+    .source-snippet { font-size: 0.75rem; color: #888; line-height: 1.4; margin-top: 0.15rem; }
+    .scraped-preview-box { margin-top: 0.6rem; background: #f8f9fa; border-radius: 4px; padding: 0.5rem 0.6rem; font-size: 0.75rem; color: #666; line-height: 1.5; }
+
+    /* Provider badge */
+    .provider-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem;
+      background: #f3f4f6; border-radius: 4px; font-size: 0.72rem; color: #666; }
+
+    /* Loading */
+    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,46,0.85);
+      z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: white; }
+    .loading-overlay.show { display: flex; }
+    .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.2);
+      border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 0.95rem; opacity: 0.8; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context">Contesto</a>
+    <a href="/competitors">Concorrenti</a>
+    <a href="/competitors/analysis" class="active">Analisi</a>
+    <a href="/settings">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Analisi AI in corso…</div>
+  <div style="font-size:0.8rem;opacity:0.5">Può richiedere fino a 30 secondi</div>
+</div>
+
+<div class="container">
+
+  <!-- Trigger bar -->
+  <div class="trigger-bar">
+    <div class="info">
+      <h2>Analisi competitiva AI</h2>
+      <p>
+        {% if competitors_count == 0 %}
+          Aggiungi almeno un concorrente nella sezione <a href="/competitors" style="color:#1a1a2e">Concorrenti</a> per avviare l'analisi.
+        {% else %}
+          {{ competitors_count }} concorrent{{ 'e' if competitors_count == 1 else 'i' }} nel database ·
+          {{ analyses_count }} analisi salvat{{ 'a' if analyses_count == 1 else 'e' }}
+        {% endif %}
+      </p>
+    </div>
+    <form method="post" action="/competitors/analysis/generate" onsubmit="startLoading()">
+      <button class="btn-generate" type="submit" {% if competitors_count == 0 %}disabled{% endif %}>
+        <span>🤖</span>
+        {% if analysis %}Rigenera analisi{% else %}Genera analisi{% endif %}
+      </button>
+    </form>
+  </div>
+
+  {% if not analysis %}
+  <div class="empty-state">
+    <div class="icon">📊</div>
+    <p>Nessuna analisi ancora.<br>Aggiungi i tuoi concorrenti e premi <strong>Genera analisi</strong>.</p>
+  </div>
+
+  {% else %}
+
+  <!-- Meta bar -->
+  <div class="meta-bar">
+    <div class="meta-text">
+      Generata il {{ analysis.created_at }} ·
+      <span class="provider-badge">{{ analysis.generated_by }}</span>
+    </div>
+    <div class="actions">
+      <form method="post" action="/competitors/analysis/delete-all"
+            onsubmit="return confirm('Eliminare tutte le analisi salvate?')">
+        <button type="submit" class="btn-sm btn-danger-sm">Elimina storico</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-card">
+    <div class="label">Sintesi esecutiva</div>
+    <div class="summary-text">{{ analysis.summary }}</div>
+    {% if analysis.landscape %}
+    <div class="landscape-text">{{ analysis.landscape }}</div>
+    {% endif %}
+    {% if analysis.data_quality %}
+    <div style="margin-top:0.9rem;padding-top:0.9rem;border-top:1px solid rgba(255,255,255,0.15);font-size:0.78rem;opacity:0.6">
+      📋 Qualità dati: {{ analysis.data_quality }}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Per-competitor cards -->
+  {% if analysis.per_competitor %}
+  <div class="section-title">🏁 Analisi per concorrente</div>
+  <div class="grid{% if analysis.per_competitor|length <= 2 %}2{% else %}3{% endif %}" style="margin-bottom:1.5rem">
+    {% for c in analysis.per_competitor %}
+    <div class="comp-card">
+      <div class="comp-card-header">
+        <div class="comp-card-name">{{ c.name }}</div>
+        <span class="verdict-badge v-{{ c.verdict | default('medio') }}">
+          {{ '⚠️ Forte' if c.verdict == 'forte' else ('➖ Medio' if c.verdict == 'medio' else '✅ Debole') }}
+        </span>
+      </div>
+
+      <div class="social-score-bar">
+        <div class="score-label">
+          <span>Presenza social</span>
+          <span>{{ c.social_score }}/10</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill" style="width:{{ (c.social_score | default(5)) * 10 }}%"></div>
+        </div>
+      </div>
+
+      {% if c.insights %}
+      <div class="comp-field">
+        <div class="field-label">Insight</div>
+        <div class="field-val">{{ c.insights }}</div>
+      </div>
+      {% endif %}
+      {% if c.differentiator %}
+      <div class="comp-field">
+        <div class="field-label">Differenziatore</div>
+        <div class="field-val">{{ c.differentiator }}</div>
+      </div>
+      {% endif %}
+      {% if c.vulnerability %}
+      <div class="comp-field">
+        <div class="field-label">Vulnerabilità da sfruttare</div>
+        <div class="field-val" style="color:#16a34a">{{ c.vulnerability }}</div>
+      </div>
+      {% endif %}
+
+      {% set src = analysis.sources_used.get(c.name, {}) %}
+      {% if src %}
+      <details class="sources-details">
+        <summary>
+          Fonti usate
+          {% for t in src.get('types', []) %}
+            <span class="source-tag source-{{ t.replace('_cache','') }}">{{ t }}</span>
+          {% endfor %}
+        </summary>
+        {% if src.get('search_results') %}
+        <div class="sources-list">
+          {% for r in src.get('search_results', [])[:4] %}
+          <div class="source-item">
+            <a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title or r.url }}</a>
+            {% if r.content %}<div class="source-snippet">{{ r.content[:180] }}…</div>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if src.get('scraped_preview') %}
+        <div class="scraped-preview-box">
+          <span class="source-tag source-sito_web">sito_web</span>
+          {{ src.scraped_preview }}…
+        </div>
+        {% endif %}
+      </details>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Opportunità, Minacce, Gap -->
+  <div class="grid3">
+
+    {% if analysis.opportunities %}
+    <div class="list-card">
+      <div class="section-title">🟢 Opportunità</div>
+      {% for item in analysis.opportunities %}
+      <div class="list-item">
+        <span class="list-dot dot-opp"></span>
+        <span class="list-text">{{ item }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if analysis.threats %}
+    <div class="list-card">
+      <div class="section-title">🔴 Minacce</div>
+      {% for item in analysis.threats %}
+      <div class="list-item">
+        <span class="list-dot dot-threat"></span>
+        <span class="list-text">{{ item }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if analysis.content_gaps %}
+    <div class="list-card">
+      <div class="section-title">🟣 Gap di contenuto</div>
+      {% for item in analysis.content_gaps %}
+      <div class="list-item">
+        <span class="list-dot dot-gap"></span>
+        <span class="list-text">{{ item }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Raccomandazioni -->
+  {% if analysis.recommendations %}
+  <div class="section-title" style="margin-top:0.5rem">🎯 Raccomandazioni strategiche</div>
+  <div class="rec-card">
+    {% for rec in analysis.recommendations | sort(attribute='priority', reverse=False) %}
+    <div class="rec-item">
+      <span class="priority-badge p-{{ rec.priority | default('media') }}">{{ rec.priority | default('media') }}</span>
+      <div class="rec-content">
+        <div class="rec-action">{{ rec.action }}</div>
+        {% if rec.rationale %}
+        <div class="rec-rationale">{{ rec.rationale }}</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% endif %}
+</div>
+
+<script>
+function startLoading() {
+  document.getElementById('loading').classList.add('show');
+}
+</script>
+</body>
+</html>

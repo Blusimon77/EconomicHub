@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impostazioni — Social Media Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
+    nav a:hover, nav a.active { color: white; }
+    .container { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
+
+    .toast { background: #22c55e; color: white; padding: 0.75rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem; }
+
+    .section { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem; overflow: hidden; }
+    .section-header { padding: 1rem 1.25rem; background: #f8f8f8; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 0.6rem; }
+    .section-header h2 { font-size: 0.95rem; font-weight: 600; color: #333; text-transform: uppercase; letter-spacing: 0.04em; }
+    .section-icon { font-size: 1rem; }
+    .section-body { padding: 1.25rem; display: grid; gap: 1rem; }
+
+    .field { display: flex; flex-direction: column; gap: 0.3rem; }
+    .field label { font-size: 0.82rem; font-weight: 500; color: #555; }
+    .field input, .field select, .field textarea {
+      padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 0.9rem; font-family: inherit; transition: border-color 0.15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: #1a1a2e;
+    }
+    .field .hint { font-size: 0.75rem; color: #999; }
+    .field input[readonly] { background: #f5f5f5; color: #888; cursor: not-allowed; }
+
+    .two-col { grid-template-columns: 1fr 1fr; }
+    .three-col { grid-template-columns: 1fr 1fr 1fr; }
+
+    .radio-group { display: flex; gap: 1rem; }
+    .radio-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.9rem; cursor: pointer; }
+    .radio-label input { width: auto; }
+
+    .provider-card { border: 2px solid #eee; border-radius: 8px; padding: 1rem; transition: border-color 0.15s; }
+    .provider-card.active { border-color: #1a1a2e; background: #f8faff; }
+
+    .tag-pill { display: inline-block; background: #e8f0fe; color: #1a1a2e; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.8rem; margin: 0.15rem; }
+
+    .sticky-footer { position: sticky; bottom: 0; background: white; border-top: 1px solid #eee; padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.75rem; z-index: 10; }
+    .btn { padding: 0.55rem 1.4rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 500; }
+    .btn-primary { background: #1a1a2e; color: white; }
+    .btn-primary:hover { background: #2d2d4e; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
+
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 0.3rem; }
+    .dot-green { background: #22c55e; }
+    .dot-gray { background: #ccc; }
+
+    @media (max-width: 600px) {
+      .two-col, .three-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context">Contesto</a>
+    <a href="/competitors">Concorrenti</a>
+    <a href="/competitors/analysis">Analisi</a>
+    <a href="/settings" class="active">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  {% if saved %}
+  <div class="toast">Impostazioni salvate correttamente.</div>
+  {% endif %}
+
+  <form method="post" action="/settings">
+
+    <!-- ── Azienda ─────────────────────────────── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🏢</span>
+        <h2>Azienda</h2>
+      </div>
+      <div class="section-body two-col">
+        <div class="field">
+          <label>Nome azienda</label>
+          <input type="text" name="company_name" value="{{ settings.company_name }}">
+          <span class="hint">Usato nei prompt AI e nelle risposte automatiche</span>
+        </div>
+        <div class="field">
+          <label>Brand keywords</label>
+          <input type="text" name="brand_keywords" value="{{ settings.brand_keywords }}">
+          <span class="hint">Parole chiave per rilevare menzioni (separate da virgola)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── AI ─────────────────────────────────── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🤖</span>
+        <h2>Intelligenza Artificiale</h2>
+      </div>
+      <div class="section-body">
+
+        <div class="field">
+          <label>Provider principale</label>
+          <div class="radio-group" style="margin-top:0.25rem">
+            <label class="radio-label">
+              <input type="radio" name="ai_primary_provider" value="anthropic"
+                {% if settings.ai_primary_provider == "anthropic" %}checked{% endif %}>
+              Claude (Anthropic)
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="ai_primary_provider" value="openai"
+                {% if settings.ai_primary_provider == "openai" %}checked{% endif %}>
+              OpenAI-compatible
+            </label>
+          </div>
+        </div>
+
+        <div class="two-col" style="display:grid; gap:1rem">
+          <div class="provider-card {% if settings.ai_primary_provider == 'anthropic' %}active{% endif %}">
+            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+              <span class="status-dot {% if settings.anthropic_api_key and settings.anthropic_api_key != 'your_anthropic_api_key_here' %}dot-green{% else %}dot-gray{% endif %}"></span>
+              Claude (Anthropic)
+            </div>
+            <div class="field">
+              <label>API Key</label>
+              <input type="password" name="_anthropic_key_display" value="{{ settings.anthropic_api_key }}" readonly>
+              <span class="hint">Modifica nel file .env</span>
+            </div>
+            <div class="field" style="margin-top:0.75rem">
+              <label>Modello</label>
+              <select name="anthropic_model">
+                <option value="claude-sonnet-4-6" {% if settings.anthropic_model == "claude-sonnet-4-6" %}selected{% endif %}>claude-sonnet-4-6</option>
+                <option value="claude-opus-4-6" {% if settings.anthropic_model == "claude-opus-4-6" %}selected{% endif %}>claude-opus-4-6</option>
+                <option value="claude-haiku-4-5-20251001" {% if settings.anthropic_model == "claude-haiku-4-5-20251001" %}selected{% endif %}>claude-haiku-4-5</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="provider-card {% if settings.ai_primary_provider == 'openai' %}active{% endif %}">
+            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+              <span class="status-dot {% if settings.openai_compatible_api_key and settings.openai_compatible_api_key != 'your_openai_api_key_here' %}dot-green{% else %}dot-gray{% endif %}"></span>
+              OpenAI-compatible
+            </div>
+            <div class="field">
+              <label>Base URL</label>
+              <input type="text" name="openai_compatible_base_url" value="{{ settings.openai_compatible_base_url }}">
+            </div>
+            <div class="field" style="margin-top:0.75rem">
+              <label>Modello</label>
+              <input type="text" name="openai_compatible_model" value="{{ settings.openai_compatible_model }}">
+              <span class="hint">Es: Qwen3.5-122B, gpt-4o</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Monitoraggio ────────────────────────── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🔍</span>
+        <h2>Monitoraggio</h2>
+      </div>
+      <div class="section-body two-col">
+        <div class="field">
+          <label>Intervallo controllo (minuti)</label>
+          <input type="number" name="monitor_interval_minutes" value="{{ settings.monitor_interval_minutes }}" min="5" max="120">
+          <span class="hint">Ogni quanti minuti controllare nuovi commenti e menzioni</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Pianificazione ─────────────────────── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">📅</span>
+        <h2>Orari di pubblicazione</h2>
+      </div>
+      <div class="section-body three-col">
+        <div class="field">
+          <label>LinkedIn</label>
+          <input type="text" name="linkedin_post_times" value="{{ settings.linkedin_post_times }}">
+          <span class="hint">Orari HH:MM separati da virgola</span>
+        </div>
+        <div class="field">
+          <label>Facebook</label>
+          <input type="text" name="facebook_post_times" value="{{ settings.facebook_post_times }}">
+          <span class="hint">Orari HH:MM separati da virgola</span>
+        </div>
+        <div class="field">
+          <label>Instagram</label>
+          <input type="text" name="instagram_post_times" value="{{ settings.instagram_post_times }}">
+          <span class="hint">Orari HH:MM separati da virgola</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── API Social (sola lettura) ─────────── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🔗</span>
+        <h2>API Social Media</h2>
+      </div>
+      <div class="section-body">
+        <p style="font-size:0.85rem; color:#888; margin-bottom:0.5rem">
+          Le chiavi API si modificano direttamente nel file <code>.env</code> per sicurezza.
+        </p>
+
+        <div style="display:grid; gap:1rem">
+
+          <!-- LinkedIn -->
+          <div class="provider-card">
+            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+              <span class="status-dot {% if settings.linkedin_access_token and settings.linkedin_access_token != 'your_linkedin_access_token' %}dot-green{% else %}dot-gray{% endif %}"></span>
+              LinkedIn
+            </div>
+            <div class="two-col" style="display:grid; gap:0.75rem">
+              <div class="field">
+                <label>Client ID</label>
+                <input type="text" value="{{ settings.linkedin_client_id }}" readonly>
+              </div>
+              <div class="field">
+                <label>Organization ID</label>
+                <input type="text" value="{{ settings.linkedin_organization_id }}" readonly>
+              </div>
+              <div class="field">
+                <label>Access Token</label>
+                <input type="password" value="{{ settings.linkedin_access_token }}" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Facebook -->
+          <div class="provider-card">
+            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+              <span class="status-dot {% if settings.facebook_access_token and settings.facebook_access_token != 'your_facebook_page_access_token' %}dot-green{% else %}dot-gray{% endif %}"></span>
+              Facebook
+            </div>
+            <div class="two-col" style="display:grid; gap:0.75rem">
+              <div class="field">
+                <label>App ID</label>
+                <input type="text" value="{{ settings.facebook_app_id }}" readonly>
+              </div>
+              <div class="field">
+                <label>Page ID</label>
+                <input type="text" value="{{ settings.facebook_page_id }}" readonly>
+              </div>
+              <div class="field">
+                <label>Access Token</label>
+                <input type="password" value="{{ settings.facebook_access_token }}" readonly>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instagram -->
+          <div class="provider-card">
+            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+              <span class="status-dot {% if settings.instagram_business_account_id and settings.instagram_business_account_id != 'your_instagram_business_account_id' %}dot-green{% else %}dot-gray{% endif %}"></span>
+              Instagram
+            </div>
+            <div class="field">
+              <label>Business Account ID</label>
+              <input type="text" value="{{ settings.instagram_business_account_id }}" readonly>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer sticky -->
+    <div class="sticky-footer">
+      <a href="/" class="btn btn-secondary">Annulla</a>
+      <button type="submit" class="btn btn-primary">Salva impostazioni</button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  // Evidenzia il provider card selezionato
+  document.querySelectorAll('input[name="ai_primary_provider"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('active'));
+      const idx = radio.value === 'anthropic' ? 0 : 1;
+      document.querySelectorAll('.provider-card')[idx].classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
