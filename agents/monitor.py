@@ -5,7 +5,7 @@ Monitora menzioni, tag e nuovi commenti su tutte le piattaforme.
 from __future__ import annotations
 
 import httpx
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from config.settings import settings
 from config.logging import get_logger
 from models.post import Platform, Comment
@@ -23,7 +23,7 @@ class MonitorAgent:
             "linkedin": self._check_linkedin(),
             "facebook": self._check_facebook(),
             "instagram": self._check_instagram(),
-            "checked_at": datetime.utcnow().isoformat(),
+            "checked_at": datetime.now(timezone.utc).isoformat(),
         }
         return results
 
@@ -69,8 +69,8 @@ class MonitorAgent:
         page_id = settings.facebook_page_id
 
         try:
-            since = int((datetime.utcnow() - timedelta(minutes=settings.monitor_interval_minutes)).timestamp())
-            url = f"https://graph.facebook.com/v19.0/{page_id}/feed"
+            since = int((datetime.now(timezone.utc) - timedelta(minutes=settings.monitor_interval_minutes)).timestamp())
+            url = f"https://graph.facebook.com/{settings.facebook_api_version}/{page_id}/feed"
             params = {"access_token": token, "fields": "id,comments{id,from,message}", "since": since}
             response = httpx.get(url, params=params, timeout=15)
             if response.status_code == 200:
@@ -101,7 +101,7 @@ class MonitorAgent:
         account_id = settings.instagram_business_account_id
 
         try:
-            url = f"https://graph.facebook.com/v19.0/{account_id}/media"
+            url = f"https://graph.facebook.com/{settings.facebook_api_version}/{account_id}/media"
             params = {"access_token": token, "fields": "id,comments{id,username,text}"}
             response = httpx.get(url, params=params, timeout=15)
             if response.status_code == 200:

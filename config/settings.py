@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     company_name: str = Field(default="Azienda")
     brand_keywords: str = Field(default="")
 
+    # API versioni
+    facebook_api_version: str = Field(default="v19.0")
+
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
     @property

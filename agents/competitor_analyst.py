@@ -7,15 +7,22 @@ Non gli viene mai chiesto di attingere alla propria memoria di training.
 """
 from __future__ import annotations
 import json
-import re
 import httpx
+from bs4 import BeautifulSoup
 import anthropic
 from openai import OpenAI
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from config.settings import settings
 from config.logging import get_logger
 
 logger = get_logger("agents.competitor_analyst")
+
+MAX_SCRAPED_CONTENT = 4000
+MAX_SEARCH_CONTENT = 600
+MAX_PROMPT_SCRAPED = 3000
+SCRAPED_PREVIEW = 300
+HTTP_TIMEOUT = 12
+AI_MAX_TOKENS = 4096
 
 
 # ── Sistema prompt ──────────────────────────────────────────────────────────────
@@ -63,14 +70,14 @@ ANALYSIS_SCHEMA = """{
 def _scrape_url(url: str) -> str:
     """Scarica e pulisce il testo di una pagina web."""
     try:
-        resp = httpx.get(url, timeout=12, follow_redirects=True,
+        resp = httpx.get(url, timeout=HTTP_TIMEOUT, follow_redirects=True,
                          headers={"User-Agent": "Mozilla/5.0"})
         resp.raise_for_status()
-        text = re.sub(r"<style[^>]*>.*?</style>", " ", resp.text, flags=re.DOTALL)
-        text = re.sub(r"<script[^>]*>.*?</script>", " ", text, flags=re.DOTALL)
-        text = re.sub(r"<[^>]+>", " ", text)
-        text = re.sub(r"\s+", " ", text).strip()
-        return text[:4000]
+        soup = BeautifulSoup(resp.text, "html.parser")
+        for tag in soup(["style", "script"]):
+            tag.decompose()
+        text = soup.get_text(separator=" ", strip=True)
+        return text[:MAX_SCRAPED_CONTENT]
     except Exception as e:
         logger.warning("Errore scraping %s: %s", url, e)
         return f"[errore scraping: {e}]"
@@ -88,7 +95,7 @@ def _search_tavily(query: str) -> list[dict]:
             {
                 "title": r.get("title", ""),
                 "url": r.get("url", ""),
-                "content": r.get("content", "")[:600],
+                "content": r.get("content", "")[:MAX_SEARCH_CONTENT],
             }
             for r in resp.get("results", [])
         ]
@@ -111,13 +118,13 @@ def _gather_competitor_data(competitor) -> dict:
         needs_scrape = (
             not competitor.scraped_content or
             not competitor.last_scraped_at or
-            datetime.utcnow() - competitor.last_scraped_at > timedelta(days=7)
+            datetime.now(timezone.utc) - competitor.last_scraped_at > timedelta(days=7)
         )
         if needs_scrape:
             gathered["scraped"] = _scrape_url(competitor.website)
             gathered["sources"].append("sito_web")
         elif competitor.scraped_content:
-            gathered["scraped"] = competitor.scraped_content[:4000]
+            gathered["scraped"] = competitor.scraped_content[:MAX_SCRAPED_CONTENT]
             gathered["sources"].append("sito_web_cache")
 
     # 2. Ricerca Tavily — due query mirate
@@ -201,7 +208,7 @@ def _build_prompt(competitors: list, company_ctx, web_data: dict[int, dict]) -> 
         # Contenuto sito web scrapato
         if data.get("scraped"):
             parts.append("[SITO WEB — TESTO ESTRATTO]")
-            parts.append(data["scraped"][:3000])
+            parts.append(data["scraped"][:MAX_PROMPT_SCRAPED])
 
         # Risultati ricerca web
         if data.get("search_results"):
@@ -246,10 +253,10 @@ def run_analysis(competitors: list, company_ctx=None, db_session=None) -> dict:
         if db_session:
             if data.get("scraped") and "sito_web" in data.get("sources", []):
                 c.scraped_content = data["scraped"]
-                c.last_scraped_at = datetime.utcnow()
+                c.last_scraped_at = datetime.now(timezone.utc)
             if data.get("search_results"):
                 c.search_results = json.dumps(data["search_results"], ensure_ascii=False)
-                c.last_searched_at = datetime.utcnow()
+                c.last_searched_at = datetime.now(timezone.utc)
     if db_session:
         db_session.commit()
 
@@ -274,7 +281,7 @@ def run_analysis(competitors: list, company_ctx=None, db_session=None) -> dict:
         sources_used[c.name] = {
             "types": data.get("sources", []),
             "search_results": data.get("search_results", []),
-            "scraped_preview": data.get("scraped", "")[:300] if data.get("scraped") else "",
+            "scraped_preview": data.get("scraped", "")[:SCRAPED_PREVIEW] if data.get("scraped") else "",
         }
     result["sources_used"] = sources_used
 
@@ -306,7 +313,7 @@ def _try_anthropic(prompt: str) -> tuple[dict | None, str]:
         client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
         msg = client.messages.create(
             model=settings.anthropic_model,
-            max_tokens=4096,
+            max_tokens=AI_MAX_TOKENS,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -330,7 +337,7 @@ def _try_openai(prompt: str) -> tuple[dict | None, str]:
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=4096,
+            max_tokens=AI_MAX_TOKENS,
         )
         return _parse_json(resp.choices[0].message.content or ""), "openai"
     except Exception:

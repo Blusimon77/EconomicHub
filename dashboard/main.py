@@ -14,6 +14,7 @@ import ipaddress
 from urllib.parse import urlparse
 
 import re
+from bs4 import BeautifulSoup
 import hmac
 import hashlib
 import secrets
@@ -28,6 +29,11 @@ from models.post import Base, Post, Comment, PostStatus, Platform
 from models.context import CompanyContext, ContextWebsite
 import json
 from models.competitor import Competitor, CompetitorSocial, CompetitorObservation, CompetitorAnalysis
+
+MAX_SCRAPED_CONTENT = 8000
+MAX_RAW_RESPONSE = 10000
+SCRAPED_PREVIEW_LENGTH = 500
+HTTP_TIMEOUT = 15
 
 engine = create_engine(settings.database_url)
 Base.metadata.create_all(engine)
@@ -218,8 +224,8 @@ def get_db():
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
-    pending_posts = db.query(Post).filter(Post.status == PostStatus.PENDING).order_by(Post.created_at.desc()).all()
-    pending_replies = db.query(Comment).filter(Comment.reply_status == PostStatus.PENDING).order_by(Comment.created_at.desc()).all()
+    pending_posts = db.query(Post).filter(Post.status == PostStatus.PENDING).order_by(Post.created_at.desc()).limit(100).all()
+    pending_replies = db.query(Comment).filter(Comment.reply_status == PostStatus.PENDING).order_by(Comment.created_at.desc()).limit(100).all()
     return _template_response(request, "index.html", {
         "pending_posts": pending_posts,
         "pending_replies": pending_replies,
@@ -354,23 +360,22 @@ async def delete_website(site_id: int, db: Session = Depends(get_db)):
 
 @app.post("/context/websites/{site_id}/scrape")
 async def scrape_website(site_id: int, db: Session = Depends(get_db)):
-    from datetime import datetime
+    from datetime import datetime, timezone
     site = db.query(ContextWebsite).filter(ContextWebsite.id == site_id).first()
     if not site:
         return RedirectResponse("/context", status_code=303)
     if not _is_safe_url(site.url):
         return RedirectResponse("/context?error=invalid_url", status_code=303)
     try:
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT, follow_redirects=True) as client:
             resp = await client.get(site.url, headers={"User-Agent": "Mozilla/5.0"})
             resp.raise_for_status()
-            # Estrae testo grezzo rimuovendo tag HTML con regex minimale
-            text = re.sub(r"<style[^>]*>.*?</style>", " ", resp.text, flags=re.DOTALL)
-            text = re.sub(r"<script[^>]*>.*?</script>", " ", text, flags=re.DOTALL)
-            text = re.sub(r"<[^>]+>", " ", text)
-            text = re.sub(r"\s+", " ", text).strip()
-            site.scraped_content = text[:8000]  # max 8k caratteri
-            site.last_scraped_at = datetime.utcnow()
+            soup = BeautifulSoup(resp.text, "html.parser")
+            for tag in soup(["style", "script"]):
+                tag.decompose()
+            text = soup.get_text(separator=" ", strip=True)
+            site.scraped_content = text[:MAX_SCRAPED_CONTENT]  # max 8k caratteri
+            site.last_scraped_at = datetime.now(timezone.utc)
             db.commit()
     except Exception:
         logger.warning("Errore scraping sito %s", site.url, exc_info=True)
@@ -381,7 +386,7 @@ async def scrape_website(site_id: int, db: Session = Depends(get_db)):
 
 @app.get("/competitors/analysis", response_class=HTMLResponse)
 async def analysis_page(request: Request, db: Session = Depends(get_db)):
-    analyses = db.query(CompetitorAnalysis).order_by(CompetitorAnalysis.created_at.desc()).all()
+    analyses = db.query(CompetitorAnalysis).order_by(CompetitorAnalysis.created_at.desc()).limit(50).all()
     competitors = db.query(Competitor).filter(Competitor.is_active == True).all()
     latest = analyses[0] if analyses else None
 
@@ -453,7 +458,7 @@ async def generate_analysis(db: Session = Depends(get_db)):
         recommendations=dump(result.get("recommendations", [])),
         content_gaps=dump(result.get("content_gaps", [])),
         sources_used=dump(result.get("sources_used", {})),
-        raw_response=json.dumps(result, ensure_ascii=False)[:10000],
+        raw_response=json.dumps(result, ensure_ascii=False)[:MAX_RAW_RESPONSE],
         generated_by=result.get("generated_by", ""),
     )
     db.add(analysis)
@@ -540,22 +545,22 @@ async def delete_competitor(cid: int, db: Session = Depends(get_db)):
 
 @app.post("/competitors/{cid}/scrape")
 async def scrape_competitor(cid: int, db: Session = Depends(get_db)):
-    from datetime import datetime
+    from datetime import datetime, timezone
     c = db.query(Competitor).filter(Competitor.id == cid).first()
     if not c or not c.website:
         return RedirectResponse(f"/competitors?sel={cid}", status_code=303)
     if not _is_safe_url(c.website):
         return RedirectResponse(f"/competitors?sel={cid}&error=invalid_url", status_code=303)
     try:
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=HTTP_TIMEOUT, follow_redirects=True) as client:
             resp = await client.get(c.website, headers={"User-Agent": "Mozilla/5.0"})
             resp.raise_for_status()
             text = re.sub(r"<style[^>]*>.*?</style>", " ", resp.text, flags=re.DOTALL)
             text = re.sub(r"<script[^>]*>.*?</script>", " ", text, flags=re.DOTALL)
             text = re.sub(r"<[^>]+>", " ", text)
             text = re.sub(r"\s+", " ", text).strip()
-            c.scraped_content = text[:8000]
-            c.last_scraped_at = datetime.utcnow()
+            c.scraped_content = text[:MAX_SCRAPED_CONTENT]
+            c.last_scraped_at = datetime.now(timezone.utc)
             db.commit()
     except Exception:
         logger.warning("Errore scraping competitor %s", c.website, exc_info=True)
@@ -642,7 +647,7 @@ async def api_competitor(cid: int, db: Session = Depends(get_db)):
         "content_strategy": c.content_strategy, "target_audience": c.target_audience,
         "tone_of_voice": c.tone_of_voice, "unique_topics": c.unique_topics,
         "posting_frequency": c.posting_frequency,
-        "scraped_content": c.scraped_content[:500] if c.scraped_content else "",
+        "scraped_content": c.scraped_content[:SCRAPED_PREVIEW_LENGTH] if c.scraped_content else "",
         "last_scraped_at": c.last_scraped_at.isoformat() if c.last_scraped_at else None,
         "socials": [
             {"id": s.id, "platform": s.platform, "profile_url": s.profile_url,

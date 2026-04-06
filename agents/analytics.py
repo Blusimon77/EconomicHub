@@ -5,7 +5,7 @@ Raccoglie e analizza le metriche di performance dai social.
 from __future__ import annotations
 
 import httpx
-from datetime import datetime
+from datetime import datetime, timezone
 from config.settings import settings
 from config.logging import get_logger
 from models.post import Platform
@@ -20,7 +20,7 @@ class AnalyticsAgent:
             "linkedin": self._collect_linkedin(),
             "facebook": self._collect_facebook(),
             "instagram": self._collect_instagram(),
-            "collected_at": datetime.utcnow().isoformat(),
+            "collected_at": datetime.now(timezone.utc).isoformat(),
         }
 
     def _collect_linkedin(self) -> dict:
@@ -59,7 +59,7 @@ class AnalyticsAgent:
         page_id = settings.facebook_page_id
 
         try:
-            url = f"https://graph.facebook.com/v19.0/{page_id}/insights"
+            url = f"https://graph.facebook.com/{settings.facebook_api_version}/{page_id}/insights"
             params = {
                 "access_token": token,
                 "metric": "page_impressions,page_engaged_users,page_fans,page_reactions_total",
@@ -88,7 +88,7 @@ class AnalyticsAgent:
         account_id = settings.instagram_business_account_id
 
         try:
-            url = f"https://graph.facebook.com/v19.0/{account_id}/insights"
+            url = f"https://graph.facebook.com/{settings.facebook_api_version}/{account_id}/insights"
             params = {
                 "access_token": token,
                 "metric": "impressions,reach,profile_views,follower_count",
