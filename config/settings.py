@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic_settings import BaseSettings
 from pydantic import Field
 from typing import Literal
@@ -32,6 +34,7 @@ class Settings(BaseSettings):
     dashboard_host: str = Field(default="127.0.0.1")
     dashboard_port: int = Field(default=8000)
     dashboard_secret_key: str = Field(default="change_this_secret_key")
+    dashboard_password: str = Field(default="")
 
     # Database
     database_url: str = Field(default="sqlite:///./storage/social_manager.db")

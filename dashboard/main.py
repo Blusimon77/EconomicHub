@@ -1,6 +1,8 @@
 """
 Dashboard FastAPI — Approvazione umana dei post e delle risposte ai commenti.
 """
+from __future__ import annotations
+
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -8,10 +10,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from pathlib import Path
 import uvicorn
+import ipaddress
+from urllib.parse import urlparse
 
 import re
+import hmac
+import hashlib
+import secrets
 import httpx
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from config.settings import settings
 from models.post import Base, Post, Comment, PostStatus, Platform
 from models.context import CompanyContext, ContextWebsite
@@ -23,7 +31,178 @@ Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(bind=engine)
 
 app = FastAPI(title="Social Media Manager — Dashboard")
+
+
+# ── Autenticazione ────────────────────────────────────────────────────────────
+
+_AUTH_COOKIE = "smm_session"
+_PUBLIC_PATHS = {"/login", "/login/"}
+
+
+def _make_session_token(secret: str) -> str:
+    """Genera un token di sessione firmato."""
+    nonce = secrets.token_hex(16)
+    sig = hmac.new(secret.encode(), nonce.encode(), hashlib.sha256).hexdigest()
+    return f"{nonce}:{sig}"
+
+
+def _verify_session_token(token: str, secret: str) -> bool:
+    """Verifica che il token di sessione sia valido."""
+    if ":" not in token:
+        return False
+    nonce, sig = token.split(":", 1)
+    expected = hmac.new(secret.encode(), nonce.encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(sig, expected)
+
+
+class AuthMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Se non c'è password configurata, skip auth
+        if not settings.dashboard_password:
+            return await call_next(request)
+
+        # Percorsi pubblici
+        if request.url.path in _PUBLIC_PATHS:
+            return await call_next(request)
+
+        # Risorse statiche
+        if request.url.path.startswith("/static"):
+            return await call_next(request)
+
+        # Verifica cookie di sessione
+        session_token = request.cookies.get(_AUTH_COOKIE, "")
+        if _verify_session_token(session_token, settings.dashboard_secret_key):
+            return await call_next(request)
+
+        return RedirectResponse("/login", status_code=303)
+
+
+app.add_middleware(AuthMiddleware)
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    error = request.query_params.get("error", "")
+    return HTMLResponse(f"""<!DOCTYPE html>
+<html lang="it"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Login — Social Media Manager</title>
+<style>
+body {{ font-family: -apple-system, BlinkMacSystemFont, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #f5f5f5; }}
+.card {{ background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.1); width: 320px; }}
+h2 {{ margin-top: 0; text-align: center; }}
+input[type=password] {{ width: 100%; padding: .5rem; border: 1px solid #ccc; border-radius: 4px; margin: .5rem 0 1rem; box-sizing: border-box; }}
+button {{ width: 100%; padding: .6rem; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }}
+button:hover {{ background: #1d4ed8; }}
+.error {{ color: #dc2626; text-align: center; font-size: .9rem; }}
+</style></head><body>
+<div class="card">
+<h2>Social Media Manager</h2>
+{"<p class='error'>Password errata</p>" if error else ""}
+<form method="post" action="/login">
+<label>Password</label>
+<input type="password" name="password" autofocus required>
+<button type="submit">Accedi</button>
+</form></div></body></html>""")
+
+
+@app.post("/login")
+async def login_submit(password: str = Form(...)):
+    if hmac.compare_digest(password, settings.dashboard_password):
+        token = _make_session_token(settings.dashboard_secret_key)
+        response = RedirectResponse("/", status_code=303)
+        response.set_cookie(
+            _AUTH_COOKIE, token,
+            httponly=True, samesite="strict", max_age=86400,
+        )
+        return response
+    return RedirectResponse("/login?error=1", status_code=303)
+
+
+@app.post("/logout")
+async def logout():
+    response = RedirectResponse("/login", status_code=303)
+    response.delete_cookie(_AUTH_COOKIE)
+    return response
+
+
+# ── CSRF Protection ───────────────────────────────────────────────────────────
+
+_CSRF_COOKIE = "smm_csrf"
+_CSRF_FIELD = "csrf_token"
+
+
+def _generate_csrf_token() -> str:
+    return secrets.token_hex(32)
+
+
+def _get_or_set_csrf(request: Request, response=None) -> str:
+    """Restituisce il token CSRF dal cookie, o ne genera uno nuovo."""
+    token = request.cookies.get(_CSRF_COOKIE)
+    if not token:
+        token = _generate_csrf_token()
+    if response:
+        response.set_cookie(_CSRF_COOKIE, token, httponly=True, samesite="strict")
+    return token
+
+
+class CSRFMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        if request.method == "POST":
+            # Escludi login (non ha ancora il token)
+            if request.url.path not in _PUBLIC_PATHS:
+                cookie_token = request.cookies.get(_CSRF_COOKIE, "")
+                # Leggi il token dal form body
+                form = await request.form()
+                form_token = form.get(_CSRF_FIELD, "")
+                if not cookie_token or not hmac.compare_digest(cookie_token, form_token):
+                    return RedirectResponse(request.url.path + "?error=csrf", status_code=303)
+                # Ricostruisci il body perché è già stato consumato
+                from starlette.datastructures import FormData
+                request._form = form
+
+        response = await call_next(request)
+
+        # Assicura che il cookie CSRF esista sempre
+        if not request.cookies.get(_CSRF_COOKIE):
+            token = _generate_csrf_token()
+            response.set_cookie(_CSRF_COOKIE, token, httponly=True, samesite="strict")
+
+        return response
+
+
+app.add_middleware(CSRFMiddleware)
+
+
+def _is_safe_url(url: str) -> bool:
+    """Valida che l'URL sia HTTP/HTTPS e non punti a indirizzi interni."""
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+        # Blocca indirizzi riservati/privati
+        try:
+            addr = ipaddress.ip_address(hostname)
+            if addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_reserved:
+                return False
+        except ValueError:
+            # È un hostname, non un IP — blocca localhost
+            if hostname in ("localhost", "localhost.localdomain"):
+                return False
+        return True
+    except Exception:
+        return False
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
+
+
+def _template_response(request: Request, name: str, context: dict) -> HTMLResponse:
+    """Wrapper che inietta automaticamente csrf_token nel contesto del template."""
+    csrf = request.cookies.get(_CSRF_COOKIE, _generate_csrf_token())
+    context["request"] = request
+    context["csrf_token"] = csrf
+    return templates.TemplateResponse(name, context)
 
 
 def get_db():
@@ -38,8 +217,7 @@ def get_db():
 async def home(request: Request, db: Session = Depends(get_db)):
     pending_posts = db.query(Post).filter(Post.status == PostStatus.PENDING).order_by(Post.created_at.desc()).all()
     pending_replies = db.query(Comment).filter(Comment.reply_status == PostStatus.PENDING).order_by(Comment.created_at.desc()).all()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
+    return _template_response(request, "index.html", {
         "pending_posts": pending_posts,
         "pending_replies": pending_replies,
     })
@@ -96,15 +274,14 @@ async def reject_reply(comment_id: int, db: Session = Depends(get_db)):
 @app.get("/analytics", response_class=HTMLResponse)
 async def analytics_page(request: Request, db: Session = Depends(get_db)):
     published = db.query(Post).filter(Post.status == PostStatus.PUBLISHED).order_by(Post.published_at.desc()).limit(20).all()
-    return templates.TemplateResponse("analytics.html", {"request": request, "posts": published})
+    return _template_response(request, "analytics.html", {"posts": published})
 
 
 @app.get("/context", response_class=HTMLResponse)
 async def context_page(request: Request, db: Session = Depends(get_db)):
     ctx = db.query(CompanyContext).first()
     websites = db.query(ContextWebsite).filter(ContextWebsite.is_active == True).order_by(ContextWebsite.created_at.desc()).all()
-    return templates.TemplateResponse("context.html", {
-        "request": request,
+    return _template_response(request, "context.html", {
         "ctx": ctx,
         "websites": websites,
         "saved": request.query_params.get("saved", False),
@@ -178,6 +355,8 @@ async def scrape_website(site_id: int, db: Session = Depends(get_db)):
     site = db.query(ContextWebsite).filter(ContextWebsite.id == site_id).first()
     if not site:
         return RedirectResponse("/context", status_code=303)
+    if not _is_safe_url(site.url):
+        return RedirectResponse("/context?error=invalid_url", status_code=303)
     try:
         async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             resp = await client.get(site.url, headers={"User-Agent": "Mozilla/5.0"})
@@ -234,8 +413,7 @@ async def analysis_page(request: Request, db: Session = Depends(get_db)):
             "created_at": latest.created_at.strftime("%d/%m/%Y %H:%M"),
         }
 
-    return templates.TemplateResponse("competitor_analysis.html", {
-        "request": request,
+    return _template_response(request, "competitor_analysis.html", {
         "analysis": parsed,
         "competitors_count": len(competitors),
         "analyses_count": len(analyses),
@@ -297,8 +475,7 @@ async def competitors_page(request: Request, db: Session = Depends(get_db)):
         .order_by(Competitor.threat_level.desc(), Competitor.name)
         .all()
     )
-    return templates.TemplateResponse("competitors.html", {
-        "request": request,
+    return _template_response(request, "competitors.html", {
         "competitors": competitors,
         "msg": request.query_params.get("msg", ""),
     })
@@ -364,6 +541,8 @@ async def scrape_competitor(cid: int, db: Session = Depends(get_db)):
     c = db.query(Competitor).filter(Competitor.id == cid).first()
     if not c or not c.website:
         return RedirectResponse(f"/competitors?sel={cid}", status_code=303)
+    if not _is_safe_url(c.website):
+        return RedirectResponse(f"/competitors?sel={cid}&error=invalid_url", status_code=303)
     try:
         async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
             resp = await client.get(c.website, headers={"User-Agent": "Mozilla/5.0"})
@@ -479,11 +658,25 @@ async def api_competitor(cid: int, db: Session = Depends(get_db)):
 
 @app.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):
-    return templates.TemplateResponse("settings.html", {
-        "request": request,
+    return _template_response(request, "settings.html", {
         "settings": settings,
         "saved": request.query_params.get("saved", False),
     })
+
+
+# Chiavi ammesse per la scrittura nel .env da dashboard
+_SETTINGS_WHITELIST = {
+    "COMPANY_NAME", "BRAND_KEYWORDS", "AI_PRIMARY_PROVIDER",
+    "ANTHROPIC_MODEL", "OPENAI_COMPATIBLE_MODEL", "OPENAI_COMPATIBLE_BASE_URL",
+    "MONITOR_INTERVAL_MINUTES", "LINKEDIN_POST_TIMES", "FACEBOOK_POST_TIMES",
+    "INSTAGRAM_POST_TIMES",
+}
+
+
+def _sanitize_env_value(value: str) -> str:
+    """Rimuove caratteri pericolosi dai valori .env."""
+    # Niente newline, carriage return o null bytes
+    return value.replace("\n", "").replace("\r", "").replace("\0", "")
 
 
 @app.post("/settings")
@@ -516,10 +709,20 @@ async def save_settings(
         "INSTAGRAM_POST_TIMES": instagram_post_times,
     }
 
+    # Filtra solo chiavi nella whitelist e sanitizza valori
+    updates = {
+        k: _sanitize_env_value(v)
+        for k, v in updates.items()
+        if k in _SETTINGS_WHITELIST
+    }
+
     new_lines = []
     updated_keys = set()
     for line in lines:
-        key = line.split("=")[0].strip()
+        if "=" not in line:
+            new_lines.append(line)
+            continue
+        key = line.split("=", 1)[0].strip()
         if key in updates:
             new_lines.append(f"{key}={updates[key]}")
             updated_keys.add(key)

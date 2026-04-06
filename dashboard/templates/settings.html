@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Impostazioni — Social Media Manager</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
@@ -297,6 +298,15 @@
       const idx = radio.value === 'anthropic' ? 0 : 1;
       document.querySelectorAll('.provider-card')[idx].classList.add('active');
     });
+  });
+  // CSRF
+  document.querySelectorAll('form[method="post"]').forEach(f => {
+    if (!f.querySelector('[name="csrf_token"]')) {
+      const inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = 'csrf_token';
+      inp.value = document.querySelector('meta[name="csrf-token"]').content;
+      f.prepend(inp);
+    }
   });
 </script>
 </body>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Concorrenti — Social Media Manager</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #333; height: 100vh; display: flex; flex-direction: column; }
@@ -509,6 +510,22 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function escAttr(s) { return escHtml(s); }
+
+// CSRF — inietta token in tutti i form (statici e dinamici)
+const _csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+function injectCsrf() {
+  document.querySelectorAll('form[method="post"]').forEach(f => {
+    if (!f.querySelector('[name="csrf_token"]')) {
+      const inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = 'csrf_token';
+      inp.value = _csrfToken;
+      f.prepend(inp);
+    }
+  });
+}
+injectCsrf();
+// Osserva nuovi form aggiunti dinamicamente
+new MutationObserver(injectCsrf).observe(document.body, {childList: true, subtree: true});
 </script>
 </body>
 </html>

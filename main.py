@@ -1,6 +1,8 @@
 """
 Entry point — Social Media Manager Multi-Agent System
 """
+from __future__ import annotations
+
 import typer
 from rich.console import Console
 from rich.prompt import Prompt
