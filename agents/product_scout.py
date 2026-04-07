@@ -67,6 +67,66 @@ _KV_RE = re.compile(
 )
 
 
+# Testi generici usati come testo del link PDF (da sostituire col nome del file)
+_GENERIC_LINK_TEXT = re.compile(
+    r"^(scarica|download|clicca qui|leggi|apri|vedi|visualizza|get|open|"
+    r"scheda tecnica|datasheet|pdf|documento|file|here|click)\b",
+    re.I,
+)
+# Attributioni da rimuovere in coda al titolo (es. "- IPAF", "| AtroPIM")
+_TRAILING_ATTRIBUTION = re.compile(
+    r"\s*[-|–]\s*(IPAF|GIS|PDF|AtroPIM|Liguria Service|MB Metalli|"
+    r"Wikipedia|Wikimedia|issuu|scribd|academia\.edu|slideshare)\s*$",
+    re.I,
+)
+
+
+def _derive_clean_title(name: str, filename: str = "", url: str = "", category: str = "") -> str:
+    """
+    Ricava un titolo breve e leggibile per un documento tecnico.
+    Priorità:
+    1. Pulisce il nome esistente (strip [PDF], attributioni, spazi)
+    2. Se il nome risultante è generico o troppo corto, usa il filename
+    3. Fallback sull'URL path
+    4. Fallback sulla categoria
+    """
+    # 1. Strip prefisso [PDF] e varianti
+    cleaned = re.sub(r"^\[PDF\]\s*", "", name or "").strip()
+    # Strip attributioni in coda
+    cleaned = _TRAILING_ATTRIBUTION.sub("", cleaned).strip()
+    # Strip " | PDF" o simili in coda
+    cleaned = re.sub(r"\s*[|]\s*PDF\s*$", "", cleaned, flags=re.I).strip()
+    # Normalizza spazi interni
+    cleaned = re.sub(r"\s+", " ", cleaned)
+
+    # Rimuovi estensioni di file accidentalmente nel titolo (.xlsx, .pdf, .doc)
+    cleaned = re.sub(r"\.(pdf|xlsx?|docx?|pptx?)\s*$", "", cleaned, flags=re.I).strip()
+
+    # 2. Se troppo generico, corto (≤8 char) o parola singola senza maiuscole, preferisci il filename
+    is_single_word = " " not in cleaned
+    if not cleaned or len(cleaned) <= 8 or _GENERIC_LINK_TEXT.match(cleaned) or (is_single_word and cleaned.islower()):
+        if filename:
+            # "Easy-Lift-RA21_71f4b9.pdf" → "Easy Lift RA21"
+            stem = Path(filename).stem                   # "Easy-Lift-RA21_71f4b9"
+            stem = re.sub(r"[_][0-9a-f]{6}$", "", stem) # rimuove hash suffix
+            stem = re.sub(r"[_\-]+", " ", stem).strip()  # kebab → spazi
+            stem = re.sub(r"\s+", " ", stem)
+            # Capitalizza solo la prima lettera se tutto lowercase
+            if stem and stem == stem.lower():
+                stem = stem.capitalize()
+            cleaned = stem
+
+    # 3. Fallback sull'URL path
+    if not cleaned or len(cleaned) < 3:
+        if url:
+            url_stem = Path(urlparse(url).path).stem
+            url_stem = re.sub(r"[_\-]+", " ", url_stem).strip()
+            cleaned = url_stem.capitalize() if url_stem else ""
+
+    # 4. Fallback categoria
+    return cleaned or category or "Documento tecnico"
+
+
 def _is_safe_url(url: str) -> bool:
     try:
         p = urlparse(url)
@@ -204,12 +264,24 @@ def _find_pdf_links(html: str, base_url: str, source_label: str) -> list[dict]:
         full_url = urljoin(base_url, href)
         if not _is_safe_url(full_url):
             continue
-        name = a.get_text(strip=True)[:300] or Path(urlparse(full_url).path).name
-        if not _is_tech_document("", name):
+        raw_name = a.get_text(strip=True)[:300] or Path(urlparse(full_url).path).name
+        if not _is_tech_document("", raw_name):
             continue
+        # Cerca il contesto testuale vicino al link (titolo o didascalia)
+        context_el = a.find_parent(["li", "td", "div", "p"])
+        context_text = context_el.get_text(strip=True)[:200] if context_el else ""
+        # Prova a ricavare un titolo più preciso dal contesto
+        context_title = ""
+        if context_el:
+            heading = context_el.find(["h1","h2","h3","h4","h5","strong","b"])
+            if heading:
+                context_title = heading.get_text(strip=True)[:200]
+        # Scegli il titolo migliore: contesto > testo link > filename
+        best_raw = context_title if context_title and not _GENERIC_LINK_TEXT.match(context_title) else raw_name
+        name = _derive_clean_title(best_raw, filename=Path(urlparse(full_url).path).name, url=full_url)
         results.append({
             "url": full_url,
-            "name": name,
+            "name": name[:500],
             "page_url": base_url,
             "source": source_label,
             "category": _categorize_document(name, full_url),
@@ -300,11 +372,12 @@ def _search_tavily_tech(competitor_name: str, sector: str) -> list[dict]:
                 if not url or url in seen_urls or not _is_safe_url(url):
                     continue
                 seen_urls.add(url)
-                name = r.get("title", "")[:300] or competitor_name
+                raw_name = r.get("title", "")[:300] or competitor_name
+                name = _derive_clean_title(raw_name, filename=Path(urlparse(url).path).name, url=url)
                 if url.lower().endswith(".pdf"):
                     results.append({
                         "url": url,
-                        "name": name,
+                        "name": name[:500],
                         "page_url": url,
                         "source": "tavily",
                         "category": _categorize_document(name, url),
@@ -320,7 +393,7 @@ def _search_tavily_tech(competitor_name: str, sector: str) -> list[dict]:
                             # Pagina tecnica senza PDF — la teniamo come riferimento
                             results.append({
                                 "url": url,
-                                "name": name,
+                                "name": name[:500],
                                 "page_url": url,
                                 "source": "tavily",
                                 "category": _categorize_document(name, url),
