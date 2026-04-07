@@ -33,10 +33,30 @@ _DEALER_PAGE_SLUGS = [
 # Pattern per estrarre contatti inline
 _EMAIL_RE = re.compile(r"[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}")
 _PHONE_RE = re.compile(r"(?:\+\d{1,3}[\s\-]?)?\(?\d{2,4}\)?[\s\-]?\d{3,4}[\s\-]?\d{3,5}")
-_URL_RE = re.compile(r"https?://[^\s\"'>]+")
 
-# Paesi europei principali per contestualizzare la ricerca
-_COMMON_COUNTRIES = {"it": "Italia", "de": "Germania", "fr": "Francia", "es": "Spagna", "gb": "UK"}
+# Pattern per riconoscere rumore: CTA social, titoli articolo, pulsanti UI
+_NOISE_RE = re.compile(
+    r"follow|follower|connect|join linkedin|sign in|log in|cookie|subscribe|"
+    r"newsletter|read more|leggi|scopri|contattaci|about us|chi siamo|"
+    r"finalist|award|railway|exhibition|expo|webinar|demo tour|fleet|"
+    r"strengthens|chooses|becomes|launches|announces|why spider|benefits of",
+    re.I,
+)
+# Un vero dealer ha quasi sempre almeno uno di questi elementi
+_HAS_CONTACT_RE = re.compile(
+    r"(?:\+\d[\d\s\-]{6,})|"          # numero di telefono
+    r"[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}|"  # email
+    r"https?://|www\.|"               # sito web
+    r"\b\d{5}\b|"                     # CAP
+    r"via |viale |corso |piazza |str\.|avenue|road|street|rue |calle ",
+    re.I,
+)
+# Titoli di articolo: troppe maiuscole consecutive o verbi all'infinito tipici
+_ARTICLE_TITLE_RE = re.compile(
+    r"^[A-Z][a-z]+ [A-Z][a-z]+ [A-Z][a-z]|"  # Tre Parole Maiuscole
+    r"\b(why|how|when|what|top \d|best \d|\d+ tips)\b",
+    re.I,
+)
 
 
 def _is_safe_url(url: str) -> bool:
@@ -137,13 +157,28 @@ def _scrape_dealer_page(url: str, source_url: str) -> list[dict]:
         if len(text) < 20:
             continue
 
+        # Scarta blocchi che non hanno nessun contatto/indirizzo riconoscibile
+        if not _HAS_CONTACT_RE.search(text):
+            continue
+
+        # Scarta blocchi con contenuto tipico di social media / articoli
+        if _NOISE_RE.search(text[:200]):
+            continue
+
         # Il nome del dealer è spesso nel primo heading o strong/b
         name_el = block.find(["h2", "h3", "h4", "strong", "b"])
         name = name_el.get_text(strip=True)[:300] if name_el else text[:80]
         if not name or name in seen_names:
             continue
-        seen_names.add(name)
 
+        # Scarta nomi che sembrano titoli di articolo
+        if _NOISE_RE.search(name) or _ARTICLE_TITLE_RE.search(name):
+            continue
+        # Scarta nomi troppo lunghi (probabilmente frasi intere, non nomi aziendali)
+        if len(name) > 120:
+            continue
+
+        seen_names.add(name)
         contacts = _extract_contact_block(block)
         addr_data = _parse_address_text(text)
 

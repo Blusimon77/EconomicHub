@@ -3,7 +3,8 @@
     "allow": [
       "Bash(python3 -m py_compile /Users/simone/Documents/social-media-manager/main.py)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }

@@ -38,7 +38,11 @@ _TECH_KEYWORDS = re.compile(
 # Parole chiave da escludere (documenti non tecnici)
 _EXCLUDE_KEYWORDS = re.compile(
     r"privacy|cookie|gdpr|termini|condizioni|careers|lavora.con|newsletter|"
-    r"login|registra|checkout|carrello|offerta.lavoro",
+    r"login|registra|checkout|carrello|offerta.lavoro|"
+    r"bilancio|sostenibilit|annual.report|rassegna.stampa|press.release|"
+    r"financial|investor|corporate.responsib|sustainability.report|"
+    r"report.annuale|relazione.annual|assemblea|assembl|"
+    r"ipaf|gis.expo|gis.2017|ista |iapa |bauma |conexpo|intermat|samoter",
     re.I,
 )
 
@@ -379,6 +383,12 @@ def search_and_download(competitor_id: int, db: Session) -> list[dict]:
         docs = _scan_site_for_tech_docs(competitor.website, "manufacturer_site")
         candidates.extend(docs)
 
+    # Calcola domini affidabili: sito costruttore + dominio dei dealer
+    trusted_domains: set[str] = set()
+    if competitor.website:
+        host = urlparse(competitor.website).hostname or ""
+        trusted_domains.add(host.removeprefix("www."))
+
     # 2. Tavily
     candidates.extend(_search_tavily_tech(competitor.name, competitor.sector or ""))
 
@@ -390,19 +400,30 @@ def search_and_download(competitor_id: int, db: Session) -> list[dict]:
     for dealer in dealers[:10]:  # limita per evitare scansioni eccessive
         if not dealer.website:
             continue
+        dealer_host = urlparse(dealer.website).hostname or ""
+        trusted_domains.add(dealer_host.removeprefix("www."))
         logger.info("Scansione dealer '%s': %s", dealer.name, dealer.website)
         dealer_docs = _scan_site_for_tech_docs(dealer.website, "dealer_site")
         for d in dealer_docs:
             d["dealer_id"] = dealer.id
         candidates.extend(dealer_docs)
 
-    # Dedup per URL
+    # Dedup per URL + filtro cross-domain per Tavily
+    # (i documenti dal sito costruttore e dealer passano sempre)
     seen_urls: set[str] = set()
     unique: list[dict] = []
     for c in candidates:
-        if c["url"] not in seen_urls:
-            seen_urls.add(c["url"])
-            unique.append(c)
+        if c["url"] in seen_urls:
+            continue
+        # Per i risultati Tavily: accetta solo se il dominio è tra quelli fidati
+        if c.get("source") == "tavily":
+            doc_host = urlparse(c["url"]).hostname or ""
+            doc_host = doc_host.removeprefix("www.")
+            if trusted_domains and doc_host not in trusted_domains:
+                logger.debug("Scartato PDF da dominio terzo: %s", c["url"])
+                continue
+        seen_urls.add(c["url"])
+        unique.append(c)
 
     # URL già in DB
     existing_urls = {p.brochure_url for p in db.query(CompetitorProduct).filter(

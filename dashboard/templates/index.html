@@ -12,7 +12,13 @@
     header h1 { font-size: 1.2rem; }
     nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
     nav a:hover { color: white; }
+    nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
     .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.88rem; z-index: 200; animation: fadeIn 0.2s; color: white; }
+    .toast-success { background: #22c55e; }
+    .toast-info { background: #3b82f6; }
+    .toast-warning { background: #f59e0b; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     h2 { margin-bottom: 1rem; font-size: 1.1rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
     .card { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); padding: 1.25rem; margin-bottom: 1rem; }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
@@ -41,7 +47,7 @@
 <header>
   <h1>Social Media Manager</h1>
   <nav>
-    <a href="/">Approvazioni</a>
+    <a href="/" class="active">Approvazioni</a>
     <a href="/analytics">Analytics</a>
     <a href="/context">Contesto</a>
     <a href="/competitors">Concorrenti</a>
@@ -112,15 +118,16 @@
     <div class="meta" style="margin-bottom:0.4rem">
       <strong>{{ comment.author_name }}</strong>: {{ comment.content }}
     </div>
-    <div class="content-preview">Bozza risposta: {{ comment.reply_draft }}</div>
-    <div class="actions">
-      <form method="post" action="/replies/{{ comment.id }}/approve" style="display:inline">
+    <form method="post" action="/replies/{{ comment.id }}/approve">
+      <div style="margin-bottom:0.5rem;font-size:0.78rem;color:#888;font-weight:500">Bozza risposta — modifica se necessario:</div>
+      <textarea name="reply_draft" rows="3" style="margin-bottom:0.5rem">{{ comment.reply_draft }}</textarea>
+      <div class="actions">
         <button class="btn btn-approve" type="submit">Approva risposta</button>
-      </form>
-      <form method="post" action="/replies/{{ comment.id }}/reject" style="display:inline">
-        <button class="btn btn-reject" type="submit">Rifiuta</button>
-      </form>
-    </div>
+        <button class="btn btn-reject" type="button"
+                onclick="this.closest('.card').querySelector('form[data-reject]').submit()">Rifiuta</button>
+      </div>
+    </form>
+    <form method="post" action="/replies/{{ comment.id }}/reject" data-reject style="display:none"></form>
   </div>
   {% endfor %}
 
@@ -131,15 +138,36 @@ function toggleEdit(id) {
   const el = document.getElementById('edit-' + id);
   el.classList.toggle('open');
 }
+
 // Inietta CSRF token in tutti i form POST
+const _csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 document.querySelectorAll('form[method="post"]').forEach(f => {
   if (!f.querySelector('[name="csrf_token"]')) {
     const inp = document.createElement('input');
     inp.type = 'hidden'; inp.name = 'csrf_token';
-    inp.value = document.querySelector('meta[name="csrf-token"]').content;
+    inp.value = _csrfToken;
     f.prepend(inp);
   }
 });
+
+// Toast feedback
+const MSG_MAP = {
+  approved: { text: '✓ Post approvato', cls: 'toast-success' },
+  rejected: { text: '✗ Post rifiutato', cls: 'toast-warning' },
+  edited:   { text: '✓ Post modificato', cls: 'toast-info' },
+  reply_approved: { text: '✓ Risposta approvata', cls: 'toast-success' },
+  reply_rejected: { text: '✗ Risposta rifiutata', cls: 'toast-warning' },
+};
+const msgParam = new URLSearchParams(window.location.search).get('msg');
+if (msgParam && MSG_MAP[msgParam]) {
+  const { text, cls } = MSG_MAP[msgParam];
+  const t = document.createElement('div');
+  t.className = `toast ${cls}`; t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+  // Rimuovi il parametro dall'URL senza ricaricare
+  history.replaceState(null, '', '/');
+}
 </script>
 </body>
 </html>

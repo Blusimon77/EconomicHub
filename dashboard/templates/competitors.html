@@ -322,7 +322,7 @@ function activateTab(name) {
 
 function renderDetail(c) {
   const threatClass = THREAT_CLASSES[c.threat_level] || 'threat-badge-2';
-  const websiteLink = c.website ? `<a href="${c.website}" target="_blank">${c.website}</a>` : '—';
+  const websiteLink = c.website ? `<a href="${escAttr(c.website)}" target="_blank" rel="noopener noreferrer">${escHtml(c.website)}</a>` : '—';
 
   return `
   <div class="comp-header">

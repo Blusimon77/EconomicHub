@@ -1,0 +1,405 @@
+2026-04-06 14:42:41 [INFO] test: Test log message
+2026-04-06 19:09:17 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Socage: {'linkedin', 'instagram'}
+2026-04-06 19:09:19 [INFO] agents.competitor_analyst: Profili social trovati per Socage: {'linkedin': 'https://www.linkedin.com/company/socage-s-r-l-', 'instagram': 'https://www.instagram.com/socage'}
+2026-04-06 19:09:19 [INFO] agents.competitor_analyst: Aggiunto profilo linkedin per Socage: https://www.linkedin.com/company/socage-s-r-l-
+2026-04-06 19:09:19 [INFO] agents.competitor_analyst: Aggiunto profilo instagram per Socage: https://www.instagram.com/socage
+2026-04-06 19:09:22 [INFO] httpx: HTTP Request: GET https://easy-lift.com/ "HTTP/1.1 200 OK"
+2026-04-06 19:09:25 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Easylift: {'instagram'}
+2026-04-06 19:09:27 [INFO] agents.competitor_analyst: Profili social trovati per Easylift: {'facebook': 'https://www.facebook.com/EasyLift.Italy', 'linkedin': 'https://www.linkedin.com/company/easy-lift-equipment-company-inc-'}
+2026-04-06 19:09:27 [INFO] agents.competitor_analyst: Aggiunto profilo facebook per Easylift: https://www.facebook.com/EasyLift.Italy
+2026-04-06 19:09:27 [INFO] agents.competitor_analyst: Aggiunto profilo linkedin per Easylift: https://www.linkedin.com/company/easy-lift-equipment-company-inc-
+2026-04-06 19:10:37 [INFO] httpx: HTTP Request: POST http://10.99.97.102:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-06 19:23:20 [INFO] httpx: HTTP Request: GET https://socage.it "HTTP/1.1 200 OK"
+2026-04-06 19:23:20 [INFO] product_scout: Trovati 1 PDF su sito https://socage.it
+2026-04-06 19:23:22 [INFO] product_scout: Tavily trovato 7 risultati per 'Socage'
+2026-04-06 19:23:22 [INFO] httpx: HTTP Request: GET https://socage.it/wp-content/uploads/2019/07/Socage-Srl-2024-Bilancio-di-Sostenibilita-CDA-Studio-Legale-Tributario-stampa_compressed.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:22 [INFO] product_scout: PDF scaricato: Socage-Srl-2024-Bilancio-di-Sostenibilita-CDA-Studio-Legale-_e00f0a.pdf (5371 KB)
+2026-04-06 19:23:22 [INFO] product_scout: Prodotto salvato: BILANCIO DI SOSTENIBILITÀ 2024 per competitor 1
+2026-04-06 19:23:22 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2017-12/IPAF%20Rapporto%20Annuale%202011%20IT.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:23 [INFO] product_scout: PDF scaricato: IPAF_20Rapporto_20Annuale_202011_20IT_e7cd3a.pdf (3038 KB)
+2026-04-06 19:23:23 [INFO] product_scout: Prodotto salvato: [PDF] RepoRt AnnuAle 2011 - IPAF per competitor 1
+2026-04-06 19:23:23 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2023-03/IPAF%20InForma%202023.2.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:24 [INFO] product_scout: PDF scaricato: IPAF_20InForma_202023.2_abae95.pdf (18773 KB)
+2026-04-06 19:23:24 [INFO] product_scout: Prodotto salvato: [PDF] Il valore assoluto della sicurezza - IPAF per competitor 1
+2026-04-06 19:23:24 [INFO] httpx: HTTP Request: GET https://gisexpo.it/pdf/Catalogo_GIS_2017.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:25 [INFO] product_scout: PDF scaricato: Catalogo_GIS_2017_e6f9d8.pdf (15399 KB)
+2026-04-06 19:23:25 [INFO] product_scout: Prodotto salvato: [PDF] Catalogo GIS 2017.xlsx per competitor 1
+2026-04-06 19:23:25 [INFO] httpx: HTTP Request: GET https://gisexpo.it/pdf/catalogo15.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:25 [INFO] product_scout: PDF scaricato: catalogo15_657b6b.pdf (3952 KB)
+2026-04-06 19:23:25 [INFO] product_scout: Prodotto salvato: [PDF] catalogo espositori - GIS Expo per competitor 1
+2026-04-06 19:23:26 [INFO] httpx: HTTP Request: GET https://www.mollofratelli.com/wp-content/uploads/2025/03/Mollo-Noleggio-Rassegna-Stampa-2021.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:27 [WARNING] product_scout: PDF troppo grande (>20MB), skip: https://www.mollofratelli.com/wp-content/uploads/2025/03/Mollo-Noleggio-Rassegna-Stampa-2021.pdf
+2026-04-06 19:23:27 [INFO] product_scout: Prodotto salvato: [PDF] Mollo Noleggio Rassegna Stampa 2021 per competitor 1
+2026-04-06 19:23:27 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2021-02/IPAF%20Informa%202021.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:27 [INFO] product_scout: PDF scaricato: IPAF_20Informa_202021_d78dc4.pdf (9441 KB)
+2026-04-06 19:23:27 [INFO] product_scout: Prodotto salvato: [PDF] La sicurezza nel post pandemia - IPAF per competitor 1
+2026-04-06 19:23:27 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2024-02/IPAF_InForma_2024_WEB.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:28 [INFO] product_scout: PDF scaricato: IPAF_InForma_2024_WEB_3520ae.pdf (17867 KB)
+2026-04-06 19:23:28 [INFO] product_scout: Prodotto salvato: [PDF] Storia evolutiva della piattaforma Ragno - IPAF per competitor 1
+2026-04-06 19:23:28 [INFO] product_scout: Ricerca completata per competitor 1: 8 nuovi prodotti
+2026-04-06 19:23:57 [INFO] httpx: HTTP Request: GET https://easy-lift.com/ "HTTP/1.1 200 OK"
+2026-04-06 19:23:57 [INFO] product_scout: Trovati 0 PDF su sito https://easy-lift.com/
+2026-04-06 19:23:58 [INFO] product_scout: Tavily trovato 6 risultati per 'Easylift'
+2026-04-06 19:23:58 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2024-02/IPAF_InForma_2024_WEB.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:23:59 [INFO] product_scout: PDF scaricato: IPAF_InForma_2024_WEB_3520ae.pdf (17867 KB)
+2026-04-06 19:23:59 [INFO] product_scout: Prodotto salvato: [PDF] Storia evolutiva della piattaforma Ragno - IPAF per competitor 2
+2026-04-06 19:23:59 [INFO] httpx: HTTP Request: GET https://gisexpo.it/pdf/Catalogo_GIS_2017.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:24:00 [INFO] product_scout: PDF scaricato: Catalogo_GIS_2017_e6f9d8.pdf (15399 KB)
+2026-04-06 19:24:00 [INFO] product_scout: Prodotto salvato: [PDF] Catalogo GIS 2017.xlsx per competitor 2
+2026-04-06 19:24:00 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2017-12/IPAF%20Rapporto%20Annuale%202011%20IT.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:24:00 [INFO] product_scout: PDF scaricato: IPAF_20Rapporto_20Annuale_202011_20IT_e7cd3a.pdf (3038 KB)
+2026-04-06 19:24:00 [INFO] product_scout: Prodotto salvato: [PDF] RepoRt AnnuAle 2011 - IPAF per competitor 2
+2026-04-06 19:24:00 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2023-03/IPAF%20InForma%202023.2.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:24:01 [INFO] product_scout: PDF scaricato: IPAF_20InForma_202023.2_abae95.pdf (18773 KB)
+2026-04-06 19:24:01 [INFO] product_scout: Prodotto salvato: [PDF] Il valore assoluto della sicurezza - IPAF per competitor 2
+2026-04-06 19:24:01 [INFO] httpx: HTTP Request: GET https://www.ipaf.org/sites/default/files/2021-02/IPAF%20Informa%202021.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:24:01 [INFO] product_scout: PDF scaricato: IPAF_20Informa_202021_d78dc4.pdf (9441 KB)
+2026-04-06 19:24:01 [INFO] product_scout: Prodotto salvato: [PDF] La sicurezza nel post pandemia - IPAF per competitor 2
+2026-04-06 19:24:02 [INFO] httpx: HTTP Request: GET https://www.mbmetalli.it/wp-content/uploads/SINGINGROCK_working_2018_IT_72dpi.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:24:03 [WARNING] product_scout: PDF troppo grande (>20MB), skip: https://www.mbmetalli.it/wp-content/uploads/SINGINGROCK_working_2018_IT_72dpi.pdf
+2026-04-06 19:24:03 [INFO] product_scout: Prodotto salvato: [PDF] PROFESSIONAL - MB Metalli per competitor 2
+2026-04-06 19:24:03 [INFO] product_scout: Ricerca completata per competitor 2: 6 nuovi prodotti
+2026-04-06 19:36:35 [INFO] httpx: HTTP Request: GET https://socage.it/dealers "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:35 [INFO] dealer_scout: Pagina https://socage.it/dealers: estratti 0 dealer
+2026-04-06 19:36:36 [INFO] httpx: HTTP Request: GET https://socage.it/dealer-locator "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:36 [INFO] dealer_scout: Pagina https://socage.it/dealer-locator: estratti 0 dealer
+2026-04-06 19:36:37 [INFO] httpx: HTTP Request: GET https://socage.it/rivenditori "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:37 [INFO] dealer_scout: Pagina https://socage.it/rivenditori: estratti 0 dealer
+2026-04-06 19:36:38 [INFO] httpx: HTTP Request: GET https://socage.it/concessionari "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:39 [INFO] dealer_scout: Pagina https://socage.it/concessionari: estratti 0 dealer
+2026-04-06 19:36:40 [INFO] httpx: HTTP Request: GET https://socage.it/dove-acquistare "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:40 [INFO] dealer_scout: Pagina https://socage.it/dove-acquistare: estratti 0 dealer
+2026-04-06 19:36:41 [INFO] httpx: HTTP Request: GET https://socage.it/find-a-dealer "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:41 [INFO] dealer_scout: Pagina https://socage.it/find-a-dealer: estratti 0 dealer
+2026-04-06 19:36:42 [INFO] httpx: HTTP Request: GET https://socage.it/store-locator "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:42 [INFO] dealer_scout: Pagina https://socage.it/store-locator: estratti 0 dealer
+2026-04-06 19:36:43 [INFO] httpx: HTTP Request: GET https://socage.it/dove-trovarci "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:44 [INFO] dealer_scout: Pagina https://socage.it/dove-trovarci: estratti 0 dealer
+2026-04-06 19:36:45 [INFO] httpx: HTTP Request: GET https://socage.it/distributori "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:45 [INFO] dealer_scout: Pagina https://socage.it/distributori: estratti 0 dealer
+2026-04-06 19:36:46 [INFO] httpx: HTTP Request: GET https://socage.it/authorized-dealers "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:46 [INFO] dealer_scout: Pagina https://socage.it/authorized-dealers: estratti 0 dealer
+2026-04-06 19:36:47 [INFO] httpx: HTTP Request: GET https://socage.it/where-to-buy "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:47 [INFO] dealer_scout: Pagina https://socage.it/where-to-buy: estratti 0 dealer
+2026-04-06 19:36:49 [INFO] httpx: HTTP Request: GET https://socage.it/network "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:49 [INFO] dealer_scout: Pagina https://socage.it/network: estratti 0 dealer
+2026-04-06 19:36:50 [INFO] httpx: HTTP Request: GET https://socage.it/partner "HTTP/1.1 301 Moved Permanently"
+2026-04-06 19:36:50 [INFO] httpx: HTTP Request: GET https://socage.it/partnership-socage-e-aichi-per-il-mercato-giapponese/ "HTTP/1.1 200 OK"
+2026-04-06 19:36:50 [INFO] dealer_scout: Pagina https://socage.it/partner: estratti 0 dealer
+2026-04-06 19:36:51 [INFO] httpx: HTTP Request: GET https://socage.it/resellers "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:51 [INFO] dealer_scout: Pagina https://socage.it/resellers: estratti 0 dealer
+2026-04-06 19:36:52 [INFO] httpx: HTTP Request: GET https://socage.it/punti-vendita "HTTP/1.1 404 Not Found"
+2026-04-06 19:36:52 [INFO] dealer_scout: Pagina https://socage.it/punti-vendita: estratti 0 dealer
+2026-04-06 19:36:52 [INFO] httpx: HTTP Request: GET https://socage.it "HTTP/1.1 200 OK"
+2026-04-06 19:36:54 [INFO] httpx: HTTP Request: GET https://socage.it/filiali/ "HTTP/1.1 200 OK"
+2026-04-06 19:36:55 [INFO] dealer_scout: Pagina https://socage.it/filiali/: estratti 4 dealer
+2026-04-06 19:36:55 [INFO] httpx: HTTP Request: GET https://socage.it/ "HTTP/1.1 200 OK"
+2026-04-06 19:36:55 [INFO] dealer_scout: Pagina https://socage.it/: estratti 0 dealer
+2026-04-06 19:36:55 [INFO] httpx: HTTP Request: GET https://socageworld.com/socage-company/ "HTTP/1.1 200 OK"
+2026-04-06 19:36:55 [INFO] dealer_scout: Pagina https://socageworld.com/socage-company/: estratti 1 dealer
+2026-04-06 19:36:56 [INFO] httpx: HTTP Request: GET https://socageworld.com/branches/ "HTTP/1.1 200 OK"
+2026-04-06 19:36:56 [INFO] dealer_scout: Pagina https://socageworld.com/branches/: estratti 4 dealer
+2026-04-06 19:36:57 [INFO] httpx: HTTP Request: GET https://socage.it/wp-content/uploads/2019/07/Magazine-Socage-2025.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:36:58 [INFO] dealer_scout: Pagina https://socage.it/wp-content/uploads/2019/07/Magazine-Socage-2025.pdf: estratti 0 dealer
+2026-04-06 19:36:59 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/the-company/ "HTTP/1.1 200 OK"
+2026-04-06 19:36:59 [INFO] dealer_scout: Pagina https://socagenorthamerica.com/the-company/: estratti 0 dealer
+2026-04-06 19:37:02 [INFO] httpx: HTTP Request: GET https://www.facebook.com/socageplatforms/?locale=it_IT "HTTP/1.1 200 OK"
+2026-04-06 19:37:02 [INFO] dealer_scout: Pagina https://www.facebook.com/socageplatforms/?locale=it_IT: estratti 0 dealer
+2026-04-06 19:37:02 [INFO] httpx: HTTP Request: GET https://socageworld.com/my-socage/ "HTTP/1.1 200 OK"
+2026-04-06 19:37:02 [INFO] dealer_scout: Pagina https://socageworld.com/my-socage/: estratti 1 dealer
+2026-04-06 19:37:02 [INFO] httpx: HTTP Request: GET https://socageraptor.com/en/spider-boom-lifts/ "HTTP/1.1 200 OK"
+2026-04-06 19:37:02 [INFO] dealer_scout: Pagina https://socageraptor.com/en/spider-boom-lifts/: estratti 1 dealer
+2026-04-06 19:37:02 [INFO] dealer_scout: Tavily dealer search 'Socage': 15 trovati
+2026-04-06 19:37:02 [INFO] dealer_scout: Dealer search completata per competitor 1: 12 nuovi
+2026-04-06 19:40:10 [INFO] httpx: HTTP Request: GET https://easy-lift.com/dealers "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:10 [INFO] dealer_scout: Pagina https://easy-lift.com/dealers: estratti 1 dealer
+2026-04-06 19:40:13 [INFO] httpx: HTTP Request: GET https://easy-lift.com/dealer-locator "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:13 [INFO] dealer_scout: Pagina https://easy-lift.com/dealer-locator: estratti 1 dealer
+2026-04-06 19:40:16 [INFO] httpx: HTTP Request: GET https://easy-lift.com/rivenditori "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:16 [INFO] dealer_scout: Pagina https://easy-lift.com/rivenditori: estratti 1 dealer
+2026-04-06 19:40:19 [INFO] httpx: HTTP Request: GET https://easy-lift.com/concessionari "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:19 [INFO] dealer_scout: Pagina https://easy-lift.com/concessionari: estratti 1 dealer
+2026-04-06 19:40:22 [INFO] httpx: HTTP Request: GET https://easy-lift.com/dove-acquistare "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:22 [INFO] dealer_scout: Pagina https://easy-lift.com/dove-acquistare: estratti 1 dealer
+2026-04-06 19:40:25 [INFO] httpx: HTTP Request: GET https://easy-lift.com/find-a-dealer "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:25 [INFO] dealer_scout: Pagina https://easy-lift.com/find-a-dealer: estratti 1 dealer
+2026-04-06 19:40:28 [INFO] httpx: HTTP Request: GET https://easy-lift.com/store-locator "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:28 [INFO] dealer_scout: Pagina https://easy-lift.com/store-locator: estratti 1 dealer
+2026-04-06 19:40:31 [INFO] httpx: HTTP Request: GET https://easy-lift.com/dove-trovarci "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:31 [INFO] dealer_scout: Pagina https://easy-lift.com/dove-trovarci: estratti 1 dealer
+2026-04-06 19:40:34 [INFO] httpx: HTTP Request: GET https://easy-lift.com/distributori "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:34 [INFO] dealer_scout: Pagina https://easy-lift.com/distributori: estratti 1 dealer
+2026-04-06 19:40:37 [INFO] httpx: HTTP Request: GET https://easy-lift.com/authorized-dealers "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:37 [INFO] dealer_scout: Pagina https://easy-lift.com/authorized-dealers: estratti 1 dealer
+2026-04-06 19:40:40 [INFO] httpx: HTTP Request: GET https://easy-lift.com/where-to-buy "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:40 [INFO] dealer_scout: Pagina https://easy-lift.com/where-to-buy: estratti 1 dealer
+2026-04-06 19:40:42 [INFO] httpx: HTTP Request: GET https://easy-lift.com/network "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:43 [INFO] dealer_scout: Pagina https://easy-lift.com/network: estratti 1 dealer
+2026-04-06 19:40:45 [INFO] httpx: HTTP Request: GET https://easy-lift.com/partner "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:45 [INFO] dealer_scout: Pagina https://easy-lift.com/partner: estratti 1 dealer
+2026-04-06 19:40:48 [INFO] httpx: HTTP Request: GET https://easy-lift.com/resellers "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:48 [INFO] dealer_scout: Pagina https://easy-lift.com/resellers: estratti 1 dealer
+2026-04-06 19:40:51 [INFO] httpx: HTTP Request: GET https://easy-lift.com/punti-vendita "HTTP/1.1 404 Not Found"
+2026-04-06 19:40:51 [INFO] dealer_scout: Pagina https://easy-lift.com/punti-vendita: estratti 1 dealer
+2026-04-06 19:40:55 [INFO] httpx: HTTP Request: GET https://easy-lift.com/il-nostro-network/ "HTTP/1.1 200 OK"
+2026-04-06 19:40:55 [INFO] dealer_scout: Pagina https://easy-lift.com/il-nostro-network/: estratti 4 dealer
+2026-04-06 19:40:58 [INFO] httpx: HTTP Request: GET https://easy-lift.com/ "HTTP/1.1 200 OK"
+2026-04-06 19:40:58 [INFO] dealer_scout: Pagina https://easy-lift.com/: estratti 4 dealer
+2026-04-06 19:41:01 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/a-new-collaboration-on-the-italian-market/ "HTTP/1.1 200 OK"
+2026-04-06 19:41:01 [INFO] dealer_scout: Pagina https://easy-lift.com/en/news-en/press-media-en/a-new-collaboration-on-the-italian-market/: estratti 5 dealer
+2026-04-06 19:41:02 [INFO] httpx: HTTP Request: GET https://store.easylift.com/contact/ "HTTP/1.1 200 OK"
+2026-04-06 19:41:03 [INFO] dealer_scout: Pagina https://store.easylift.com/contact/: estratti 0 dealer
+2026-04-06 19:41:03 [INFO] httpx: HTTP Request: GET https://www.easylifteqpt.com/ "HTTP/1.1 200 OK"
+2026-04-06 19:41:03 [INFO] dealer_scout: Pagina https://www.easylifteqpt.com/: estratti 1 dealer
+2026-04-06 19:41:03 [INFO] httpx: HTTP Request: GET https://www.facebook.com/EasyLift.Italy/ "HTTP/1.1 200 OK"
+2026-04-06 19:41:04 [INFO] dealer_scout: Pagina https://www.facebook.com/EasyLift.Italy/: estratti 0 dealer
+2026-04-06 19:41:08 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/ "HTTP/1.1 200 OK"
+2026-04-06 19:41:08 [INFO] dealer_scout: Pagina https://easy-lift.com/en/: estratti 4 dealer
+2026-04-06 19:41:09 [INFO] httpx: HTTP Request: GET https://www.facebook.com/EasyLift.Italy/posts/our-dealer-for-latium-and-campania-skylift-piattaforme-aeree-has-recently-sold-f/682348473899094/ "HTTP/1.1 200 OK"
+2026-04-06 19:41:09 [INFO] dealer_scout: Pagina https://www.facebook.com/EasyLift.Italy/posts/our-dealer-for-latium-and-campania-skylift-piattaforme-aeree-has-recently-sold-f/682348473899094/: estratti 0 dealer
+2026-04-06 19:41:23 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/category/news-en/ "HTTP/1.1 200 OK"
+2026-04-06 19:41:23 [INFO] dealer_scout: Pagina https://easy-lift.com/en/category/news-en/: estratti 39 dealer
+2026-04-06 19:41:53 [INFO] httpx: HTTP Request: GET https://www.linkedin.com/posts/easy-lift-srl_easylift-spiderlifts-internationalnetwork-activity-7302640260147011584-UT37 "HTTP/1.1 200 OK"
+2026-04-06 19:41:53 [INFO] dealer_scout: Pagina https://www.linkedin.com/posts/easy-lift-srl_easylift-spiderlifts-internationalnetwork-activity-7302640260147011584-UT37: estratti 7 dealer
+2026-04-06 19:41:53 [INFO] dealer_scout: Tavily dealer search 'Easylift': 69 trovati
+2026-04-06 19:41:54 [INFO] dealer_scout: Dealer search completata per competitor 2: 66 nuovi
+2026-04-06 19:42:07 [INFO] httpx: HTTP Request: GET https://easy-lift.com/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:10 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:42:13 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:42:15 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:42:18 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:42:21 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:42:23 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:42:26 [INFO] httpx: HTTP Request: GET https://easy-lift.com/azienda/certificazioni/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:30 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:33 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:36 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:39 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:42 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/accessori/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:45 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra21/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:48 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra24/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:48 [INFO] product_scout: Sito https://easy-lift.com/: trovati 2 documenti tecnici
+2026-04-06 19:42:53 [INFO] httpx: HTTP Request: GET https://it.scribd.com/document/725907792/inverter-Scheda-tecnica-ZCS-1PH-HYD-3000-6000-ZSS-HP "HTTP/1.1 200 OK"
+2026-04-06 19:42:54 [INFO] httpx: HTTP Request: GET https://mischianti.org/it/tag/piedinatura "HTTP/1.1 301 Moved Permanently"
+2026-04-06 19:42:54 [INFO] httpx: HTTP Request: GET https://mischianti.org/it/tag/piedinatura/ "HTTP/1.1 200 OK"
+2026-04-06 19:42:54 [INFO] httpx: HTTP Request: GET https://www.atropim.com/it/blog/scheda-tecnica "HTTP/1.1 200 OK"
+2026-04-06 19:42:55 [INFO] httpx: HTTP Request: GET https://atropim.com/it/blog/scheda-tecnica "HTTP/1.1 301 Moved Permanently"
+2026-04-06 19:42:55 [INFO] httpx: HTTP Request: GET https://www.atropim.com/it/blog/scheda-tecnica "HTTP/1.1 200 OK"
+2026-04-06 19:42:56 [INFO] httpx: HTTP Request: GET https://www.slideshare.net/slideshow/hyundai-tucson-scheda-tecnica/50889055 "HTTP/1.1 200 OK"
+2026-04-06 19:42:57 [INFO] httpx: HTTP Request: GET https://www.navigaweb.net/2014/06/leggere-le-specifiche-tecniche-di-uno-smartphone.html "HTTP/1.1 200 OK"
+2026-04-06 19:42:57 [INFO] httpx: HTTP Request: GET https://lulop.com/it_IT/post/show/154647/nissan-micra-specifiche-tecnic.html "HTTP/1.1 403 Forbidden"
+2026-04-06 19:42:58 [INFO] httpx: HTTP Request: GET https://www.today.it/tech/smartphone/scheda-tecnica-iphone-12-pro-specifiche.html "HTTP/1.1 200 OK"
+2026-04-06 19:42:59 [INFO] httpx: HTTP Request: GET https://www.lectura-specs.it/it/modello/piattaforme-aeree/piattaforme-aeree-articolate-piattaforme-aeree-articolate-cingolate-easy-lift/ra26-11704793 "HTTP/1.1 403 Forbidden"
+2026-04-06 19:42:59 [INFO] httpx: HTTP Request: GET https://www.lectura-specs.it/it/modello/piattaforme-aeree/piattaforme-aeree-articolate-piattaforme-aeree-articolate-cingolate-easy-lift/r190-11704789 "HTTP/1.1 403 Forbidden"
+2026-04-06 19:43:03 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:07 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:07 [INFO] product_scout: Tavily tech docs 'Easylift': 9 trovati
+2026-04-06 19:43:07 [INFO] product_scout: Scansione dealer '404': https://easy-lift.com
+2026-04-06 19:43:10 [INFO] httpx: HTTP Request: GET https://easy-lift.com "HTTP/1.1 200 OK"
+2026-04-06 19:43:13 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:43:16 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:43:19 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:43:22 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:43:24 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:43:27 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:43:30 [INFO] httpx: HTTP Request: GET https://easy-lift.com/azienda/certificazioni/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:33 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:36 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:39 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:42 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:45 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/accessori/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:48 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra21/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:52 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra24/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:52 [INFO] product_scout: Sito https://easy-lift.com: trovati 2 documenti tecnici
+2026-04-06 19:43:52 [INFO] product_scout: Scansione dealer 'Piattaforme aeree per potatura e giardinaggio: ecco perché le piattaforme ragno sono la scelta giusta': https://easy-lift.com/news/press-media/piattaforme-ragno-potatura/
+2026-04-06 19:43:54 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/press-media/piattaforme-ragno-potatura/ "HTTP/1.1 200 OK"
+2026-04-06 19:43:57 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:00 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:03 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:06 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:09 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:12 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:15 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/spider-lifts-for-pruning/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:18 [INFO] httpx: HTTP Request: GET https://easy-lift.com/fr/news-fr/presse-medias/nacelles-elevatrices-pour-lelagage-et-le-jardinage-voici-pourquoi-les-nacelles-araignees-sont-le-bon-choix/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:21 [INFO] httpx: HTTP Request: GET https://easy-lift.com/azienda/certificazioni/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:24 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:27 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:30 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:33 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:36 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/accessori/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:36 [INFO] product_scout: Sito https://easy-lift.com/news/press-media/piattaforme-ragno-potatura/: trovati 0 documenti tecnici
+2026-04-06 19:44:36 [INFO] product_scout: Scansione dealer 'Piattaforme aeree per ambienti sensibili: soluzioni ideali per ospedali, aeroporti e spazi indoor': https://easy-lift.com/news/press-media/piattaforme-aeree-ambienti-sensibili/
+2026-04-06 19:44:39 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/press-media/piattaforme-aeree-ambienti-sensibili/ "HTTP/1.1 200 OK"
+2026-04-06 19:44:42 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:45 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:47 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:50 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:53 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:56 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:44:59 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/aerial-platforms-for-sensitive-environments-ideal-solutions-for-hospitals-airports-and-indoor-spaces/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:04 [INFO] httpx: HTTP Request: GET https://easy-lift.com/azienda/certificazioni/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:08 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:11 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:14 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:18 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:21 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/accessori/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:24 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/r160/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:24 [INFO] product_scout: Sito https://easy-lift.com/news/press-media/piattaforme-aeree-ambienti-sensibili/: trovati 1 documenti tecnici
+2026-04-06 19:45:24 [INFO] product_scout: Scansione dealer 'UPequip on the road: i prossimi eventi negli Stati Uniti': https://easy-lift.com/news/eventi/upequip-eventi-2026-negli-stati-uniti/
+2026-04-06 19:45:28 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/eventi/upequip-eventi-2026-negli-stati-uniti/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:31 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:45:33 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:45:36 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:45:39 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:45:42 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:45:45 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:45:48 [INFO] httpx: HTTP Request: GET https://easy-lift.com/azienda/certificazioni/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:51 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:54 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/ "HTTP/1.1 200 OK"
+2026-04-06 19:45:57 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:00 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:04 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/accessori/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:07 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ra31/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:10 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ra26/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:10 [INFO] product_scout: Sito https://easy-lift.com/news/eventi/upequip-eventi-2026-negli-stati-uniti/: trovati 2 documenti tecnici
+2026-04-06 19:46:10 [INFO] product_scout: Scansione dealer 'Piattaforme aeree sostenibili: l’impegno di Easy Lift tra tecnologia e processi': https://easy-lift.com/news/press-media/piattaforme-aeree-sostenibili/
+2026-04-06 19:46:13 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/press-media/piattaforme-aeree-sostenibili/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:15 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:46:18 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:46:21 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:46:24 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:46:27 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:46:29 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:46:32 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/sustainable-aerial-platforms/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:35 [INFO] httpx: HTTP Request: GET https://easy-lift.com/fr/news-fr/presse-medias/nacelles-elevatrices-durables-lengagement-deasy-lift-entre-technologie-et-processus/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:38 [INFO] httpx: HTTP Request: GET https://easy-lift.com/azienda/certificazioni/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:41 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:44 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:47 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:50 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:53 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/accessori/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:53 [INFO] product_scout: Sito https://easy-lift.com/news/press-media/piattaforme-aeree-sostenibili/: trovati 0 documenti tecnici
+2026-04-06 19:46:53 [INFO] product_scout: Scansione dealer 'New Dealer on the Italian Market': https://easy-lift.com/en/r130/
+2026-04-06 19:46:53 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/r130/ "HTTP/1.1 301 Moved Permanently"
+2026-04-06 19:46:56 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/r130/ "HTTP/1.1 200 OK"
+2026-04-06 19:46:59 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:02 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:05 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:08 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:10 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:13 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:16 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/r130/ "HTTP/1.1 200 OK"
+2026-04-06 19:47:19 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/ "HTTP/1.1 200 OK"
+2026-04-06 19:47:22 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:47:25 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/medium-spiders-from-19-to-25-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:47:28 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/big-spiders-over-26-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:47:32 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/accessories/ "HTTP/1.1 200 OK"
+2026-04-06 19:47:35 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/r130/#contacts "HTTP/1.1 200 OK"
+2026-04-06 19:47:35 [INFO] product_scout: Sito https://easy-lift.com/en/r130/: trovati 1 documenti tecnici
+2026-04-06 19:47:35 [INFO] product_scout: Scansione dealer 'Aerial platforms for pruning and gardening: why spider lifts are the right choic': https://easy-lift.com/en/news-en/press-media-en/spider-lifts-for-pruning/
+2026-04-06 19:47:38 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/spider-lifts-for-pruning/ "HTTP/1.1 200 OK"
+2026-04-06 19:47:40 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:43 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:47 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:50 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:52 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:55 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:47:58 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/press-media/piattaforme-ragno-potatura/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:01 [INFO] httpx: HTTP Request: GET https://easy-lift.com/fr/news-fr/presse-medias/nacelles-elevatrices-pour-lelagage-et-le-jardinage-voici-pourquoi-les-nacelles-araignees-sont-le-bon-choix/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:04 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:07 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:10 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/medium-spiders-from-19-to-25-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:14 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/big-spiders-over-26-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:16 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/accessories/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:20 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/medium-spiders-from-19-to-25-meters/ra24/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:20 [INFO] product_scout: Sito https://easy-lift.com/en/news-en/press-media-en/spider-lifts-for-pruning/: trovati 0 documenti tecnici
+2026-04-06 19:48:20 [INFO] product_scout: Scansione dealer 'Aerial platforms for sensitive environments: ideal solutions for hospitals, airp': https://easy-lift.com/en/news-en/press-media-en/aerial-platforms-for-sensitive-environments-ideal-solutions-for-hospitals-airports-and-indoor-spaces/
+2026-04-06 19:48:23 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/aerial-platforms-for-sensitive-environments-ideal-solutions-for-hospitals-airports-and-indoor-spaces/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:26 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:48:28 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:48:31 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:48:34 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:48:37 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:48:39 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:48:43 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/press-media/piattaforme-aeree-ambienti-sensibili/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:45 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:49 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:51 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/medium-spiders-from-19-to-25-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:54 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/big-spiders-over-26-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:48:57 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/accessories/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:00 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/r160/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:03 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/medium-spiders-from-19-to-25-meters/ra24/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:03 [INFO] product_scout: Sito https://easy-lift.com/en/news-en/press-media-en/aerial-platforms-for-sensitive-environments-ideal-solutions-for-hospitals-airports-and-indoor-spaces/: trovati 0 documenti tecnici
+2026-04-06 19:49:03 [INFO] product_scout: Scansione dealer 'Sustainable aerial platforms: Easy Lift's commitment to technology and processes': https://easy-lift.com/en/news-en/press-media-en/sustainable-aerial-platforms/
+2026-04-06 19:49:06 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/sustainable-aerial-platforms/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:09 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:12 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:14 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:17 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:20 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:22 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:25 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/press-media/piattaforme-aeree-sostenibili/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:29 [INFO] httpx: HTTP Request: GET https://easy-lift.com/fr/news-fr/presse-medias/nacelles-elevatrices-durables-lengagement-deasy-lift-entre-technologie-et-processus/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:32 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:35 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:37 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/medium-spiders-from-19-to-25-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:41 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/big-spiders-over-26-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:43 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/accessories/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:47 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/big-spiders-over-26-meters/ra26/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:47 [INFO] product_scout: Sito https://easy-lift.com/en/news-en/press-media-en/sustainable-aerial-platforms/: trovati 0 documenti tecnici
+2026-04-06 19:49:47 [INFO] product_scout: Scansione dealer 'Collé strengthens its fleet with 50 new Easy Lift spider lifts: the best choice ': https://easy-lift.com/en/news-en/press-media-en/colle-strengthens-its-fleet-with-50-new-easy-lift-spider-lifts-the-best-choice-for-rental/
+2026-04-06 19:49:50 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/news-en/press-media-en/colle-strengthens-its-fleet-with-50-new-easy-lift-spider-lifts-the-best-choice-for-rental/ "HTTP/1.1 200 OK"
+2026-04-06 19:49:52 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:55 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-06 19:49:58 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-06 19:50:00 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-06 19:50:06 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-06 19:50:09 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-06 19:50:12 [INFO] httpx: HTTP Request: GET https://easy-lift.com/news/press-media/colle-rafforza-flotta-con-50-ragni-easy-lift/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:16 [INFO] httpx: HTTP Request: GET https://easy-lift.com/fr/news-fr/presse-medias/colle-renforce-sa-flotte-avec-50-nouvelles-nacelles-araignees-easy-lift-le-choix-ideal-pour-la-location/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:19 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:22 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:26 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/medium-spiders-from-19-to-25-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:29 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/big-spiders-over-26-meters/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:32 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/accessories/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:35 [INFO] httpx: HTTP Request: GET https://easy-lift.com/en/products/tracked-aerial-platforms/little-spiders-from-13-to-18-meters/r130/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:35 [INFO] product_scout: Sito https://easy-lift.com/en/news-en/press-media-en/colle-strengthens-its-fleet-with-50-new-easy-lift-spider-lifts-the-best-choice-for-rental/: trovati 0 documenti tecnici
+2026-04-06 19:50:35 [INFO] httpx: HTTP Request: GET https://easy-lift.com/wp-content/uploads/2025/09/Easy-Lift-RA21.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:50:39 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra21/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:39 [INFO] product_scout: Prodotto tecnico salvato: Scarica la scheda tecnica [Scheda tecnica]
+2026-04-06 19:50:39 [INFO] httpx: HTTP Request: GET https://easy-lift.com/wp-content/uploads/2024/06/Easy-Lift-RA24.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:50:43 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra24/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:43 [INFO] product_scout: Prodotto tecnico salvato: Scarica la scheda tecnica [Scheda tecnica]
+2026-04-06 19:50:44 [INFO] httpx: HTTP Request: GET https://it.scribd.com/document/725907792/inverter-Scheda-tecnica-ZCS-1PH-HYD-3000-6000-ZSS-HP "HTTP/1.1 200 OK"
+2026-04-06 19:50:44 [INFO] product_scout: Prodotto tecnico salvato: Inverter Scheda-tecnica-ZCS-1PH-HYD-3000-6000-ZSS-HP | PDF [Scheda tecnica]
+2026-04-06 19:50:44 [INFO] httpx: HTTP Request: GET https://www.atropim.com/it/blog/scheda-tecnica "HTTP/1.1 200 OK"
+2026-04-06 19:50:44 [INFO] product_scout: Prodotto tecnico salvato: Come creare una scheda tecnica professionale | AtroPIM [Scheda tecnica]
+2026-04-06 19:50:45 [INFO] httpx: HTTP Request: GET https://atropim.com/it/blog/scheda-tecnica "HTTP/1.1 301 Moved Permanently"
+2026-04-06 19:50:45 [INFO] httpx: HTTP Request: GET https://www.atropim.com/it/blog/scheda-tecnica "HTTP/1.1 200 OK"
+2026-04-06 19:50:45 [INFO] product_scout: Prodotto tecnico salvato: Come creare una scheda tecnica professionale | AtroPIM [Scheda tecnica]
+2026-04-06 19:50:45 [INFO] httpx: HTTP Request: GET https://www.slideshare.net/slideshow/hyundai-tucson-scheda-tecnica/50889055 "HTTP/1.1 200 OK"
+2026-04-06 19:50:45 [INFO] product_scout: Prodotto tecnico salvato: Hyundai Tucson: scheda tecnica | PDF [Scheda tecnica]
+2026-04-06 19:50:46 [INFO] httpx: HTTP Request: GET https://www.navigaweb.net/2014/06/leggere-le-specifiche-tecniche-di-uno-smartphone.html "HTTP/1.1 200 OK"
+2026-04-06 19:50:46 [INFO] product_scout: Prodotto tecnico salvato: Come leggere le specifiche tecniche di uno smartphone [Scheda tecnica]
+2026-04-06 19:50:46 [INFO] httpx: HTTP Request: GET https://lulop.com/it_IT/post/show/154647/nissan-micra-specifiche-tecnic.html "HTTP/1.1 403 Forbidden"
+2026-04-06 19:50:46 [INFO] product_scout: Prodotto tecnico salvato: Nissan Micra - Specifiche Tecniche [Scheda tecnica]
+2026-04-06 19:50:46 [INFO] httpx: HTTP Request: GET https://www.today.it/tech/smartphone/scheda-tecnica-iphone-12-pro-specifiche.html "HTTP/1.1 200 OK"
+2026-04-06 19:50:46 [INFO] product_scout: Prodotto tecnico salvato: iPhone 12 Pro: scheda tecnica e specifiche [Scheda tecnica]
+2026-04-06 19:50:46 [INFO] httpx: HTTP Request: GET https://liguriaservice.it/wp-content/uploads/2023/06/catalogo_easylift.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:50:47 [INFO] product_scout: Prodotto tecnico salvato: [PDF] easylift - Liguria Service [Catalogo]
+2026-04-06 19:50:47 [INFO] httpx: HTTP Request: GET https://easy-lift.com/cataloghi/Easy-Lift-Truck-and-Van-Mounted-Platforms.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:50:52 [WARNING] product_scout: PDF troppo grande, skip: https://easy-lift.com/cataloghi/Easy-Lift-Truck-and-Van-Mounted-Platforms.pdf
+2026-04-06 19:50:52 [INFO] product_scout: Prodotto tecnico salvato: [PDF] Easy Lift Truck and Van Mounted Platforms [Catalogo]
+2026-04-06 19:50:52 [INFO] httpx: HTTP Request: GET https://easy-lift.com/wp-content/uploads/2024/06/Easy-Lift-R160.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:50:55 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/r160/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:55 [INFO] product_scout: Prodotto tecnico salvato: Scarica la scheda tecnica [Scheda tecnica]
+2026-04-06 19:50:55 [INFO] httpx: HTTP Request: GET https://easy-lift.com/wp-content/uploads/2025/10/Easy-Lift-RA31.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:50:59 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ra31/ "HTTP/1.1 200 OK"
+2026-04-06 19:50:59 [INFO] product_scout: Prodotto tecnico salvato: Scarica la scheda tecnica [Scheda tecnica]
+2026-04-06 19:50:59 [INFO] httpx: HTTP Request: GET https://easy-lift.com/wp-content/uploads/2025/10/Easy-Lift-RA26.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:51:02 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ra26/ "HTTP/1.1 200 OK"
+2026-04-06 19:51:02 [INFO] product_scout: Prodotto tecnico salvato: Scarica la scheda tecnica [Scheda tecnica]
+2026-04-06 19:51:02 [INFO] httpx: HTTP Request: GET https://easy-lift.com/wp-content/uploads/2024/06/Scheda-R130.pdf "HTTP/1.1 200 OK"
+2026-04-06 19:51:06 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/r130/ "HTTP/1.1 200 OK"
+2026-04-06 19:51:06 [INFO] product_scout: Prodotto tecnico salvato: Scarica la scheda tecnica [Scheda tecnica]
+2026-04-06 19:51:06 [INFO] product_scout: Ricerca completata per competitor 2: 15 nuovi documenti

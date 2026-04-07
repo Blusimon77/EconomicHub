@@ -276,7 +276,7 @@ def _template_response(request: Request, name: str, context: dict) -> HTMLRespon
     csrf = request.scope.get("csrf_token") or request.cookies.get(_CSRF_COOKIE, _generate_csrf_token())
     context["request"] = request
     context["csrf_token"] = csrf
-    return templates.TemplateResponse(name, context)
+    return templates.TemplateResponse(request, name, context)
 
 
 def get_db():
@@ -294,6 +294,7 @@ async def home(request: Request, db: Session = Depends(get_db)):
     return _template_response(request, "index.html", {
         "pending_posts": pending_posts,
         "pending_replies": pending_replies,
+        "msg": request.query_params.get("msg", ""),
     })
 
 
@@ -304,7 +305,7 @@ async def approve_post(post_id: int, note: str = Form(default=""), db: Session =
         post.status = PostStatus.APPROVED
         post.approval_note = note
         db.commit()
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/?msg=approved", status_code=303)
 
 
 @app.post("/posts/{post_id}/reject")
@@ -314,7 +315,7 @@ async def reject_post(post_id: int, note: str = Form(default=""), db: Session = 
         post.status = PostStatus.REJECTED
         post.approval_note = note
         db.commit()
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/?msg=rejected", status_code=303)
 
 
 @app.post("/posts/{post_id}/edit")
@@ -324,16 +325,18 @@ async def edit_post(post_id: int, content: str = Form(...), hashtags: str = Form
         post.content = content
         post.hashtags = hashtags
         db.commit()
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/?msg=edited", status_code=303)
 
 
 @app.post("/replies/{comment_id}/approve")
-async def approve_reply(comment_id: int, db: Session = Depends(get_db)):
+async def approve_reply(comment_id: int, reply_draft: str = Form(default=""), db: Session = Depends(get_db)):
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if comment:
+        if reply_draft:
+            comment.reply_draft = reply_draft
         comment.reply_status = PostStatus.APPROVED
         db.commit()
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/?msg=reply_approved", status_code=303)
 
 
 @app.post("/replies/{comment_id}/reject")
@@ -342,7 +345,7 @@ async def reject_reply(comment_id: int, db: Session = Depends(get_db)):
     if comment:
         comment.reply_status = PostStatus.REJECTED
         db.commit()
-    return RedirectResponse("/", status_code=303)
+    return RedirectResponse("/?msg=reply_rejected", status_code=303)
 
 
 @app.get("/analytics", response_class=HTMLResponse)

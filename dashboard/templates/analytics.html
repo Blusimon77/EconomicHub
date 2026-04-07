@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Analytics — Social Media Manager</title>
   <meta name="csrf-token" content="{{ csrf_token }}">
   <style>
@@ -11,6 +12,7 @@
     header h1 { font-size: 1.2rem; }
     nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
     nav a:hover { color: white; }
+    nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
     .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
     h2 { margin-bottom: 1rem; font-size: 1.1rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
     table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
@@ -29,7 +31,7 @@
   <h1>Social Media Manager</h1>
   <nav>
     <a href="/">Approvazioni</a>
-    <a href="/analytics">Analytics</a>
+    <a href="/analytics" class="active">Analytics</a>
     <a href="/context">Contesto</a>
     <a href="/competitors">Concorrenti</a>
     <a href="/competitors/analysis">Analisi</a>
