@@ -57,6 +57,9 @@
     .dot-green { background: #22c55e; }
     .dot-gray { background: #ccc; }
 
+    .btn-eye { padding: 0.5rem 0.65rem; background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.85rem; line-height: 1; flex-shrink: 0; }
+    .btn-eye:hover { background: #e0e0e0; }
+
     @media (max-width: 600px) {
       .two-col, .three-col { grid-template-columns: 1fr; }
     }
@@ -71,6 +74,7 @@
     <a href="/context">Contesto</a>
     <a href="/competitors">Concorrenti</a>
     <a href="/competitors/analysis">Analisi</a>
+    <a href="/dealers">Rivenditori</a>
     <a href="/settings" class="active">Impostazioni</a>
   </nav>
 </header>
@@ -135,8 +139,11 @@
             </div>
             <div class="field">
               <label>API Key</label>
-              <input type="password" name="_anthropic_key_display" value="{{ settings.anthropic_api_key }}" readonly>
-              <span class="hint">Modifica nel file .env</span>
+              <div style="display:flex; gap:0.4rem">
+                <input type="password" name="anthropic_api_key" id="anthropic_api_key"
+                       value="{{ settings.anthropic_api_key }}" style="flex:1">
+                <button type="button" class="btn-eye" onclick="toggleVisibility('anthropic_api_key')">👁</button>
+              </div>
             </div>
             <div class="field" style="margin-top:0.75rem">
               <label>Modello</label>
@@ -208,76 +215,126 @@
       </div>
     </div>
 
-    <!-- ── API Social (sola lettura) ─────────── -->
+    <!-- ── Chiavi API ──────────────────────────── -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-icon">🔑</span>
+        <h2>Chiavi API</h2>
+      </div>
+      <div class="section-body two-col">
+        <div class="field">
+          <label>Tavily API Key</label>
+          <div style="display:flex; gap:0.4rem">
+            <input type="password" name="tavily_api_key" id="tavily_api_key"
+                   value="{{ settings.tavily_api_key }}" style="flex:1"
+                   placeholder="tvly-…">
+            <button type="button" class="btn-eye" onclick="toggleVisibility('tavily_api_key')">👁</button>
+          </div>
+          <span class="hint">
+            <span class="status-dot {% if settings.tavily_api_key and settings.tavily_api_key != 'your_tavily_api_key_here' %}dot-green{% else %}dot-gray{% endif %}" style="vertical-align:middle"></span>
+            Usata per la ricerca web nei competitor
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── API Social Media ───────────────────── -->
     <div class="section">
       <div class="section-header">
         <span class="section-icon">🔗</span>
         <h2>API Social Media</h2>
       </div>
       <div class="section-body">
-        <p style="font-size:0.85rem; color:#888; margin-bottom:0.5rem">
-          Le chiavi API si modificano direttamente nel file <code>.env</code> per sicurezza.
-        </p>
 
-        <div style="display:grid; gap:1rem">
-
-          <!-- LinkedIn -->
-          <div class="provider-card">
-            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
-              <span class="status-dot {% if settings.linkedin_access_token and settings.linkedin_access_token != 'your_linkedin_access_token' %}dot-green{% else %}dot-gray{% endif %}"></span>
-              LinkedIn
-            </div>
-            <div class="two-col" style="display:grid; gap:0.75rem">
-              <div class="field">
-                <label>Client ID</label>
-                <input type="text" value="{{ settings.linkedin_client_id }}" readonly>
-              </div>
-              <div class="field">
-                <label>Organization ID</label>
-                <input type="text" value="{{ settings.linkedin_organization_id }}" readonly>
-              </div>
-              <div class="field">
-                <label>Access Token</label>
-                <input type="password" value="{{ settings.linkedin_access_token }}" readonly>
-              </div>
-            </div>
+        <!-- LinkedIn -->
+        <div class="provider-card">
+          <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+            <span class="status-dot {% if settings.linkedin_access_token and settings.linkedin_access_token != 'your_linkedin_access_token' %}dot-green{% else %}dot-gray{% endif %}"></span>
+            LinkedIn
           </div>
-
-          <!-- Facebook -->
-          <div class="provider-card">
-            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
-              <span class="status-dot {% if settings.facebook_access_token and settings.facebook_access_token != 'your_facebook_page_access_token' %}dot-green{% else %}dot-gray{% endif %}"></span>
-              Facebook
-            </div>
-            <div class="two-col" style="display:grid; gap:0.75rem">
-              <div class="field">
-                <label>App ID</label>
-                <input type="text" value="{{ settings.facebook_app_id }}" readonly>
-              </div>
-              <div class="field">
-                <label>Page ID</label>
-                <input type="text" value="{{ settings.facebook_page_id }}" readonly>
-              </div>
-              <div class="field">
-                <label>Access Token</label>
-                <input type="password" value="{{ settings.facebook_access_token }}" readonly>
-              </div>
-            </div>
-          </div>
-
-          <!-- Instagram -->
-          <div class="provider-card">
-            <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
-              <span class="status-dot {% if settings.instagram_business_account_id and settings.instagram_business_account_id != 'your_instagram_business_account_id' %}dot-green{% else %}dot-gray{% endif %}"></span>
-              Instagram
+          <div class="two-col" style="display:grid; gap:0.75rem">
+            <div class="field">
+              <label>Client ID</label>
+              <input type="text" name="linkedin_client_id"
+                     value="{{ settings.linkedin_client_id }}" placeholder="86…">
             </div>
             <div class="field">
-              <label>Business Account ID</label>
-              <input type="text" value="{{ settings.instagram_business_account_id }}" readonly>
+              <label>Client Secret</label>
+              <div style="display:flex; gap:0.4rem">
+                <input type="password" name="linkedin_client_secret" id="linkedin_client_secret"
+                       value="{{ settings.linkedin_client_secret }}" style="flex:1" placeholder="••••••••">
+                <button type="button" class="btn-eye" onclick="toggleVisibility('linkedin_client_secret')">👁</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Organization ID</label>
+              <input type="text" name="linkedin_organization_id"
+                     value="{{ settings.linkedin_organization_id }}" placeholder="urn:li:organization:…">
+            </div>
+            <div class="field">
+              <label>Access Token</label>
+              <div style="display:flex; gap:0.4rem">
+                <input type="password" name="linkedin_access_token" id="linkedin_access_token"
+                       value="{{ settings.linkedin_access_token }}" style="flex:1" placeholder="AQX…">
+                <button type="button" class="btn-eye" onclick="toggleVisibility('linkedin_access_token')">👁</button>
+              </div>
             </div>
           </div>
-
         </div>
+
+        <!-- Facebook -->
+        <div class="provider-card" style="margin-top:1rem">
+          <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+            <span class="status-dot {% if settings.facebook_access_token and settings.facebook_access_token != 'your_facebook_page_access_token' %}dot-green{% else %}dot-gray{% endif %}"></span>
+            Facebook
+          </div>
+          <div class="two-col" style="display:grid; gap:0.75rem">
+            <div class="field">
+              <label>App ID</label>
+              <input type="text" name="facebook_app_id"
+                     value="{{ settings.facebook_app_id }}" placeholder="12345…">
+            </div>
+            <div class="field">
+              <label>App Secret</label>
+              <div style="display:flex; gap:0.4rem">
+                <input type="password" name="facebook_app_secret" id="facebook_app_secret"
+                       value="{{ settings.facebook_app_secret }}" style="flex:1" placeholder="••••••••">
+                <button type="button" class="btn-eye" onclick="toggleVisibility('facebook_app_secret')">👁</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Page ID</label>
+              <input type="text" name="facebook_page_id"
+                     value="{{ settings.facebook_page_id }}" placeholder="10234…">
+            </div>
+            <div class="field">
+              <label>Access Token (Page)</label>
+              <div style="display:flex; gap:0.4rem">
+                <input type="password" name="facebook_access_token" id="facebook_access_token"
+                       value="{{ settings.facebook_access_token }}" style="flex:1" placeholder="EAA…">
+                <button type="button" class="btn-eye" onclick="toggleVisibility('facebook_access_token')">👁</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Instagram -->
+        <div class="provider-card" style="margin-top:1rem">
+          <div style="font-weight:600; margin-bottom:0.75rem; font-size:0.9rem">
+            <span class="status-dot {% if settings.instagram_business_account_id and settings.instagram_business_account_id != 'your_instagram_business_account_id' %}dot-green{% else %}dot-gray{% endif %}"></span>
+            Instagram
+          </div>
+          <div class="field">
+            <label>Business Account ID</label>
+            <input type="text" name="instagram_business_account_id"
+                   value="{{ settings.instagram_business_account_id }}" placeholder="17841…">
+            <span class="hint">Si trova in Meta Business Suite → Impostazioni account</span>
+          </div>
+          <p style="font-size:0.78rem; color:#aaa; margin-top:0.5rem">
+            Instagram usa lo stesso Access Token di Facebook (Page Token con permessi instagram_basic e instagram_content_publish).
+          </p>
+        </div>
+
       </div>
     </div>
 
@@ -291,6 +348,11 @@
 </div>
 
 <script>
+  function toggleVisibility(id) {
+    const inp = document.getElementById(id);
+    inp.type = inp.type === 'password' ? 'text' : 'password';
+  }
+
   // Evidenzia il provider card selezionato
   document.querySelectorAll('input[name="ai_primary_provider"]').forEach(radio => {
     radio.addEventListener('change', () => {

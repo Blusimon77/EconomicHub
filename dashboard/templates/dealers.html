@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anagrafica Rivenditori — Social Media Manager</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
+    nav a:hover { color: white; }
+    nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
+    .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
+    /* Stats */
+    .stats { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .stat-card { background: white; border-radius: 8px; padding: 1rem 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.1); flex: 1; min-width: 140px; }
+    .stat-card .num { font-size: 1.8rem; font-weight: 700; color: #1a1a2e; }
+    .stat-card .lbl { font-size: 0.78rem; color: #888; text-transform: uppercase; letter-spacing: .04em; margin-top: .2rem; }
+
+    /* Toolbar */
+    .toolbar { display: flex; gap: .75rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .toolbar input, .toolbar select {
+      padding: .45rem .75rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: .88rem; font-family: inherit; background: white;
+    }
+    .toolbar input { flex: 1; min-width: 200px; }
+    .btn { padding: .45rem 1.1rem; border: none; border-radius: 6px; cursor: pointer; font-size: .88rem; font-weight: 500; }
+    .btn-primary { background: #1a1a2e; color: white; }
+    .btn-primary:hover { background: #2d2d4e; }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn-danger  { background: #ef4444; color: white; }
+    .btn-danger:hover { opacity: .85; }
+    .btn-sm { padding: .3rem .7rem; font-size: .8rem; }
+
+    /* Table */
+    .table-wrap { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #1a1a2e; color: white; padding: .65rem 1rem; text-align: left; font-size: .82rem; white-space: nowrap; }
+    td { padding: .6rem 1rem; border-bottom: 1px solid #f0f0f0; font-size: .88rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr.hidden-row { display: none; }
+    .empty { color: #aaa; font-style: italic; padding: 1.5rem; }
+
+    /* Brand badges */
+    .brand-badges { display: flex; flex-wrap: wrap; gap: .3rem; }
+    .bbadge { padding: .15rem .5rem; border-radius: 20px; font-size: .72rem; font-weight: 600; white-space: nowrap; }
+    .bbadge-own { background: #1a1a2e; color: white; }
+    .bbadge-comp { background: #e0e8ff; color: #1a1a2e; }
+
+    /* Contact icons */
+    .contacts a { color: #555; text-decoration: none; margin-right: .5rem; font-size: .82rem; }
+    .contacts a:hover { color: #1a1a2e; }
+
+    /* Actions */
+    .row-actions { display: flex; gap: .4rem; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: .75rem 1.25rem; border-radius: 8px;
+             font-size: .88rem; z-index: 500; color: white; animation: fadeIn .2s; }
+    .toast-success { background: #22c55e; }
+    .toast-info    { background: #3b82f6; }
+    .toast-warning { background: #f59e0b; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* Modal overlay */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 200; overflow-y: auto; }
+    .modal-overlay.open { display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+    .modal { background: white; border-radius: 10px; width: 100%; max-width: 720px; box-shadow: 0 8px 30px rgba(0,0,0,.2); }
+    .modal-header { padding: 1.1rem 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { font-size: 1rem; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #888; line-height: 1; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: .75rem; }
+
+    /* Form inside modal */
+    .field { display: flex; flex-direction: column; gap: .3rem; margin-bottom: .9rem; }
+    .field label { font-size: .8rem; font-weight: 500; color: #555; }
+    .field input, .field select, .field textarea {
+      padding: .45rem .7rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: .88rem; font-family: inherit;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1a1a2e; }
+    .field .hint { font-size: .73rem; color: #aaa; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .75rem; }
+    @media (max-width: 560px) { .two-col, .three-col { grid-template-columns: 1fr; } }
+
+    /* Address autocomplete */
+    .addr-wrap { position: relative; }
+    .addr-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white;
+                     border: 1px solid #ddd; border-radius: 6px; z-index: 300;
+                     max-height: 220px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+    .addr-item { padding: .55rem .9rem; cursor: pointer; font-size: .85rem; border-bottom: 1px solid #f5f5f5; }
+    .addr-item:last-child { border-bottom: none; }
+    .addr-item:hover { background: #f0f4ff; }
+    .addr-item .main { font-weight: 500; }
+    .addr-item .sub  { font-size: .75rem; color: #888; }
+
+    /* Brand checkboxes */
+    .brands-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .4rem; margin-top: .4rem; }
+    .brand-check { display: flex; align-items: center; gap: .5rem; padding: .35rem .6rem; border: 1px solid #eee; border-radius: 6px; cursor: pointer; font-size: .85rem; }
+    .brand-check:hover { background: #f8f8f8; border-color: #ccc; }
+    .brand-check input { width: auto; cursor: pointer; }
+    .brand-check.own-brand { border-color: #1a1a2e; background: #f0f2ff; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context">Contesto</a>
+    <a href="/competitors">Concorrenti</a>
+    <a href="/competitors/analysis">Analisi</a>
+    <a href="/dealers" class="active">Rivenditori</a>
+    <a href="/settings">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num">{{ dealers|length }}</div>
+      <div class="lbl">Rivenditori totali</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ countries|length }}</div>
+      <div class="lbl">Paesi</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ dealers|selectattr('brands')|list|length }}</div>
+      <div class="lbl">Con brand associati</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ competitors|length }}</div>
+      <div class="lbl">Costruttori nel sistema</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input type="text" id="search-input" placeholder="🔍  Cerca per nome, città, paese…" oninput="filterTable()">
+    <select id="filter-country" onchange="filterTable()">
+      <option value="">Tutti i paesi</option>
+      {% for c in countries %}
+      <option value="{{ c }}">{{ c }}</option>
+      {% endfor %}
+    </select>
+    <select id="filter-brand" onchange="filterTable()">
+      <option value="">Tutti i brand</option>
+      <option value="__own__">{{ company_name }} (nostra azienda)</option>
+      {% for c in competitors %}
+      <option value="{{ c.id }}">{{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-primary" onclick="openModal()">+ Aggiungi rivenditore</button>
+    <form method="post" action="/dealers/import" style="display:inline">
+      <input type="hidden" name="csrf_token" id="import-csrf">
+      <button type="submit" class="btn btn-secondary"
+              onclick="this.textContent='Importazione…'" title="Importa dealer dai competitor">
+        ⬇ Importa da competitor
+      </button>
+    </form>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    {% if not dealers %}
+    <p class="empty">Nessun rivenditore inserito. Usa "Aggiungi" o "Importa da competitor".</p>
+    {% else %}
+    <table>
+      <thead>
+        <tr>
+          <th>Ragione sociale</th>
+          <th>Città / Paese</th>
+          <th>Brand trattati</th>
+          <th>Contatti</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody id="dealers-tbody">
+        {% for d in dealers %}
+        {% set brand_ids = d.brands | map(attribute='competitor_id') | list %}
+        {% set has_own = d.brands | selectattr('is_own_brand') | list | length > 0 %}
+        <tr class="dealer-row"
+            data-name="{{ d.name|lower }}"
+            data-city="{{ d.city|lower }}"
+            data-country="{{ d.country|lower }}"
+            data-country-exact="{{ d.country }}"
+            data-own="{{ '1' if has_own else '0' }}"
+            data-brands="{{ brand_ids | join(',') }}">
+          <td>
+            <strong>{{ d.name }}</strong>
+            {% if d.address %}<br><small style="color:#999">{{ d.address }}</small>{% endif %}
+          </td>
+          <td>
+            {% if d.city %}{{ d.city }}{% endif %}
+            {% if d.city and d.country %} · {% endif %}
+            {% if d.country %}<span style="font-weight:500">{{ d.country }}</span>{% endif %}
+            {% if d.postal_code %}<br><small style="color:#aaa">{{ d.postal_code }}</small>{% endif %}
+          </td>
+          <td>
+            <div class="brand-badges">
+              {% if has_own %}
+              <span class="bbadge bbadge-own">{{ company_name }}</span>
+              {% endif %}
+              {% for b in d.brands %}
+              {% if not b.is_own_brand and b.competitor %}
+              <span class="bbadge bbadge-comp">{{ b.competitor.name }}</span>
+              {% endif %}
+              {% endfor %}
+              {% if not d.brands %}
+              <span style="color:#ccc;font-size:.8rem">—</span>
+              {% endif %}
+            </div>
+          </td>
+          <td class="contacts">
+            {% if d.website %}<a href="{{ d.website }}" target="_blank" rel="noopener" title="{{ d.website }}">🌐</a>{% endif %}
+            {% if d.email %}<a href="mailto:{{ d.email }}" title="{{ d.email }}">✉️</a>{% endif %}
+            {% if d.phone %}<a href="tel:{{ d.phone }}" title="{{ d.phone }}">📞 {{ d.phone }}</a>{% endif %}
+          </td>
+          <td>
+            <div class="row-actions">
+              <button class="btn btn-secondary btn-sm" onclick="openEditModal({{ d.id }})">Modifica</button>
+              <form method="post" action="/dealers/{{ d.id }}/delete" style="display:inline"
+                    onsubmit="return confirm('Eliminare {{ d.name|replace("'","\\'")|e }}?')">
+                <input type="hidden" name="csrf_token" class="csrf-input">
+                <button type="submit" class="btn btn-danger btn-sm">Elimina</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ── Modal ADD ─────────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Aggiungi rivenditore</h3>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form method="post" id="dealer-form" action="/dealers/add">
+        <input type="hidden" name="csrf_token" id="form-csrf">
+        <input type="hidden" name="latitude"  id="f-lat">
+        <input type="hidden" name="longitude" id="f-lng">
+
+        <!-- Address autocomplete -->
+        <div class="field">
+          <label>Cerca indirizzo o città</label>
+          <div class="addr-wrap">
+            <input type="text" id="addr-search" placeholder="es. Via Roma 1, Milano · o solo: Berlino, Germania"
+                   autocomplete="off" oninput="onAddrInput(this.value)">
+            <div class="addr-dropdown" id="addr-dropdown" style="display:none"></div>
+          </div>
+          <span class="hint">I campi sottostanti vengono compilati automaticamente al click sul risultato</span>
+        </div>
+
+        <hr style="border:none;border-top:1px solid #eee;margin:.5rem 0 1rem">
+
+        <!-- Dati principali -->
+        <div class="two-col">
+          <div class="field" style="grid-column:1/-1">
+            <label>Ragione sociale *</label>
+            <input type="text" name="name" id="f-name" required placeholder="Mario Rossi SRL">
+          </div>
+          <div class="field">
+            <label>Via / Indirizzo</label>
+            <input type="text" name="address" id="f-address" placeholder="Via Roma 1">
+          </div>
+          <div class="field">
+            <label>CAP / Codice postale</label>
+            <input type="text" name="postal_code" id="f-postal" placeholder="20100">
+          </div>
+          <div class="field">
+            <label>Città</label>
+            <input type="text" name="city" id="f-city" placeholder="Milano">
+          </div>
+          <div class="field">
+            <label>Provincia / Stato</label>
+            <input type="text" name="state" id="f-state" placeholder="MI · Lombardia">
+          </div>
+          <div class="field" style="grid-column:1/-1">
+            <label>Paese</label>
+            <input type="text" name="country" id="f-country" placeholder="Italia">
+          </div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid #eee;margin:.5rem 0 1rem">
+
+        <!-- Contatti -->
+        <div class="three-col">
+          <div class="field">
+            <label>Sito web</label>
+            <input type="url" name="website" id="f-website" placeholder="https://…">
+          </div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" name="email" id="f-email" placeholder="info@…">
+          </div>
+          <div class="field">
+            <label>Telefono</label>
+            <input type="text" name="phone" id="f-phone" placeholder="+39 02 …">
+          </div>
+        </div>
+
+        <!-- Brand trattati -->
+        <div class="field" style="margin-top:.5rem">
+          <label>Brand / Costruttori trattati</label>
+          <div class="brands-grid" id="brands-grid">
+            <label class="brand-check own-brand">
+              <input type="checkbox" name="brand_own" id="cb-own">
+              <span>{{ company_name }}<br><small style="color:#888">nostra azienda</small></span>
+            </label>
+            {% for c in competitors %}
+            <label class="brand-check">
+              <input type="checkbox" name="brand_c_{{ c.id }}" id="cb-c-{{ c.id }}">
+              <span>{{ c.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:.5rem">
+          <label>Note interne</label>
+          <textarea name="notes" id="f-notes" rows="2" placeholder="Note facoltative…"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal()">Annulla</button>
+      <button class="btn btn-primary" onclick="submitForm()">Salva rivenditore</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CSRF ─────────────────────────────────────────────────────────────────────
+const CSRF = document.querySelector('meta[name="csrf-token"]').content;
+document.getElementById('form-csrf').value = CSRF;
+document.getElementById('import-csrf').value = CSRF;
+document.querySelectorAll('.csrf-input').forEach(el => el.value = CSRF);
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+const MSG_MAP = {
+  added:   { text: '✓ Rivenditore aggiunto',    cls: 'toast-success' },
+  saved:   { text: '✓ Modifiche salvate',        cls: 'toast-success' },
+  deleted: { text: '✓ Rivenditore eliminato',    cls: 'toast-warning' },
+};
+const msgParam = '{{ msg }}';
+if (msgParam && (MSG_MAP[msgParam] || msgParam.startsWith('imported_'))) {
+  let text, cls;
+  if (msgParam.startsWith('imported_')) {
+    const n = msgParam.split('_')[1];
+    text = `✓ Importati ${n} nuovi rivenditori`; cls = 'toast-info';
+  } else {
+    ({ text, cls } = MSG_MAP[msgParam]);
+  }
+  const t = document.createElement('div');
+  t.className = `toast ${cls}`; t.textContent = text;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+  history.replaceState(null, '', '/dealers');
+}
+
+// ── Filtro tabella ────────────────────────────────────────────────────────────
+function filterTable() {
+  const q     = document.getElementById('search-input').value.toLowerCase();
+  const ctry  = document.getElementById('filter-country').value;
+  const brand = document.getElementById('filter-brand').value;
+  let visible = 0;
+  document.querySelectorAll('.dealer-row').forEach(row => {
+    const matchQ = !q ||
+      row.dataset.name.includes(q) ||
+      row.dataset.city.includes(q) ||
+      row.dataset.country.includes(q);
+    const matchC = !ctry || row.dataset.countryExact === ctry;
+    let matchB = true;
+    if (brand === '__own__') matchB = row.dataset.own === '1';
+    else if (brand) matchB = row.dataset.brands.split(',').includes(brand);
+    const show = matchQ && matchC && matchB;
+    row.classList.toggle('hidden-row', !show);
+    if (show) visible++;
+  });
+}
+
+// ── Modal ADD ─────────────────────────────────────────────────────────────────
+function openModal() {
+  // Reset form
+  document.getElementById('dealer-form').action = '/dealers/add';
+  document.getElementById('modal-title').textContent = 'Aggiungi rivenditore';
+  document.getElementById('dealer-form').reset();
+  document.getElementById('f-lat').value = '';
+  document.getElementById('f-lng').value = '';
+  document.getElementById('addr-search').value = '';
+  document.getElementById('addr-dropdown').style.display = 'none';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openEditModal(id) {
+  // Leggi i dati dalla riga della tabella
+  const row = document.querySelector(`.dealer-row[data-name]`);
+  // Recupera dati via attributi nascosti nella riga
+  const allRows = document.querySelectorAll('.dealer-row');
+  let targetRow = null;
+  // Trova la riga per id usando il form action nella cella azioni
+  document.querySelectorAll('.dealer-row').forEach(r => {
+    const deleteForm = r.querySelector('form[action*="/delete"]');
+    if (deleteForm && deleteForm.action.includes(`/dealers/${id}/`)) targetRow = r;
+  });
+
+  document.getElementById('dealer-form').action = `/dealers/${id}/edit`;
+  document.getElementById('modal-title').textContent = 'Modifica rivenditore';
+  // Fetch dati via API
+  fetch(`/api/dealers/${id}`)
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('f-name').value     = d.name || '';
+      document.getElementById('f-address').value  = d.address || '';
+      document.getElementById('f-postal').value   = d.postal_code || '';
+      document.getElementById('f-city').value     = d.city || '';
+      document.getElementById('f-state').value    = d.state || '';
+      document.getElementById('f-country').value  = d.country || '';
+      document.getElementById('f-website').value  = d.website || '';
+      document.getElementById('f-email').value    = d.email || '';
+      document.getElementById('f-phone').value    = d.phone || '';
+      document.getElementById('f-notes').value    = d.notes || '';
+      document.getElementById('f-lat').value      = d.latitude || '';
+      document.getElementById('f-lng').value      = d.longitude || '';
+      document.getElementById('addr-search').value = '';
+      document.getElementById('addr-dropdown').style.display = 'none';
+
+      // Brand checkboxes
+      document.getElementById('cb-own').checked = d.is_own_brand || false;
+      const brandIds = (d.brand_competitor_ids || []).map(String);
+      document.querySelectorAll('[id^="cb-c-"]').forEach(cb => {
+        cb.checked = brandIds.includes(cb.id.replace('cb-c-', ''));
+      });
+    });
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function submitForm() {
+  document.getElementById('dealer-form').submit();
+}
+
+// ── API dealer dettaglio ──────────────────────────────────────────────────────
+// Questa API viene generata inline per ogni rivenditore tramite data attributes
+// Per edit usiamo un endpoint dedicato /api/dealers/{id}
+
+// ── Nominatim address autocomplete ───────────────────────────────────────────
+let _addrTimer = null;
+
+function onAddrInput(val) {
+  clearTimeout(_addrTimer);
+  const dd = document.getElementById('addr-dropdown');
+  if (val.length < 3) { dd.style.display = 'none'; return; }
+  _addrTimer = setTimeout(() => fetchAddr(val), 320);
+}
+
+function fetchAddr(q) {
+  fetch(`/api/geocode?q=${encodeURIComponent(q)}`)
+    .then(r => r.json())
+    .then(results => renderAddrDropdown(results))
+    .catch(() => {});
+}
+
+function renderAddrDropdown(results) {
+  const dd = document.getElementById('addr-dropdown');
+  if (!results || results.length === 0) { dd.style.display = 'none'; return; }
+  dd.innerHTML = '';
+  results.forEach(r => {
+    const item = document.createElement('div');
+    item.className = 'addr-item';
+    const addr = r.address || {};
+    const main = addr.road
+      ? `${addr.road}${addr.house_number ? ' ' + addr.house_number : ''}`
+      : (r.display_name.split(',')[0] || '');
+    const city = addr.city || addr.town || addr.village || addr.municipality || '';
+    const state = addr.state || addr.county || '';
+    const country = addr.country || '';
+    const postal = addr.postcode || '';
+    item.innerHTML = `<div class="main">${escHTML(main || city)}</div>
+      <div class="sub">${escHTML([city, state, country].filter(Boolean).join(', '))}${postal ? ' · ' + postal : ''}</div>`;
+    item.onclick = () => fillAddress(r, main, city, state, country, postal);
+    dd.appendChild(item);
+  });
+  dd.style.display = 'block';
+}
+
+function fillAddress(r, street, city, state, country, postal) {
+  document.getElementById('f-address').value  = street;
+  document.getElementById('f-city').value     = city;
+  document.getElementById('f-state').value    = state;
+  document.getElementById('f-country').value  = country;
+  document.getElementById('f-postal').value   = postal;
+  document.getElementById('f-lat').value      = r.lat || '';
+  document.getElementById('f-lng').value      = r.lon || '';
+  document.getElementById('addr-search').value = r.display_name;
+  document.getElementById('addr-dropdown').style.display = 'none';
+}
+
+// Chiudi dropdown se click fuori
+document.addEventListener('click', e => {
+  if (!e.target.closest('.addr-wrap'))
+    document.getElementById('addr-dropdown').style.display = 'none';
+});
+
+function escHTML(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

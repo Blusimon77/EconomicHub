@@ -30,6 +30,7 @@ from models.post import Base, Post, Comment, PostStatus, Platform
 from models.context import CompanyContext, ContextWebsite
 import json
 from models.competitor import Competitor, CompetitorSocial, CompetitorObservation, CompetitorAnalysis, CompetitorProduct, CompetitorDealer
+from models.dealer import Dealer, DealerBrand
 from datetime import datetime, timezone
 from pathlib import Path as FilePath
 from fastapi.responses import FileResponse
@@ -928,9 +929,14 @@ async def settings_page(request: Request):
 # Chiavi ammesse per la scrittura nel .env da dashboard
 _SETTINGS_WHITELIST = {
     "COMPANY_NAME", "BRAND_KEYWORDS", "AI_PRIMARY_PROVIDER",
-    "ANTHROPIC_MODEL", "OPENAI_COMPATIBLE_MODEL", "OPENAI_COMPATIBLE_BASE_URL",
+    "ANTHROPIC_MODEL", "ANTHROPIC_API_KEY",
+    "OPENAI_COMPATIBLE_MODEL", "OPENAI_COMPATIBLE_BASE_URL",
     "MONITOR_INTERVAL_MINUTES", "LINKEDIN_POST_TIMES", "FACEBOOK_POST_TIMES",
     "INSTAGRAM_POST_TIMES",
+    "TAVILY_API_KEY",
+    "LINKEDIN_CLIENT_ID", "LINKEDIN_CLIENT_SECRET", "LINKEDIN_ACCESS_TOKEN", "LINKEDIN_ORGANIZATION_ID",
+    "FACEBOOK_APP_ID", "FACEBOOK_APP_SECRET", "FACEBOOK_ACCESS_TOKEN", "FACEBOOK_PAGE_ID",
+    "INSTAGRAM_BUSINESS_ACCOUNT_ID",
 }
 
 
@@ -946,6 +952,7 @@ async def save_settings(
     company_name: str = Form(default=""),
     brand_keywords: str = Form(default=""),
     ai_primary_provider: str = Form(default="anthropic"),
+    anthropic_api_key: str = Form(default=""),
     anthropic_model: str = Form(default="claude-sonnet-4-6"),
     openai_compatible_model: str = Form(default="Qwen3.5-122B"),
     openai_compatible_base_url: str = Form(default=""),
@@ -953,6 +960,16 @@ async def save_settings(
     linkedin_post_times: str = Form(default="09:00,12:00,17:00"),
     facebook_post_times: str = Form(default="10:00,14:00,19:00"),
     instagram_post_times: str = Form(default="08:00,13:00,18:00"),
+    tavily_api_key: str = Form(default=""),
+    linkedin_client_id: str = Form(default=""),
+    linkedin_client_secret: str = Form(default=""),
+    linkedin_access_token: str = Form(default=""),
+    linkedin_organization_id: str = Form(default=""),
+    facebook_app_id: str = Form(default=""),
+    facebook_app_secret: str = Form(default=""),
+    facebook_access_token: str = Form(default=""),
+    facebook_page_id: str = Form(default=""),
+    instagram_business_account_id: str = Form(default=""),
 ):
     env_path = Path(__file__).parent.parent / ".env"
     lines = env_path.read_text().splitlines()
@@ -961,6 +978,7 @@ async def save_settings(
         "COMPANY_NAME": company_name,
         "BRAND_KEYWORDS": brand_keywords,
         "AI_PRIMARY_PROVIDER": ai_primary_provider,
+        "ANTHROPIC_API_KEY": anthropic_api_key,
         "ANTHROPIC_MODEL": anthropic_model,
         "OPENAI_COMPATIBLE_MODEL": openai_compatible_model,
         "OPENAI_COMPATIBLE_BASE_URL": openai_compatible_base_url,
@@ -968,6 +986,16 @@ async def save_settings(
         "LINKEDIN_POST_TIMES": linkedin_post_times,
         "FACEBOOK_POST_TIMES": facebook_post_times,
         "INSTAGRAM_POST_TIMES": instagram_post_times,
+        "TAVILY_API_KEY": tavily_api_key,
+        "LINKEDIN_CLIENT_ID": linkedin_client_id,
+        "LINKEDIN_CLIENT_SECRET": linkedin_client_secret,
+        "LINKEDIN_ACCESS_TOKEN": linkedin_access_token,
+        "LINKEDIN_ORGANIZATION_ID": linkedin_organization_id,
+        "FACEBOOK_APP_ID": facebook_app_id,
+        "FACEBOOK_APP_SECRET": facebook_app_secret,
+        "FACEBOOK_ACCESS_TOKEN": facebook_access_token,
+        "FACEBOOK_PAGE_ID": facebook_page_id,
+        "INSTAGRAM_BUSINESS_ACCOUNT_ID": instagram_business_account_id,
     }
 
     # Filtra solo chiavi nella whitelist e sanitizza valori
@@ -996,6 +1024,223 @@ async def save_settings(
 
     env_path.write_text("\n".join(new_lines) + "\n")
     return RedirectResponse("/settings?saved=1", status_code=303)
+
+
+# ── Anagrafica rivenditori globale ────────────────────────────────────────────
+
+@app.get("/dealers", response_class=HTMLResponse)
+async def dealers_page(request: Request, db: Session = Depends(get_db)):
+    dealers = db.query(Dealer).order_by(Dealer.country, Dealer.name).all()
+    competitors = db.query(Competitor).filter(Competitor.is_active == True).order_by(Competitor.name).all()
+    countries = sorted({d.country for d in dealers if d.country})
+    context_row = db.query(CompanyContext).first()
+    company_name = context_row.company_name if context_row else settings.company_name
+    return _template_response(request, "dealers.html", {
+        "dealers": dealers,
+        "competitors": competitors,
+        "countries": countries,
+        "company_name": company_name,
+        "msg": request.query_params.get("msg", ""),
+    })
+
+
+@app.post("/dealers/add")
+async def dealer_add(
+    request: Request,
+    name: str = Form(...),
+    website: str = Form(default=""),
+    email: str = Form(default=""),
+    phone: str = Form(default=""),
+    address: str = Form(default=""),
+    city: str = Form(default=""),
+    state: str = Form(default=""),
+    country: str = Form(default=""),
+    postal_code: str = Form(default=""),
+    latitude: str = Form(default=""),
+    longitude: str = Form(default=""),
+    notes: str = Form(default=""),
+    db: Session = Depends(get_db),
+):
+    dealer = Dealer(
+        name=name[:500],
+        website=website[:1000],
+        email=email[:200],
+        phone=phone[:100],
+        address=address[:500],
+        city=city[:200],
+        state=state[:200],
+        country=country[:100],
+        postal_code=postal_code[:20],
+        latitude=float(latitude) if latitude else None,
+        longitude=float(longitude) if longitude else None,
+        notes=notes,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
+    )
+    db.add(dealer)
+    db.flush()
+
+    # Brand associations dai campi brand_own / brand_{id}
+    form = await request.form()
+    _save_dealer_brands(db, dealer.id, form)
+
+    db.commit()
+    return RedirectResponse("/dealers?msg=added", status_code=303)
+
+
+@app.post("/dealers/import")
+async def dealer_import(request: Request, db: Session = Depends(get_db)):
+    """Importa i dealer dai competitor_dealers nel registro globale."""
+    comp_dealers = db.query(CompetitorDealer).all()
+    imported = 0
+    for cd in comp_dealers:
+        name_key = (cd.name or "").strip().lower()
+        if not name_key:
+            continue
+        existing = db.query(Dealer).filter(
+            Dealer.name.ilike(cd.name.strip())
+        ).first()
+        if not existing:
+            existing = Dealer(
+                name=cd.name[:500],
+                website=(cd.website or "")[:1000],
+                email=(cd.email or "")[:200],
+                phone=(cd.phone or "")[:100],
+                address=(cd.address or "")[:500],
+                city=(cd.city or "")[:200],
+                state=(cd.region or "")[:200],
+                country=(cd.country or "")[:100],
+                created_at=datetime.utcnow(),
+                updated_at=datetime.utcnow(),
+            )
+            db.add(existing)
+            db.flush()
+            imported += 1
+
+        # Collega al competitor se non già presente
+        already = db.query(DealerBrand).filter(
+            DealerBrand.dealer_id == existing.id,
+            DealerBrand.competitor_id == cd.competitor_id,
+        ).first()
+        if not already:
+            db.add(DealerBrand(
+                dealer_id=existing.id,
+                competitor_id=cd.competitor_id,
+                is_own_brand=False,
+            ))
+
+    db.commit()
+    return RedirectResponse(f"/dealers?msg=imported_{imported}", status_code=303)
+
+
+@app.post("/dealers/{did}/edit")
+async def dealer_edit(
+    request: Request,
+    did: int,
+    name: str = Form(...),
+    website: str = Form(default=""),
+    email: str = Form(default=""),
+    phone: str = Form(default=""),
+    address: str = Form(default=""),
+    city: str = Form(default=""),
+    state: str = Form(default=""),
+    country: str = Form(default=""),
+    postal_code: str = Form(default=""),
+    latitude: str = Form(default=""),
+    longitude: str = Form(default=""),
+    notes: str = Form(default=""),
+    db: Session = Depends(get_db),
+):
+    dealer = db.query(Dealer).filter(Dealer.id == did).first()
+    if not dealer:
+        return RedirectResponse("/dealers", status_code=303)
+    dealer.name = name[:500]
+    dealer.website = website[:1000]
+    dealer.email = email[:200]
+    dealer.phone = phone[:100]
+    dealer.address = address[:500]
+    dealer.city = city[:200]
+    dealer.state = state[:200]
+    dealer.country = country[:100]
+    dealer.postal_code = postal_code[:20]
+    dealer.latitude = float(latitude) if latitude else None
+    dealer.longitude = float(longitude) if longitude else None
+    dealer.notes = notes
+    dealer.updated_at = datetime.utcnow()
+
+    # Aggiorna brand associations
+    for b in list(dealer.brands):
+        db.delete(b)
+    db.flush()
+    form = await request.form()
+    _save_dealer_brands(db, dealer.id, form)
+
+    db.commit()
+    return RedirectResponse("/dealers?msg=saved", status_code=303)
+
+
+@app.post("/dealers/{did}/delete")
+async def dealer_delete(did: int, db: Session = Depends(get_db)):
+    dealer = db.query(Dealer).filter(Dealer.id == did).first()
+    if dealer:
+        db.delete(dealer)
+        db.commit()
+    return RedirectResponse("/dealers?msg=deleted", status_code=303)
+
+
+@app.get("/api/geocode")
+async def geocode_proxy(q: str):
+    """Proxy per Nominatim (OpenStreetMap) — risolve CORS e User-Agent."""
+    import urllib.parse
+    url = "https://nominatim.openstreetmap.org/search"
+    params = f"?q={urllib.parse.quote(q)}&format=json&addressdetails=1&limit=6"
+    try:
+        async with httpx.AsyncClient(
+            headers={"User-Agent": "SocialMediaManager/1.0 (internal tool)"},
+            timeout=8,
+        ) as client:
+            resp = await client.get(url + params)
+            return JSONResponse(resp.json())
+    except Exception as exc:
+        logger.warning("Geocode proxy error: %s", exc)
+        return JSONResponse([])
+
+
+@app.get("/api/dealers/{did}")
+async def api_dealer_detail(did: int, db: Session = Depends(get_db)):
+    dealer = db.query(Dealer).filter(Dealer.id == did).first()
+    if not dealer:
+        return JSONResponse({}, status_code=404)
+    return JSONResponse({
+        "id": dealer.id,
+        "name": dealer.name,
+        "website": dealer.website or "",
+        "email": dealer.email or "",
+        "phone": dealer.phone or "",
+        "address": dealer.address or "",
+        "city": dealer.city or "",
+        "state": dealer.state or "",
+        "country": dealer.country or "",
+        "postal_code": dealer.postal_code or "",
+        "latitude": dealer.latitude,
+        "longitude": dealer.longitude,
+        "notes": dealer.notes or "",
+        "is_own_brand": any(b.is_own_brand for b in dealer.brands),
+        "brand_competitor_ids": [b.competitor_id for b in dealer.brands if b.competitor_id],
+    })
+
+
+def _save_dealer_brands(db: Session, dealer_id: int, form) -> None:
+    """Crea i record DealerBrand a partire dai checkbox del form."""
+    if form.get("brand_own"):
+        db.add(DealerBrand(dealer_id=dealer_id, competitor_id=None, is_own_brand=True))
+    for key in form.keys():
+        if key.startswith("brand_c_"):
+            try:
+                cid = int(key[len("brand_c_"):])
+                db.add(DealerBrand(dealer_id=dealer_id, competitor_id=cid, is_own_brand=False))
+            except ValueError:
+                pass
 
 
 if __name__ == "__main__":
