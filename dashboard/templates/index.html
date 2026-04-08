@@ -41,6 +41,16 @@
     .edit-form { margin-top: 0.75rem; display: none; }
     .edit-form.open { display: block; }
     details summary { cursor: pointer; font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
+    .filter-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+    .filter-btn { padding: 0.3rem 0.85rem; border: 2px solid #ddd; border-radius: 20px; background: white; cursor: pointer; font-size: 0.82rem; font-weight: 500; color: #555; transition: all 0.15s; }
+    .filter-btn:hover { border-color: #999; }
+    .filter-btn.active { border-color: #1a1a2e; background: #1a1a2e; color: white; }
+    .filter-btn.fb-linkedin.active  { background: #0077b5; border-color: #0077b5; }
+    .filter-btn.fb-facebook.active  { background: #1877f2; border-color: #1877f2; }
+    .filter-btn.fb-instagram.active { background: #e1306c; border-color: #e1306c; }
+    .section-toggle { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; }
+    .sec-btn { padding: 0.35rem 1rem; border: 2px solid #ddd; border-radius: 6px; background: white; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #555; }
+    .sec-btn.active { border-color: #1a1a2e; background: #1a1a2e; color: white; }
   </style>
 </head>
 <body>
@@ -59,14 +69,32 @@
 
 <div class="container">
 
-  <h2>Post in attesa di approvazione ({{ pending_posts|length }})</h2>
+  <!-- Sezione selector -->
+  <div class="section-toggle">
+    <button class="sec-btn active" id="sec-posts"   onclick="switchSection('posts')">
+      Post <span id="cnt-posts">({{ pending_posts|length }})</span>
+    </button>
+    <button class="sec-btn" id="sec-replies" onclick="switchSection('replies')">
+      Risposte <span id="cnt-replies">({{ pending_replies|length }})</span>
+    </button>
+  </div>
+
+  <!-- ── Sezione Post ─────────────────────────────────────────────── -->
+  <div id="section-posts">
+    <div class="filter-bar">
+      <span style="font-size:0.8rem;color:#888;margin-right:0.25rem">Filtra:</span>
+      <button class="filter-btn active" data-filter="all"       onclick="setFilter(this,'posts')">Tutti</button>
+      <button class="filter-btn fb-linkedin"  data-filter="linkedin"  onclick="setFilter(this,'posts')">LinkedIn</button>
+      <button class="filter-btn fb-facebook"  data-filter="facebook"  onclick="setFilter(this,'posts')">Facebook</button>
+      <button class="filter-btn fb-instagram" data-filter="instagram" onclick="setFilter(this,'posts')">Instagram</button>
+    </div>
 
   {% if not pending_posts %}
     <p class="empty">Nessun post in attesa.</p>
   {% endif %}
 
   {% for post in pending_posts %}
-  <div class="card">
+  <div class="card" data-platform="{{ post.platform.value }}">
     <div class="card-header">
       <span class="platform-badge platform-{{ post.platform.value }}">{{ post.platform.value }}</span>
       <span class="meta">ID #{{ post.id }} · Generato il {{ post.created_at.strftime('%d/%m/%Y %H:%M') }} · via {{ post.generated_by }}</span>
@@ -103,15 +131,24 @@
     </div>
   </div>
   {% endfor %}
+  </div><!-- /section-posts -->
 
-  <h2 style="margin-top:2rem">Risposte ai commenti in attesa ({{ pending_replies|length }})</h2>
+  <!-- ── Sezione Risposte ─────────────────────────────────────────── -->
+  <div id="section-replies" style="display:none">
+    <div class="filter-bar">
+      <span style="font-size:0.8rem;color:#888;margin-right:0.25rem">Filtra:</span>
+      <button class="filter-btn active" data-filter="all"       onclick="setFilter(this,'replies')">Tutti</button>
+      <button class="filter-btn fb-linkedin"  data-filter="linkedin"  onclick="setFilter(this,'replies')">LinkedIn</button>
+      <button class="filter-btn fb-facebook"  data-filter="facebook"  onclick="setFilter(this,'replies')">Facebook</button>
+      <button class="filter-btn fb-instagram" data-filter="instagram" onclick="setFilter(this,'replies')">Instagram</button>
+    </div>
 
   {% if not pending_replies %}
     <p class="empty">Nessuna risposta in attesa.</p>
   {% endif %}
 
   {% for comment in pending_replies %}
-  <div class="card">
+  <div class="card" data-platform="{{ comment.platform.value }}">
     <div class="card-header">
       <span class="platform-badge platform-{{ comment.platform.value }}">{{ comment.platform.value }}</span>
       <span class="meta">ID #{{ comment.id }} · {{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
@@ -131,6 +168,7 @@
     <form method="post" action="/replies/{{ comment.id }}/reject" data-reject style="display:none"></form>
   </div>
   {% endfor %}
+  </div><!-- /section-replies -->
 
 </div>
 
@@ -138,6 +176,25 @@
 function toggleEdit(id) {
   const el = document.getElementById('edit-' + id);
   el.classList.toggle('open');
+}
+
+// ── Sezione switcher ────────────────────────────────────────────────────────
+function switchSection(name) {
+  ['posts','replies'].forEach(s => {
+    document.getElementById('section-' + s).style.display = s === name ? '' : 'none';
+    document.getElementById('sec-' + s).classList.toggle('active', s === name);
+  });
+}
+
+// ── Filtro piattaforma ──────────────────────────────────────────────────────
+function setFilter(btn, section) {
+  const container = document.getElementById('section-' + section);
+  container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const platform = btn.dataset.filter;
+  container.querySelectorAll('.card').forEach(card => {
+    card.style.display = (platform === 'all' || card.dataset.platform === platform) ? '' : 'none';
+  });
 }
 
 // Inietta CSRF token in tutti i form POST
