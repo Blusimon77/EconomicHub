@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, Enum, Boolean, Float
 from sqlalchemy.orm import DeclarativeBase
 from datetime import datetime
 import enum
@@ -46,6 +46,14 @@ class Post(Base):
 
     approved_by = Column(String(100), nullable=True)
     approval_note = Column(Text, nullable=True)
+
+    # Metriche engagement (popolate da AnalyticsAgent dopo la pubblicazione)
+    likes = Column(Integer, nullable=True)
+    comments_count = Column(Integer, nullable=True)
+    shares = Column(Integer, nullable=True)
+    reach = Column(Integer, nullable=True)
+    impressions = Column(Integer, nullable=True)
+    engagement_rate = Column(Float, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

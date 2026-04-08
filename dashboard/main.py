@@ -365,8 +365,41 @@ async def reject_reply(comment_id: int, db: Session = Depends(get_db)):
 
 @app.get("/analytics", response_class=HTMLResponse)
 async def analytics_page(request: Request, db: Session = Depends(get_db)):
-    published = db.query(Post).filter(Post.status == PostStatus.PUBLISHED).order_by(Post.published_at.desc()).limit(20).all()
-    return _template_response(request, "analytics.html", {"posts": published})
+    published = db.query(Post).filter(Post.status == PostStatus.PUBLISHED).order_by(Post.published_at.desc()).limit(50).all()
+
+    # Aggregati per piattaforma
+    from collections import defaultdict
+    platform_stats: dict = defaultdict(lambda: {"count": 0, "likes": 0, "reach": 0, "impressions": 0, "comments": 0})
+    for p in published:
+        ps = platform_stats[p.platform.value]
+        ps["count"] += 1
+        ps["likes"] += p.likes or 0
+        ps["reach"] += p.reach or 0
+        ps["impressions"] += p.impressions or 0
+        ps["comments"] += p.comments_count or 0
+
+    # Trend engagement ultimi 30 giorni (raggruppa per giorno)
+    from datetime import timedelta
+    cutoff = datetime.utcnow() - timedelta(days=30)
+    recent = [p for p in published if p.published_at and p.published_at >= cutoff]
+    trend: dict = {}
+    for p in recent:
+        day = p.published_at.strftime("%Y-%m-%d")
+        if day not in trend:
+            trend[day] = {"likes": 0, "reach": 0, "count": 0}
+        trend[day]["likes"] += p.likes or 0
+        trend[day]["reach"] += p.reach or 0
+        trend[day]["count"] += 1
+    trend_sorted = sorted(trend.items())
+
+    has_metrics = any((p.likes or p.reach or p.impressions) for p in published)
+
+    return _template_response(request, "analytics.html", {
+        "posts": published[:20],
+        "platform_stats": dict(platform_stats),
+        "trend": trend_sorted,
+        "has_metrics": has_metrics,
+    })
 
 
 @app.get("/context", response_class=HTMLResponse)

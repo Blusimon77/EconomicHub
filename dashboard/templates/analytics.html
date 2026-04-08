@@ -13,17 +13,49 @@
     nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
     nav a:hover { color: white; }
     nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
-    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-    h2 { margin-bottom: 1rem; font-size: 1.1rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
-    table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
-    th { background: #1a1a2e; color: white; padding: 0.75rem 1rem; text-align: left; font-size: 0.85rem; }
-    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f0f0f0; font-size: 0.9rem; }
+    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem 3rem; }
+
+    .section-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: #888; font-weight: 600; margin-bottom: 0.75rem; }
+
+    /* Stats cards */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; border-radius: 8px; padding: 1rem 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .stat-card .num { font-size: 1.7rem; font-weight: 700; color: #1a1a2e; }
+    .stat-card .lbl { font-size: 0.76rem; color: #888; text-transform: uppercase; letter-spacing: .04em; margin-top: .2rem; }
+    .stat-card .sub { font-size: 0.75rem; color: #aaa; margin-top: .2rem; }
+
+    /* Platform summary */
+    .platform-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .plat-card { background: white; border-radius: 8px; padding: 1rem 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-left: 4px solid; }
+    .plat-linkedin  { border-color: #0077b5; }
+    .plat-facebook  { border-color: #1877f2; }
+    .plat-instagram { border-color: #e1306c; }
+    .plat-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .plat-row { display: flex; justify-content: space-between; font-size: 0.82rem; margin-top: 0.25rem; }
+    .plat-row .k { color: #888; }
+    .plat-row .v { font-weight: 500; }
+
+    /* Grafico tendenza */
+    .chart-card { background: white; border-radius: 8px; padding: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 1.5rem; }
+    .chart-wrap { overflow-x: auto; }
+    svg.trend-chart { display: block; }
+
+    /* Tabella */
+    .table-card { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #1a1a2e; color: white; padding: 0.65rem 1rem; text-align: left; font-size: 0.82rem; white-space: nowrap; }
+    td { padding: 0.6rem 1rem; border-bottom: 1px solid #f0f0f0; font-size: 0.88rem; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     .badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
     .platform-linkedin { background: #0077b5; color: white; }
     .platform-facebook { background: #1877f2; color: white; }
     .platform-instagram { background: #e1306c; color: white; }
+    .metric { font-size: 0.82rem; color: #555; }
+    .metric-na { color: #ccc; }
     .empty { color: #aaa; font-style: italic; padding: 1rem 0; }
+    .no-metrics-banner { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.9rem 1.25rem; font-size: 0.85rem; color: #92400e; margin-bottom: 1.5rem; }
+
+    @media (max-width: 640px) { .platform-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -41,36 +73,169 @@
 </header>
 
 <div class="container">
-  <h2>Post pubblicati di recente</h2>
 
   {% if not posts %}
-    <p class="empty">Nessun post pubblicato ancora.</p>
+    <p class="empty" style="padding:3rem 0;text-align:center">Nessun post pubblicato ancora.</p>
+
   {% else %}
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Piattaforma</th>
-        <th>Argomento</th>
-        <th>Pubblicato il</th>
-        <th>Contenuto</th>
-        <th>Note approvazione</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for post in posts %}
-      <tr>
-        <td>#{{ post.id }}</td>
-        <td><span class="badge platform-{{ post.platform.value }}">{{ post.platform.value }}</span></td>
-        <td>{{ post.topic or '—' }}</td>
-        <td>{{ post.published_at.strftime('%d/%m/%Y %H:%M') if post.published_at else '—' }}</td>
-        <td>{{ post.content[:80] }}{% if post.content|length > 80 %}…{% endif %}</td>
-        <td style="color:#888;font-size:0.82rem">{{ post.approval_note or '—' }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+
+  {% if not has_metrics %}
+  <div class="no-metrics-banner">
+    ℹ️ Le metriche di engagement (like, reach, impressioni) non sono ancora disponibili.
+    Vengono popolate automaticamente dall'<strong>AnalyticsAgent</strong> dopo la pubblicazione tramite le API social.
+    Configura le credenziali nella sezione <a href="/settings">Impostazioni</a>.
+  </div>
+  {% endif %}
+
+  <!-- Riepilogo totale -->
+  <div class="section-title">Riepilogo totale (ultimi 50 post)</div>
+  <div class="stats-grid" style="margin-bottom:1.5rem">
+    {% set total_posts = posts|length %}
+    {% set total_likes = posts|sum(attribute='likes') %}
+    {% set total_reach = posts|sum(attribute='reach') %}
+    {% set total_impressions = posts|sum(attribute='impressions') %}
+    {% set total_comments = posts|sum(attribute='comments_count') %}
+    <div class="stat-card">
+      <div class="num">{{ total_posts }}</div>
+      <div class="lbl">Post pubblicati</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ total_likes or '—' }}</div>
+      <div class="lbl">Like totali</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ total_comments or '—' }}</div>
+      <div class="lbl">Commenti</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ "{:,}".format(total_reach) if total_reach else '—' }}</div>
+      <div class="lbl">Reach totale</div>
+    </div>
+    <div class="stat-card">
+      <div class="num">{{ "{:,}".format(total_impressions) if total_impressions else '—' }}</div>
+      <div class="lbl">Impressioni</div>
+    </div>
+  </div>
+
+  <!-- Per piattaforma -->
+  <div class="section-title">Per piattaforma</div>
+  <div class="platform-grid" style="margin-bottom:1.5rem">
+    {% for plat in ['linkedin','facebook','instagram'] %}
+    {% set s = platform_stats.get(plat, {}) %}
+    <div class="plat-card plat-{{ plat }}">
+      <div class="plat-name">{{ plat | capitalize }}</div>
+      <div class="plat-row"><span class="k">Post</span><span class="v">{{ s.count | default(0) }}</span></div>
+      <div class="plat-row"><span class="k">Like</span><span class="v">{{ s.likes | default('—') if s.likes else '—' }}</span></div>
+      <div class="plat-row"><span class="k">Commenti</span><span class="v">{{ s.comments | default('—') if s.comments else '—' }}</span></div>
+      <div class="plat-row"><span class="k">Reach</span><span class="v">{{ "{:,}".format(s.reach) if s.reach else '—' }}</span></div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Grafico tendenza (ultimi 30 giorni) -->
+  {% if trend %}
+  <div class="chart-card" style="margin-bottom:1.5rem">
+    <div class="section-title">Trend engagement ultimi 30 giorni</div>
+    <div class="chart-wrap">
+      <canvas id="trend-chart" height="180" style="width:100%;display:block"></canvas>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Tabella post -->
+  <div class="section-title">Post pubblicati (ultimi 20)</div>
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Piattaforma</th>
+          <th>Argomento</th>
+          <th>Pubblicato il</th>
+          <th>Like</th>
+          <th>Commenti</th>
+          <th>Reach</th>
+          <th>Impressioni</th>
+          <th>Note</th>
+          <th>Contenuto</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for post in posts %}
+        <tr>
+          <td>#{{ post.id }}</td>
+          <td><span class="badge platform-{{ post.platform.value }}">{{ post.platform.value }}</span></td>
+          <td>{{ post.topic or '—' }}</td>
+          <td>{{ post.published_at.strftime('%d/%m/%Y %H:%M') if post.published_at else '—' }}</td>
+          <td class="metric {% if not post.likes %}metric-na{% endif %}">{{ post.likes if post.likes is not none else '—' }}</td>
+          <td class="metric {% if not post.comments_count %}metric-na{% endif %}">{{ post.comments_count if post.comments_count is not none else '—' }}</td>
+          <td class="metric {% if not post.reach %}metric-na{% endif %}">{{ "{:,}".format(post.reach) if post.reach else '—' }}</td>
+          <td class="metric {% if not post.impressions %}metric-na{% endif %}">{{ "{:,}".format(post.impressions) if post.impressions else '—' }}</td>
+          <td style="color:#888;font-size:0.82rem">{{ post.approval_note or '—' }}</td>
+          <td>{{ post.content[:80] }}{% if post.content|length > 80 %}…{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
   {% endif %}
 </div>
+
+{% if trend %}
+<script>
+// Grafico a barre semplice via Canvas
+const trendData = {{ trend | tojson }};
+const canvas = document.getElementById('trend-chart');
+const ctx = canvas.getContext('2d');
+canvas.width = canvas.offsetWidth || 900;
+
+const W = canvas.width, H = canvas.height;
+const pad = { top: 20, right: 20, bottom: 40, left: 45 };
+const chartW = W - pad.left - pad.right;
+const chartH = H - pad.top - pad.bottom;
+
+const labels = trendData.map(d => d[0].substring(5));  // MM-DD
+const likes  = trendData.map(d => d[1].likes || 0);
+const counts = trendData.map(d => d[1].count || 0);
+const maxLikes = Math.max(...likes, 1);
+const n = labels.length;
+const barW = Math.max(4, chartW / (n * 1.5));
+
+ctx.clearRect(0, 0, W, H);
+
+// Griglia Y
+ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
+for (let i = 0; i <= 4; i++) {
+  const y = pad.top + chartH - (i / 4) * chartH;
+  ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + chartW, y); ctx.stroke();
+  ctx.fillStyle = '#aaa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+  ctx.fillText(Math.round((i / 4) * maxLikes), pad.left - 6, y + 4);
+}
+
+// Barre like
+likes.forEach((v, i) => {
+  const x = pad.left + (i / n) * chartW + (chartW / n - barW) / 2;
+  const barH = (v / maxLikes) * chartH;
+  const y = pad.top + chartH - barH;
+  ctx.fillStyle = '#6366f1';
+  ctx.beginPath(); ctx.roundRect(x, y, barW, barH, 3); ctx.fill();
+});
+
+// Etichette X (ogni 3)
+ctx.fillStyle = '#aaa'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+labels.forEach((lbl, i) => {
+  if (i % 3 === 0) {
+    const x = pad.left + (i / n) * chartW + chartW / (n * 2);
+    ctx.fillText(lbl, x, H - 8);
+  }
+});
+
+// Legenda
+ctx.fillStyle = '#6366f1'; ctx.fillRect(pad.left, 6, 12, 10);
+ctx.fillStyle = '#555'; ctx.font = '11px sans-serif'; ctx.textAlign = 'left';
+ctx.fillText('Like per giorno', pad.left + 16, 15);
+</script>
+{% endif %}
 </body>
 </html>
