@@ -165,7 +165,9 @@
                 <input type="password" name="anthropic_api_key" id="anthropic_api_key"
                        value="{{ settings.anthropic_api_key }}" style="flex:1">
                 <button type="button" class="btn-eye" onclick="toggleVisibility('anthropic_api_key')">👁</button>
+                <button type="button" class="btn-eye" onclick="testKey('anthropic', this)" title="Verifica chiave">✓</button>
               </div>
+              <span id="test-result-anthropic" style="font-size:0.75rem"></span>
             </div>
             <div class="field" style="margin-top:0.75rem">
               <label>Modello</label>
@@ -252,6 +254,10 @@
                    placeholder="tvly-…">
             <button type="button" class="btn-eye" onclick="toggleVisibility('tavily_api_key')">👁</button>
           </div>
+          <div style="display:flex; gap:0.4rem; margin-top:0.25rem">
+            <button type="button" class="btn-eye" onclick="testKey('tavily', this)" title="Verifica chiave Tavily">✓ Verifica</button>
+          </div>
+          <span id="test-result-tavily" style="font-size:0.75rem"></span>
           <span class="hint">
             <span class="status-dot {% if settings.tavily_api_key and settings.tavily_api_key != 'your_tavily_api_key_here' %}dot-green{% else %}dot-gray{% endif %}" style="vertical-align:middle"></span>
             Usata per la ricerca web nei competitor
@@ -424,6 +430,28 @@
 
   orchRefresh();
   setInterval(orchRefresh, 15000);
+
+  // ── Test API key ────────────────────────────────────────────────────────────
+  async function testKey(provider, btn) {
+    const span = document.getElementById('test-result-' + provider);
+    btn.disabled = true;
+    span.textContent = 'Verifica in corso…';
+    span.style.color = '#888';
+    try {
+      const csrf = document.querySelector('meta[name="csrf-token"]').content;
+      const r = await fetch(`/api/test-key/${provider}`, {
+        method: 'POST', headers: { 'X-CSRF-Token': csrf },
+      });
+      const d = await r.json();
+      span.textContent = (d.ok ? '✓ ' : '✗ ') + d.msg;
+      span.style.color = d.ok ? '#16a34a' : '#dc2626';
+    } catch(e) {
+      span.textContent = '✗ Errore di rete';
+      span.style.color = '#dc2626';
+    } finally {
+      btn.disabled = false;
+    }
+  }
 
   // CSRF
   document.querySelectorAll('form[method="post"]').forEach(f => {

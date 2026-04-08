@@ -1289,6 +1289,46 @@ def _save_dealer_brands(db: Session, dealer_id: int, form) -> None:
                 pass
 
 
+# ── API key test ─────────────────────────────────────────────────────────────
+
+@app.post("/api/test-key/anthropic")
+async def test_key_anthropic(request: Request):
+    """Verifica che la chiave Anthropic sia valida con una chiamata minimale."""
+    try:
+        import anthropic as _ant
+        client = _ant.Anthropic(api_key=settings.anthropic_api_key)
+        client.messages.create(
+            model=settings.anthropic_model,
+            max_tokens=10,
+            messages=[{"role": "user", "content": "ping"}],
+        )
+        return JSONResponse({"ok": True, "msg": "Chiave valida"})
+    except Exception as exc:
+        msg = str(exc)
+        if "401" in msg or "auth" in msg.lower() or "invalid" in msg.lower():
+            return JSONResponse({"ok": False, "msg": "Chiave non valida o scaduta"})
+        if "insufficient_quota" in msg or "quota" in msg.lower():
+            return JSONResponse({"ok": False, "msg": "Quota esaurita"})
+        return JSONResponse({"ok": False, "msg": f"Errore: {msg[:120]}"})
+
+
+@app.post("/api/test-key/tavily")
+async def test_key_tavily(request: Request):
+    """Verifica che la chiave Tavily sia valida."""
+    if not settings.tavily_api_key:
+        return JSONResponse({"ok": False, "msg": "Chiave non configurata"})
+    try:
+        from tavily import TavilyClient
+        client = TavilyClient(api_key=settings.tavily_api_key)
+        client.search(query="test", max_results=1)
+        return JSONResponse({"ok": True, "msg": "Chiave valida"})
+    except Exception as exc:
+        msg = str(exc)
+        if "401" in msg or "Unauthorized" in msg or "invalid" in msg.lower():
+            return JSONResponse({"ok": False, "msg": "Chiave non valida o scaduta"})
+        return JSONResponse({"ok": False, "msg": f"Errore: {msg[:120]}"})
+
+
 # ── Orchestrator start/stop ───────────────────────────────────────────────────
 
 _ORCH_PID_FILE = Path(__file__).parent.parent / "storage" / "orchestrator.pid"
