@@ -324,11 +324,21 @@ async def reject_post(post_id: int, note: str = Form(default=""), db: Session = 
 
 
 @app.post("/posts/{post_id}/edit")
-async def edit_post(post_id: int, content: str = Form(...), hashtags: str = Form(default=""), db: Session = Depends(get_db)):
+async def edit_post(
+    post_id: int,
+    content: str = Form(...),
+    hashtags: str = Form(default=""),
+    image_url: str = Form(default=""),
+    db: Session = Depends(get_db),
+):
     post = db.query(Post).filter(Post.id == post_id).first()
     if post:
         post.content = content
         post.hashtags = hashtags
+        if image_url:
+            # Validazione anti-SSRF prima di salvare l'URL immagine
+            if _is_safe_url(image_url):
+                post.image_url = image_url[:1000]
         db.commit()
     return RedirectResponse("/?msg=edited", status_code=303)
 

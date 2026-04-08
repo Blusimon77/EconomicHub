@@ -100,6 +100,13 @@
       <span class="meta">ID #{{ post.id }} · Generato il {{ post.created_at.strftime('%d/%m/%Y %H:%M') }} · via {{ post.generated_by }}</span>
     </div>
 
+    {% if post.image_url %}
+    <div style="margin-bottom:0.5rem">
+      <img src="{{ post.image_url }}" alt="Immagine post"
+           style="max-width:100%;max-height:220px;border-radius:6px;object-fit:cover"
+           onerror="this.style.display='none'">
+    </div>
+    {% endif %}
     <div class="content-preview">{{ post.content }}</div>
     {% if post.hashtags %}
       <div class="hashtags">{{ post.hashtags }}</div>
@@ -125,6 +132,8 @@
       <form method="post" action="/posts/{{ post.id }}/edit">
         <textarea name="content" rows="5">{{ post.content }}</textarea>
         <input type="text" name="hashtags" value="{{ post.hashtags }}" placeholder="Hashtag" style="margin-top:0.4rem">
+        <input type="url" name="image_url" value="{{ post.image_url or '' }}"
+               placeholder="URL immagine (opzionale)" style="margin-top:0.4rem">
         <div class="actions" style="margin-top:0.5rem">
           <button class="btn btn-edit" type="submit">Salva modifiche</button>
         </div>
