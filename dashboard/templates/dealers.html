@@ -107,7 +107,16 @@
     .brand-check:hover { background: #f8f8f8; border-color: #ccc; }
     .brand-check input { width: auto; cursor: pointer; }
     .brand-check.own-brand { border-color: #1a1a2e; background: #f0f2ff; }
+
+    /* Mappa */
+    .map-section { margin-top: 1.5rem; }
+    .map-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+    .map-header h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .04em; color: #888; font-weight: 600; }
+    #dealer-map { height: 380px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.1); }
+    .map-no-data { background: white; border-radius: 8px; text-align: center; padding: 2rem; color: #bbb; font-size: .9rem; font-style: italic; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 </head>
 <body>
 <header>
@@ -244,7 +253,39 @@
     {% endif %}
   </div>
 
+  <!-- Mappa dealer geolocati -->
+  <div class="map-section">
+    <div class="map-header">
+      <h3>Mappa rivenditori geolocati</h3>
+      <span id="map-count" style="font-size:.8rem;color:#aaa"></span>
+    </div>
+    {% set geo_dealers = dealers | selectattr('latitude') | list %}
+    {% if geo_dealers %}
+    <div id="dealer-map"></div>
+    {% else %}
+    <div class="map-no-data">Nessun rivenditore con coordinate geografiche.<br>Usa la geocodifica automatica durante l'inserimento.</div>
+    {% endif %}
+  </div>
 </div>
+
+<!-- Dati dealer per la mappa (JSON inline) -->
+{% if geo_dealers %}
+<script id="map-data" type="application/json">
+[
+  {% for d in geo_dealers %}
+  {
+    "name": {{ d.name | tojson }},
+    "lat": {{ d.latitude }},
+    "lng": {{ d.longitude }},
+    "city": {{ (d.city or '') | tojson }},
+    "country": {{ (d.country or '') | tojson }},
+    "website": {{ (d.website or '') | tojson }},
+    "phone": {{ (d.phone or '') | tojson }}
+  }{% if not loop.last %},{% endif %}
+  {% endfor %}
+]
+</script>
+{% endif %}
 
 <!-- ── Modal ADD ─────────────────────────────────────────────────────────── -->
 <div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
@@ -530,6 +571,43 @@ document.addEventListener('click', e => {
 
 function escHTML(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Leaflet map ───────────────────────────────────────────────────────────────
+const _mapDataEl = document.getElementById('map-data');
+if (_mapDataEl) {
+  const _script = document.createElement('script');
+  _script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+  _script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLs=';
+  _script.crossOrigin = '';
+  _script.onload = () => {
+    const dealers = JSON.parse(_mapDataEl.textContent);
+    document.getElementById('map-count').textContent = `${dealers.length} con coordinate`;
+
+    const map = L.map('dealer-map');
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18,
+    }).addTo(map);
+
+    const bounds = [];
+    dealers.forEach(d => {
+      const loc = [parseFloat(d.lat), parseFloat(d.lng)];
+      bounds.push(loc);
+      const popup = `<strong>${escHTML(d.name)}</strong><br>
+        ${d.city ? escHTML(d.city) + (d.country ? ', ' + escHTML(d.country) : '') : ''}<br>
+        ${d.phone ? '📞 ' + escHTML(d.phone) + '<br>' : ''}
+        ${d.website ? `<a href="${escHTML(d.website)}" target="_blank" rel="noopener">🌐 sito web</a>` : ''}`;
+      L.marker(loc).addTo(map).bindPopup(popup);
+    });
+
+    if (bounds.length === 1) {
+      map.setView(bounds[0], 10);
+    } else if (bounds.length > 1) {
+      map.fitBounds(bounds, { padding: [30, 30] });
+    }
+  };
+  document.head.appendChild(_script);
 }
 </script>
 </body>
