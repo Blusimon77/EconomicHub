@@ -58,6 +58,7 @@
   <h1>Social Media Manager</h1>
   <nav>
     <a href="/" class="active">Approvazioni</a>
+    <a href="/generate">Genera</a>
     <a href="/analytics">Analytics</a>
     <a href="/context">Contesto</a>
     <a href="/competitors">Concorrenti</a>
@@ -115,8 +116,11 @@
 
     <!-- Azioni rapide -->
     <div class="actions">
-      <form method="post" action="/posts/{{ post.id }}/approve" style="display:inline">
+      <form method="post" action="/posts/{{ post.id }}/approve" style="display:inline;display:flex;gap:0.4rem;align-items:center">
         <input type="hidden" name="note" value="">
+        <input type="datetime-local" name="scheduled_at"
+               title="Lascia vuoto per approvare subito; scegli data/ora per pianificare"
+               style="padding:0.35rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.82rem;color:#555">
         <button class="btn btn-approve" type="submit">Approva</button>
       </form>
       <form method="post" action="/posts/{{ post.id }}/reject" style="display:inline"

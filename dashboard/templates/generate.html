@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genera Post — Social Media Manager</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 1.2rem; }
+    nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; }
+    nav a:hover { color: white; }
+    nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
+    .container { max-width: 640px; margin: 2.5rem auto; padding: 0 1rem; }
+
+    .card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.1); padding: 2rem; }
+    .card h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .card .sub { font-size: 0.85rem; color: #888; margin-bottom: 1.75rem; }
+
+    .field { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 1.1rem; }
+    .field label { font-size: 0.82rem; font-weight: 500; color: #555; }
+    .field input, .field select, .field textarea {
+      padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 0.9rem; font-family: inherit;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #1a1a2e; }
+    .field .hint { font-size: 0.75rem; color: #aaa; }
+
+    .platforms { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .plat-check { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.9rem;
+                  border: 2px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .plat-check input { width: auto; }
+    .plat-check.linkedin  { border-color: #0077b5; color: #0077b5; }
+    .plat-check.facebook  { border-color: #1877f2; color: #1877f2; }
+    .plat-check.instagram { border-color: #e1306c; color: #e1306c; }
+    .plat-check input:checked + span { font-weight: 600; }
+
+    .btn { padding: 0.65rem 1.8rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: 600; }
+    .btn-primary { background: #1a1a2e; color: white; }
+    .btn-primary:hover { background: #2d2d4e; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .toast { background: #22c55e; color: white; padding: 0.75rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-size: 0.9rem; }
+    .toast a { color: white; font-weight: 600; }
+
+    .loading { display: none; align-items: center; gap: 0.6rem; font-size: 0.88rem; color: #888; margin-top: 0.75rem; }
+    .spinner { width: 18px; height: 18px; border: 2px solid #ddd; border-top-color: #1a1a2e; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Social Media Manager</h1>
+  <nav>
+    <a href="/">Approvazioni</a>
+    <a href="/generate" class="active">Genera</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/context">Contesto</a>
+    <a href="/competitors">Concorrenti</a>
+    <a href="/competitors/analysis">Analisi</a>
+    <a href="/dealers">Rivenditori</a>
+    <a href="/settings">Impostazioni</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  {% if msg == 'ok' %}
+  <div class="toast">
+    ✓ {{ generated }} post generati e messi in <a href="/">coda di approvazione</a>.
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <h2>Genera nuovi post</h2>
+    <p class="sub">L'AI creerà un post per ogni piattaforma selezionata, usando il contesto aziendale configurato. I post appariranno in <a href="/" style="color:#1a1a2e">Approvazioni</a> prima di qualsiasi pubblicazione.</p>
+
+    <form method="post" action="/generate" id="gen-form" onsubmit="onSubmit()">
+      <input type="hidden" name="csrf_token" id="csrf-input">
+
+      <div class="field">
+        <label>Argomento / Topic *</label>
+        <textarea name="topic" rows="3" required
+                  placeholder="Es: Lancio del nuovo modello RA53, partecipazione a Bauma 2026, risultati Q1 2026…"></textarea>
+        <span class="hint">Descrivi l'argomento del post. Più dettagli dai, meglio l'AI performa.</span>
+      </div>
+
+      <div class="field">
+        <label>Tono di voce</label>
+        <select name="tone">
+          <option value="professionale">Professionale</option>
+          <option value="informale">Informale / Friendly</option>
+          <option value="tecnico">Tecnico</option>
+          <option value="istituzionale">Istituzionale</option>
+          <option value="entusiasta">Entusiasta</option>
+          <option value="narrativo">Narrativo / Storytelling</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Piattaforme</label>
+        <div class="platforms">
+          <label class="plat-check linkedin">
+            <input type="checkbox" name="platforms" value="linkedin" checked>
+            <span>LinkedIn</span>
+          </label>
+          <label class="plat-check facebook">
+            <input type="checkbox" name="platforms" value="facebook" checked>
+            <span>Facebook</span>
+          </label>
+          <label class="plat-check instagram">
+            <input type="checkbox" name="platforms" value="instagram" checked>
+            <span>Instagram</span>
+          </label>
+        </div>
+        <span class="hint">Seleziona almeno una piattaforma.</span>
+      </div>
+
+      <div style="margin-top:1.5rem;display:flex;align-items:center;gap:1.25rem">
+        <button type="submit" class="btn btn-primary" id="gen-btn">🤖 Genera post</button>
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <span>Generazione in corso… può richiedere qualche secondo</span>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.getElementById('csrf-input').value = document.querySelector('meta[name="csrf-token"]').content;
+
+function onSubmit() {
+  const checked = document.querySelectorAll('input[name="platforms"]:checked');
+  if (checked.length === 0) { alert('Seleziona almeno una piattaforma.'); return false; }
+  document.getElementById('gen-btn').disabled = true;
+  document.getElementById('loading').style.display = 'flex';
+}
+</script>
+</body>
+</html>

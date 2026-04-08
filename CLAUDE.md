@@ -60,8 +60,9 @@ social-media-manager/
 │   └── dealer.py              # Dealer, DealerBrand (anagrafica globale multi-brand)
 ├── dashboard/
 │   ├── main.py                # TUTTE le route FastAPI (unico file, ~1200 righe)
-│   └── templates/             # 7 template Jinja2
+│   └── templates/             # 8 template Jinja2
 │       ├── index.html         # /  — coda approvazione post e risposte
+│       ├── generate.html      # /generate — form generazione post AI
 │       ├── analytics.html     # /analytics
 │       ├── context.html       # /context
 │       ├── competitors.html   # /competitors (JS interattivo, 6 tab per competitor)
@@ -280,6 +281,7 @@ La nav completa corretta è:
 
 ```html
 <a href="/">Approvazioni</a>
+<a href="/generate">Genera</a>
 <a href="/analytics">Analytics</a>
 <a href="/context">Contesto</a>
 <a href="/competitors">Concorrenti</a>
@@ -288,15 +290,18 @@ La nav completa corretta è:
 <a href="/settings">Impostazioni</a>
 ```
 
-Se aggiungi una nuova pagina, aggiorna la nav in **tutti e 7 i template**.
+Se aggiungi una nuova pagina, aggiorna la nav in **tutti e 8 i template**.
 
 ---
 
 ## Cosa è completo
 
-- [x] Dashboard web a 6 sezioni (FastAPI + Jinja2)
+- [x] Dashboard web a 8 sezioni (FastAPI + Jinja2)
+- [x] Form generazione post nel dashboard (`/generate` — topic, tono, piattaforme)
+- [x] Pianificazione post con date-time picker per `scheduled_at` in approvazione
+- [x] Analytics con metriche engagement (likes, reach, commenti, impressioni) + grafico Canvas
 - [x] Generazione contenuti AI con contesto aziendale iniettato nel prompt
-- [x] Flusso approvazione umana (PENDING → APPROVED/REJECTED → PUBLISHED)
+- [x] Flusso approvazione umana (PENDING → APPROVED/SCHEDULED/REJECTED → PUBLISHED)
 - [x] Monitor commenti e menzioni (polling via API social)
 - [x] Reply agent con bozze AI per approvazione
 - [x] Analytics agent (raccolta metriche da API social)
@@ -310,9 +315,16 @@ Se aggiungi una nuova pagina, aggiorna la nav in **tutti e 7 i template**.
 - [x] Algoritmo `_looks_like_company` con 12 controlli anti-rumore per dealer_scout
 - [x] News/press-release scraping come fallback per siti con mappa dealer JS-rendered
 - [x] Settings page (provider AI, scheduling, monitoring, credenziali social modificabili)
+- [x] Start/stop orchestrator da Settings con stato in tempo reale
+- [x] Test connessione API keys (Anthropic, Tavily) con feedback visivo
+- [x] Storico analisi competitive con select per navigare analisi passate
+- [x] Mappa dealer Leaflet/OpenStreetMap (lazy-loaded)
+- [x] Export CSV anagrafica dealer
+- [x] Loading state su operazioni lunghe (ricerca prodotti, dealer, genera analisi)
+- [x] Filtri piattaforma e sezioni Post/Risposte in homepage
 - [x] Fallback automatico Claude → Qwen
 - [x] Autenticazione dashboard con password + cookie HMAC-signed
-- [x] Protezione CSRF (middleware ASGI puro, body re-injected)
+- [x] Protezione CSRF (middleware ASGI puro, header X-CSRF-Token + body)
 - [x] Validazione URL anti-SSRF
 - [x] Logging strutturato (file + console)
 - [x] HTTP client centralizzato con consenso privacy automatico
@@ -325,9 +337,7 @@ Se aggiungi una nuova pagina, aggiorna la nav in **tutti e 7 i template**.
 - [ ] **`integrations/linkedin.py`** — pubblicazione reale via LinkedIn API (`/posts`)
 - [ ] **`integrations/facebook.py`** — pubblicazione Facebook + Instagram Graph API
 - [ ] **Scheduler pubblicazione** — il cron in `orchestrator.py` che pubblica i post APPROVED all'orario pianificato chiama le integrations non ancora implementate
-- [ ] **Form generazione post nel dashboard** — attualmente solo via CLI (`python main.py generate "..."`)
-- [ ] **Analytics con grafici** — `AnalyticsAgent` raccoglie già le metriche ma `/analytics` mostra solo la lista post; mancano grafici reach/engagement
-- [ ] **Upload immagini** — campi `image_url` e `media_path` nel modello ma non gestiti dalla UI
+- [ ] **Upload immagini** — campi `image_url` e `media_path` nel modello; la UI accetta URL ma non upload diretto file
 - [ ] **RBAC** — autenticazione binaria (sì/no), mancano ruoli (admin, viewer)
 - [ ] **Alembic** — migrations manuali con `ALTER TABLE`; nessun versionamento schema
 
@@ -340,7 +350,7 @@ Se aggiungi una nuova pagina, aggiorna la nav in **tutti e 7 i template**.
 2. Esegui `ALTER TABLE` per le colonne nuove (non affidarti a `create_all`)
 3. Aggiungi le route in `dashboard/main.py` — route statiche prima di quelle con `{id}`
 4. Crea il template in `dashboard/templates/` con la navbar completa
-5. Aggiorna la navbar in tutti gli altri 7 template
+5. Aggiorna la navbar in tutti gli altri 8 template
 
 **Aggiungere un nuovo agente di scraping:**
 - Importa `scrape_get` / `scrape_stream` da `config/http_client.py` (mai `httpx` diretto)
