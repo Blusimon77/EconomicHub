@@ -26,8 +26,9 @@ social-media-manager/
 ├── models/
 │   ├── post.py                 # Post, Comment, stati del ciclo di vita
 │   ├── context.py              # CompanyContext, ContextWebsite
-│   └── competitor.py           # Competitor, CompetitorSocial, CompetitorObservation,
-│                               # CompetitorDealer, CompetitorProduct, CompetitorAnalysis
+│   ├── competitor.py           # Competitor, CompetitorSocial, CompetitorObservation,
+│   │                           # CompetitorDealer, CompetitorProduct, CompetitorAnalysis
+│   └── dealer.py               # Dealer, DealerBrand (anagrafica globale multi-brand)
 ├── dashboard/
 │   ├── main.py                 # App FastAPI con tutte le route
 │   └── templates/
@@ -36,6 +37,7 @@ social-media-manager/
 │       ├── context.html        # Contesto aziendale e siti di riferimento
 │       ├── competitors.html    # Gestione competitor (pannello interattivo a 6 tab)
 │       ├── competitor_analysis.html  # Report AI analisi competitiva
+│       ├── dealers.html        # Anagrafica globale rivenditori multi-brand
 │       └── settings.html       # Impostazioni AI, social, scheduling
 ├── config/
 │   ├── settings.py             # Configurazione validata da pydantic — legge .env
@@ -75,8 +77,8 @@ social-media-manager/
   → PDF scaricati + specifiche strutturate estratte
 
 [Ricerca concessionari]
-  → pagine dealer del sito + Tavily
-  → Anagrafica strutturata per competitor
+  → pagine dealer del sito + news/press-release + Tavily
+  → Anagrafica per competitor + registro globale multi-brand
 ```
 
 ---
@@ -90,7 +92,8 @@ social-media-manager/
 | Contesto | `/context` | Profilo aziendale, siti di riferimento |
 | Concorrenti | `/competitors` | Pannello interattivo: profilo, social, strategia, note, prodotti tecnici, concessionari |
 | Analisi | `/competitors/analysis` | Report AI con fonti verificabili |
-| Impostazioni | `/settings` | AI provider, scheduling, monitoring |
+| Rivenditori | `/dealers` | Anagrafica globale rivenditori multi-brand con geocodifica |
+| Impostazioni | `/settings` | AI provider, credenziali social, scheduling, monitoring |
 
 ---
 
@@ -135,11 +138,21 @@ Per ogni competitor è possibile avviare una ricerca automatica di schede tecnic
 
 ### Concessionari e rete distributiva
 Per ogni competitor costruttore è possibile mappare la rete di distribuzione:
-- Scraping delle pagine dealer del sito costruttore (`/dealers`, `/rivenditori`, ecc.)
-- Ricerca Tavily per rivenditori autorizzati
+- Scraping delle pagine dealer del sito costruttore (~28 slug tipici)
+- News/press-release scraping come fallback per siti con mappa dealer JS-rendered
+- Ricerca Tavily per rivenditori autorizzati (richiede chiave API)
+- Algoritmo `_looks_like_company` con 12 controlli per escludere falsi positivi (nomi geografici, titoli articolo, nomi di persona, heading di sezione, ecc.)
 - Anagrafica strutturata: nome, sito, indirizzo, città, regione, paese, telefono, email
 - Aggiunta manuale tramite form nel dashboard
 - Visualizzazione raggruppata per paese nel tab "Concessionari"
+
+### Anagrafica globale rivenditori (`/dealers`)
+Un rivenditore può distribuire più brand (proprio + competitor):
+- Registro centralizzato con relazione many-to-many su `dealer_brands`
+- Geocodifica automatica dell'indirizzo via Nominatim (OpenStreetMap, nessuna API key)
+- Importazione automatica dai risultati della ricerca per-competitor
+- Aggiunta e modifica manuale con modal e filtri per paese/brand
+- Badge colorati per distinguere brand proprio (blu scuro) da competitor (blu chiaro)
 
 ---
 
