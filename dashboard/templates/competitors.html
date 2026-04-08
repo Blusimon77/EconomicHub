@@ -461,14 +461,26 @@ function renderDetail(c) {
     <div class="card-body">
       ${c.observations.length === 0 ? '<p style="color:#bbb;font-size:0.88rem;margin-bottom:1rem">Nessuna nota ancora.</p>' : ''}
       ${c.observations.map(o => `
-        <div class="obs-card">
+        <div class="obs-card" id="obs-card-${o.id}">
           <span class="obs-cat ${CAT_CLASSES[o.category] || 'cat-generale'}">${o.category}</span>
-          <div class="obs-text">${escHtml(o.content)}</div>
+          <div class="obs-text" id="obs-text-${o.id}">${escHtml(o.content)}</div>
+          <div id="obs-edit-${o.id}" style="display:none;margin-top:0.4rem">
+            <form method="post" action="/competitors/${c.id}/observations/${o.id}/update">
+              <textarea name="content" rows="3" style="width:100%;padding:0.4rem;font-size:0.85rem;border:1px solid #ddd;border-radius:5px">${escHtml(o.content)}</textarea>
+              <div style="display:flex;gap:0.4rem;margin-top:0.4rem;justify-content:flex-end">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="cancelObsEdit(${o.id})">Annulla</button>
+                <button type="submit" class="btn btn-primary btn-sm">Salva</button>
+              </div>
+            </form>
+          </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.3rem">
             <div class="obs-date">${o.created_at}</div>
-            <form method="post" action="/competitors/${c.id}/observations/${o.id}/delete" style="display:inline">
-              <button class="btn btn-danger btn-sm">×</button>
-            </form>
+            <div style="display:flex;gap:0.3rem">
+              <button class="btn btn-secondary btn-sm" onclick="toggleObsEdit(${o.id}, ${JSON.stringify(o.content)})">Modifica</button>
+              <form method="post" action="/competitors/${c.id}/observations/${o.id}/delete" style="display:inline">
+                <button class="btn btn-danger btn-sm">×</button>
+              </form>
+            </div>
           </div>
         </div>
       `).join('')}
@@ -503,7 +515,8 @@ function renderDetail(c) {
     <div class="card-body">
       <div class="products-search-bar">
         <h4>Dati tecnici e documenti</h4>
-        <button class="btn btn-search-pdf" onclick="startProductSearch(${c.id})">🔍 Cerca dati tecnici</button>
+        <button class="btn btn-search-pdf" id="btn-pdf-${c.id}"
+                onclick="startProductSearch(${c.id}, this)">🔍 Cerca dati tecnici</button>
       </div>
       <div id="products-list-${c.id}" class="products-loading">
         Clicca "Cerca dati tecnici" per avviare la ricerca su sito costruttore e dealer. I risultati già archiviati appaiono automaticamente.
@@ -516,7 +529,8 @@ function renderDetail(c) {
     <div class="card-body">
       <div class="dealers-toolbar">
         <h4>Rete di distribuzione</h4>
-        <button class="btn btn-search-dealer" onclick="startDealerSearch(${c.id})">🔍 Cerca concessionari</button>
+        <button class="btn btn-search-dealer" id="btn-dealer-${c.id}"
+                onclick="startDealerSearch(${c.id}, this)">🔍 Cerca concessionari</button>
       </div>
       <div id="dealers-list-${c.id}" class="products-loading">
         Clicca "Cerca concessionari" per avviare la ricerca. I concessionari già archiviati appaiono automaticamente.
@@ -651,13 +665,24 @@ function renderProductCard(cid, p) {
     ? `<a href="/competitors/${cid}/brochures/${escHtml(p.brochure_filename)}" target="_blank" class="btn btn-pdf btn-sm">Scarica PDF</a>`
     : (p.brochure_url ? `<a href="${escAttr(p.brochure_url)}" target="_blank" class="btn btn-pdf btn-sm">Apri</a>` : '');
 
-  const specsHtml = p.tech_summary ? `
-    <details style="margin-top:0.4rem">
+  // Specifiche strutturate (tech_specs JSON) + riepilogo testuale
+  let specsHtml = '';
+  if (p.tech_specs && Object.keys(p.tech_specs).length > 0) {
+    const rows = Object.entries(p.tech_specs)
+      .map(([k,v]) => `<tr><td style="font-weight:500;padding:0.2rem 0.6rem 0.2rem 0;color:#555;white-space:nowrap">${escHtml(k)}</td><td style="padding:0.2rem 0;color:#333">${escHtml(String(v))}</td></tr>`)
+      .join('');
+    specsHtml += `<details style="margin-top:0.4rem">
+      <summary style="font-size:0.75rem;color:#888;cursor:pointer">Specifiche tecniche (${Object.keys(p.tech_specs).length} valori)</summary>
+      <table style="width:100%;font-size:0.78rem;margin-top:0.3rem;border-collapse:collapse">${rows}</table>
+    </details>`;
+  } else if (p.tech_summary) {
+    specsHtml = `<details style="margin-top:0.4rem">
       <summary style="font-size:0.75rem;color:#888;cursor:pointer">Specifiche tecniche estratte</summary>
       <div style="font-size:0.78rem;color:#555;margin-top:0.3rem;background:#f9fafb;padding:0.5rem;border-radius:5px;line-height:1.6">
         ${escHtml(p.tech_summary)}
       </div>
-    </details>` : '';
+    </details>`;
+  }
 
   return `
   <div class="product-card" id="product-${p.id}">
@@ -681,8 +706,9 @@ function renderProductCard(cid, p) {
   </div>`;
 }
 
-async function startProductSearch(cid) {
+async function startProductSearch(cid, btn) {
   const container = document.getElementById(`products-list-${cid}`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Ricerca…'; }
   if (container) container.innerHTML = '<div class="products-loading">🔍 Ricerca in corso… potrebbe richiedere qualche minuto.</div>';
   try {
     const resp = await fetch(`/competitors/${cid}/products/search`, {
@@ -694,12 +720,14 @@ async function startProductSearch(cid) {
     if (data.error) {
       if (container) container.innerHTML = `<div class="products-loading" style="color:#f87171">Errore: ${escHtml(data.error)}</div>`;
     } else {
-      _productsLoaded[cid] = false; // forza ricaricamento
+      _productsLoaded[cid] = false;
       await loadProducts(cid, true);
       showToast(`✓ Trovati ${data.found} nuovi prodotti`);
     }
   } catch(e) {
     if (container) container.innerHTML = '<div class="products-loading" style="color:#f87171">Errore di rete.</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔍 Cerca dati tecnici'; }
   }
 }
 
@@ -775,8 +803,9 @@ function renderDealerCard(cid, d) {
   </div>`;
 }
 
-async function startDealerSearch(cid) {
+async function startDealerSearch(cid, btn) {
   const container = document.getElementById(`dealers-list-${cid}`);
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Ricerca…'; }
   if (container) container.innerHTML = '<div class="products-loading">🔍 Ricerca concessionari in corso… potrebbe richiedere qualche minuto.</div>';
   try {
     const resp = await fetch(`/competitors/${cid}/dealers/search`, {
@@ -794,12 +823,25 @@ async function startDealerSearch(cid) {
     }
   } catch(e) {
     if (container) container.innerHTML = '<div class="products-loading" style="color:#f87171">Errore di rete.</div>';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🔍 Cerca concessionari'; }
   }
 }
 
 function toggleAddDealer(cid) {
   const form = document.getElementById(`add-dealer-form-${cid}`);
   if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── Edit osservazioni ──────────────────────────────────────────────────────────
+function toggleObsEdit(oid) {
+  document.getElementById(`obs-text-${oid}`).style.display = 'none';
+  document.getElementById(`obs-edit-${oid}`).style.display = '';
+}
+
+function cancelObsEdit(oid) {
+  document.getElementById(`obs-text-${oid}`).style.display = '';
+  document.getElementById(`obs-edit-${oid}`).style.display = 'none';
 }
 
 // ── CSRF — inietta token in tutti i form (statici e dinamici)

@@ -152,6 +152,9 @@
   <div class="card" data-platform="{{ comment.platform.value }}">
     <div class="card-header">
       <span class="platform-badge platform-{{ comment.platform.value }}">{{ comment.platform.value }}</span>
+      {% if comment.is_mention %}
+      <span class="platform-badge" style="background:#7c3aed;color:white;margin-left:0.35rem">@ Menzione</span>
+      {% endif %}
       <span class="meta">ID #{{ comment.id }} · {{ comment.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
     </div>
     <div class="meta" style="margin-bottom:0.4rem">

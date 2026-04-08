@@ -722,6 +722,19 @@ async def delete_observation(cid: int, oid: int, db: Session = Depends(get_db)):
     return RedirectResponse(f"/competitors?sel={cid}#osservazioni", status_code=303)
 
 
+@app.post("/competitors/{cid}/observations/{oid}/update")
+async def update_observation(
+    cid: int, oid: int,
+    content: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    obs = db.query(CompetitorObservation).filter(CompetitorObservation.id == oid).first()
+    if obs:
+        obs.content = content[:2000]
+        db.commit()
+    return RedirectResponse(f"/competitors?sel={cid}#osservazioni", status_code=303)
+
+
 # API JSON per aggiornamenti inline
 @app.get("/api/competitors/{cid}")
 async def api_competitor(cid: int, db: Session = Depends(get_db)):
@@ -770,6 +783,7 @@ async def api_competitor_products(cid: int, db: Session = Depends(get_db)):
             "dealer_id": p.dealer_id,
             "file_size_kb": p.file_size_kb,
             "tech_summary": p.tech_summary or "",
+            "tech_specs": json.loads(p.tech_specs) if p.tech_specs else {},
             "found_at": p.found_at.strftime("%d/%m/%Y %H:%M") if p.found_at else "",
             "has_local_file": bool(p.brochure_filename),
         }
