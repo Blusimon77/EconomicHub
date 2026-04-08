@@ -59,6 +59,12 @@
 
     .btn-eye { padding: 0.5rem 0.65rem; background: #f0f0f0; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 0.85rem; line-height: 1; flex-shrink: 0; }
     .btn-eye:hover { background: #e0e0e0; }
+    .btn-success { background: #dcfce7; color: #166534; }
+    .btn-success:hover { background: #bbf7d0; }
+    .btn-danger-soft { background: #fee2e2; color: #991b1b; }
+    .btn-danger-soft:hover { background: #fecaca; }
+    .orch-bar { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+    .orch-meta { font-size: 0.8rem; color: #888; }
 
     @media (max-width: 600px) {
       .two-col, .three-col { grid-template-columns: 1fr; }
@@ -84,6 +90,22 @@
   {% if saved %}
   <div class="toast">Impostazioni salvate correttamente.</div>
   {% endif %}
+
+  <!-- ── Orchestrator ─────────────────────────────── -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-icon">⚙️</span>
+      <h2>Orchestrator</h2>
+    </div>
+    <div class="section-body">
+      <div class="orch-bar">
+        <span id="orch-indicator" class="status-dot dot-gray"></span>
+        <span id="orch-label" style="font-size:0.9rem; color:#555">Verifica in corso…</span>
+        <button id="orch-btn" class="btn" style="display:none" onclick="orchToggle()"></button>
+        <span id="orch-meta" class="orch-meta"></span>
+      </div>
+    </div>
+  </div>
 
   <form method="post" action="/settings">
 
@@ -361,6 +383,48 @@
       document.querySelectorAll('.provider-card')[idx].classList.add('active');
     });
   });
+  // ── Orchestrator ──────────────────────────────────────────────────────────
+  let _orchRunning = false;
+
+  async function orchRefresh() {
+    try {
+      const r = await fetch('/api/orchestrator/status');
+      const d = await r.json();
+      _orchRunning = d.running;
+      const dot   = document.getElementById('orch-indicator');
+      const label = document.getElementById('orch-label');
+      const btn   = document.getElementById('orch-btn');
+      const meta  = document.getElementById('orch-meta');
+      dot.className   = 'status-dot ' + (d.running ? 'dot-green' : 'dot-gray');
+      label.textContent = d.running ? 'In esecuzione' : 'Fermo';
+      btn.style.display = '';
+      btn.textContent   = d.running ? 'Ferma' : 'Avvia';
+      btn.className     = 'btn ' + (d.running ? 'btn-danger-soft' : 'btn-success');
+      meta.textContent  = d.running && d.started_at ? `Avviato il ${d.started_at} · PID ${d.pid}` : '';
+    } catch(e) {
+      document.getElementById('orch-label').textContent = 'Stato non disponibile';
+    }
+  }
+
+  async function orchToggle() {
+    const btn = document.getElementById('orch-btn');
+    btn.disabled = true;
+    const csrf = document.querySelector('meta[name="csrf-token"]').content;
+    const endpoint = _orchRunning ? '/api/orchestrator/stop' : '/api/orchestrator/start';
+    try {
+      await fetch(endpoint, { method: 'POST', headers: { 'X-CSRF-Token': csrf } });
+      await new Promise(r => setTimeout(r, 1500));
+      await orchRefresh();
+    } catch(e) {
+      alert('Errore comunicazione orchestrator');
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  orchRefresh();
+  setInterval(orchRefresh, 15000);
+
   // CSRF
   document.querySelectorAll('form[method="post"]').forEach(f => {
     if (!f.querySelector('[name="csrf_token"]')) {

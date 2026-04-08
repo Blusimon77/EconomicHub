@@ -9,6 +9,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
+from pathlib import Path
 
 from config.settings import settings
 from config.logging import setup_logging, get_logger
@@ -20,6 +21,21 @@ from agents.content_generator import ContentGeneratorAgent
 
 setup_logging()
 logger = get_logger("orchestrator")
+
+_PID_FILE = Path(__file__).parent.parent / "storage" / "orchestrator.pid"
+
+
+def _write_pid() -> None:
+    import os
+    _PID_FILE.parent.mkdir(parents=True, exist_ok=True)
+    _PID_FILE.write_text(str(os.getpid()))
+
+
+def _remove_pid() -> None:
+    try:
+        _PID_FILE.unlink(missing_ok=True)
+    except Exception:
+        pass
 
 
 class Orchestrator:
@@ -55,7 +71,8 @@ class Orchestrator:
         )
 
         self.scheduler.start()
-        logger.info("Orchestrator avviato. Premi Ctrl+C per fermare.")
+        _write_pid()
+        logger.info("Orchestrator avviato (PID %s). Premi Ctrl+C per fermare.", _PID_FILE.read_text())
 
         try:
             import time
@@ -63,6 +80,7 @@ class Orchestrator:
                 time.sleep(60)
         except (KeyboardInterrupt, SystemExit):
             self.scheduler.shutdown()
+            _remove_pid()
             logger.info("Orchestrator fermato.")
 
     def generate_post(

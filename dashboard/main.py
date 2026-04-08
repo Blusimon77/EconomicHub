@@ -198,13 +198,17 @@ class CSRFMiddleware:
                 more_body = message.get("more_body", False)
             body = b"".join(chunks)
 
-            # Estrai csrf_token dal form URL-encoded
+            # Estrai csrf_token dal form URL-encoded oppure dall'header X-CSRF-Token (fetch API)
             from urllib.parse import parse_qs
             try:
                 params = parse_qs(body.decode("utf-8", errors="replace"), keep_blank_values=True)
                 form_token = params.get(_CSRF_FIELD, [""])[0]
             except Exception:
                 form_token = ""
+
+            # Fallback: header X-CSRF-Token per richieste fetch/AJAX senza body form
+            if not form_token:
+                form_token = headers.get(b"x-csrf-token", b"").decode("utf-8", errors="replace")
 
             if not csrf_token or not form_token or not hmac.compare_digest(csrf_token, form_token):
                 location = (path + "?error=csrf").encode()
@@ -1241,6 +1245,76 @@ def _save_dealer_brands(db: Session, dealer_id: int, form) -> None:
                 db.add(DealerBrand(dealer_id=dealer_id, competitor_id=cid, is_own_brand=False))
             except ValueError:
                 pass
+
+
+# ── Orchestrator start/stop ───────────────────────────────────────────────────
+
+_ORCH_PID_FILE = Path(__file__).parent.parent / "storage" / "orchestrator.pid"
+
+
+def _orch_pid() -> int | None:
+    """Restituisce il PID dell'orchestrator se il file esiste, None altrimenti."""
+    try:
+        return int(_ORCH_PID_FILE.read_text().strip())
+    except Exception:
+        return None
+
+
+def _orch_running() -> bool:
+    """True se il processo dell'orchestrator è ancora attivo."""
+    import os
+    import signal
+    pid = _orch_pid()
+    if pid is None:
+        return False
+    try:
+        os.kill(pid, 0)   # signal 0 = solo check esistenza processo
+        return True
+    except (ProcessLookupError, PermissionError):
+        _ORCH_PID_FILE.unlink(missing_ok=True)
+        return False
+
+
+@app.get("/api/orchestrator/status")
+async def orchestrator_status():
+    running = _orch_running()
+    pid = _orch_pid() if running else None
+    started_at = None
+    if running and _ORCH_PID_FILE.exists():
+        import datetime as _dt
+        ts = _ORCH_PID_FILE.stat().st_mtime
+        started_at = _dt.datetime.fromtimestamp(ts).strftime("%d/%m/%Y %H:%M:%S")
+    return JSONResponse({"running": running, "pid": pid, "started_at": started_at})
+
+
+@app.post("/api/orchestrator/start")
+async def orchestrator_start(request: Request):
+    if _orch_running():
+        return JSONResponse({"ok": False, "error": "già in esecuzione"})
+    import subprocess, sys
+    proc = subprocess.Popen(
+        [sys.executable, str(Path(__file__).parent.parent / "main.py"), "start"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+    logger.info("Orchestrator avviato dal dashboard (PID %s)", proc.pid)
+    return JSONResponse({"ok": True, "pid": proc.pid})
+
+
+@app.post("/api/orchestrator/stop")
+async def orchestrator_stop(request: Request):
+    import os, signal
+    pid = _orch_pid()
+    if not pid or not _orch_running():
+        return JSONResponse({"ok": False, "error": "non in esecuzione"})
+    try:
+        os.kill(pid, signal.SIGTERM)
+        _ORCH_PID_FILE.unlink(missing_ok=True)
+        logger.info("Orchestrator fermato dal dashboard (PID %s)", pid)
+        return JSONResponse({"ok": True})
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)})
 
 
 if __name__ == "__main__":
