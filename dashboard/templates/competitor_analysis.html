@@ -157,6 +157,19 @@
           {{ analyses_count }} analisi salvat{{ 'a' if analyses_count == 1 else 'e' }}
         {% endif %}
       </p>
+      {% if analyses_list|length > 1 %}
+      <div style="margin-top:0.6rem;display:flex;align-items:center;gap:0.5rem">
+        <label style="font-size:0.78rem;color:#888">Storico:</label>
+        <select id="history-select" onchange="navigateHistory(this.value)"
+                style="font-size:0.82rem;padding:0.25rem 0.5rem;border:1px solid #ddd;border-radius:5px;color:#333">
+          {% for a in analyses_list %}
+          <option value="{{ a.id }}" {% if analysis and analysis.id == a.id %}selected{% endif %}>
+            {{ a.label }}{% if loop.first %} — ultima{% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
     </div>
     <form method="post" action="/competitors/analysis/generate" onsubmit="startLoading()">
       <button class="btn-generate" type="submit" {% if competitors_count == 0 %}disabled{% endif %}>
@@ -340,7 +353,13 @@
 
 <script>
 function startLoading() {
+  const btn = document.querySelector('.btn-generate');
+  if (btn) btn.disabled = true;
   document.getElementById('loading').classList.add('show');
+}
+
+function navigateHistory(id) {
+  window.location.href = '/competitors/analysis?id=' + id;
 }
 // CSRF
 document.querySelectorAll('form[method="post"]').forEach(f => {

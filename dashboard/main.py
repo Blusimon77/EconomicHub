@@ -461,7 +461,17 @@ async def scrape_website(site_id: int, db: Session = Depends(get_db)):
 async def analysis_page(request: Request, db: Session = Depends(get_db)):
     analyses = db.query(CompetitorAnalysis).order_by(CompetitorAnalysis.created_at.desc()).limit(50).all()
     competitors = db.query(Competitor).filter(Competitor.is_active == True).all()
-    latest = analyses[0] if analyses else None
+
+    # Seleziona l'analisi da visualizzare: ?id= oppure l'ultima
+    selected_id = request.query_params.get("id")
+    if selected_id:
+        try:
+            selected_id = int(selected_id)
+            target = next((a for a in analyses if a.id == selected_id), analyses[0] if analyses else None)
+        except (ValueError, TypeError):
+            target = analyses[0] if analyses else None
+    else:
+        target = analyses[0] if analyses else None
 
     def load(field):
         try:
@@ -469,33 +479,38 @@ async def analysis_page(request: Request, db: Session = Depends(get_db)):
         except Exception:
             return []
 
-    def load_str(field):
-        return field or ""
-
     parsed = None
-    if latest:
+    if target:
         sources_used = {}
         try:
-            sources_used = json.loads(latest.sources_used) if latest.sources_used else {}
+            sources_used = json.loads(target.sources_used) if target.sources_used else {}
         except Exception:
             pass
 
         parsed = {
-            "summary": latest.summary,
-            "landscape": latest.landscape,
-            "data_quality": latest.data_quality or "",
-            "per_competitor": load(latest.per_competitor),
-            "opportunities": load(latest.opportunities),
-            "threats": load(latest.threats),
-            "recommendations": load(latest.recommendations),
-            "content_gaps": load(latest.content_gaps) if hasattr(latest, 'content_gaps') else [],
+            "id": target.id,
+            "summary": target.summary,
+            "landscape": target.landscape,
+            "data_quality": target.data_quality or "",
+            "per_competitor": load(target.per_competitor),
+            "opportunities": load(target.opportunities),
+            "threats": load(target.threats),
+            "recommendations": load(target.recommendations),
+            "content_gaps": load(target.content_gaps) if hasattr(target, 'content_gaps') else [],
             "sources_used": sources_used,
-            "generated_by": latest.generated_by,
-            "created_at": latest.created_at.strftime("%d/%m/%Y %H:%M"),
+            "generated_by": target.generated_by,
+            "created_at": target.created_at.strftime("%d/%m/%Y %H:%M"),
         }
+
+    # Lista sintetica per il selettore storico
+    analyses_list = [
+        {"id": a.id, "label": a.created_at.strftime("%d/%m/%Y %H:%M")}
+        for a in analyses
+    ]
 
     return _template_response(request, "competitor_analysis.html", {
         "analysis": parsed,
+        "analyses_list": analyses_list,
         "competitors_count": len(competitors),
         "analyses_count": len(analyses),
         "generating": request.query_params.get("generating", False),
