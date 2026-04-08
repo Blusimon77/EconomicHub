@@ -112,7 +112,8 @@
         <input type="hidden" name="note" value="">
         <button class="btn btn-approve" type="submit">Approva</button>
       </form>
-      <form method="post" action="/posts/{{ post.id }}/reject" style="display:inline">
+      <form method="post" action="/posts/{{ post.id }}/reject" style="display:inline"
+            onsubmit="return confirm('Rifiutare il post #{{ post.id }}? L\'operazione è irreversibile.')">
         <input type="hidden" name="note" value="">
         <button class="btn btn-reject" type="submit">Rifiuta</button>
       </form>

@@ -54,6 +54,7 @@
         <th>Argomento</th>
         <th>Pubblicato il</th>
         <th>Contenuto</th>
+        <th>Note approvazione</th>
       </tr>
     </thead>
     <tbody>
@@ -64,6 +65,7 @@
         <td>{{ post.topic or '—' }}</td>
         <td>{{ post.published_at.strftime('%d/%m/%Y %H:%M') if post.published_at else '—' }}</td>
         <td>{{ post.content[:80] }}{% if post.content|length > 80 %}…{% endif %}</td>
+        <td style="color:#888;font-size:0.82rem">{{ post.approval_note or '—' }}</td>
       </tr>
       {% endfor %}
     </tbody>

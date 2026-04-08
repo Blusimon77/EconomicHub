@@ -171,6 +171,7 @@
       {% endfor %}
     </select>
     <button class="btn btn-primary" onclick="openModal()">+ Aggiungi rivenditore</button>
+    <a href="/dealers/export.csv" class="btn btn-secondary" title="Scarica anagrafica in formato CSV">⬇ Esporta CSV</a>
     <form method="post" action="/dealers/import" style="display:inline">
       <input type="hidden" name="csrf_token" id="import-csrf">
       <button type="submit" class="btn btn-secondary"

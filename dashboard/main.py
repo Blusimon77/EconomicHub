@@ -1249,6 +1249,33 @@ async def api_dealer_detail(did: int, db: Session = Depends(get_db)):
     })
 
 
+@app.get("/dealers/export.csv")
+async def export_dealers_csv(db: Session = Depends(get_db)):
+    """Scarica l'anagrafica dealer in formato CSV."""
+    import csv, io
+    dealers = db.query(Dealer).order_by(Dealer.name).all()
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "ID", "Nome", "Sito web", "Email", "Telefono",
+        "Indirizzo", "Città", "Stato/Provincia", "Paese", "CAP",
+        "Latitudine", "Longitudine", "Note", "Creato il",
+    ])
+    for d in dealers:
+        writer.writerow([
+            d.id, d.name or "", d.website or "", d.email or "", d.phone or "",
+            d.address or "", d.city or "", d.state or "", d.country or "", d.postal_code or "",
+            d.latitude or "", d.longitude or "", d.notes or "",
+            d.created_at.strftime("%Y-%m-%d %H:%M") if d.created_at else "",
+        ])
+    from fastapi.responses import Response
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="dealers.csv"'},
+    )
+
+
 def _save_dealer_brands(db: Session, dealer_id: int, form) -> None:
     """Crea i record DealerBrand a partire dai checkbox del form."""
     if form.get("brand_own"):
