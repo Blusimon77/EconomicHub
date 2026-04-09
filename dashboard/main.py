@@ -31,6 +31,7 @@ from models.context import CompanyContext, ContextWebsite
 import json
 from models.competitor import Competitor, CompetitorSocial, CompetitorObservation, CompetitorAnalysis, CompetitorProduct, CompetitorDealer
 from models.dealer import Dealer, DealerBrand
+from models.product_comparison import OwnProduct, ProductComparison
 from datetime import datetime, timezone
 from pathlib import Path as FilePath
 from fastapi.responses import FileResponse
@@ -292,6 +293,46 @@ def get_db():
         db.close()
 
 
+@app.get("/generate", response_class=HTMLResponse)
+async def generate_page(request: Request):
+    return _template_response(request, "generate.html", {
+        "msg": request.query_params.get("msg", ""),
+        "generated": request.query_params.get("generated", ""),
+    })
+
+
+@app.post("/generate")
+async def generate_post_form(
+    request: Request,
+    topic: str = Form(...),
+    tone: str = Form(default="professionale"),
+    platforms: list[str] = Form(default=["linkedin", "facebook", "instagram"]),
+    db: Session = Depends(get_db),
+):
+    from agents.content_generator import ContentGeneratorAgent
+    agent = ContentGeneratorAgent()
+    created = 0
+    for plat_str in platforms:
+        try:
+            plat = Platform(plat_str)
+            result = agent.generate(topic=topic, platform=plat, tone=tone)
+            post = Post(
+                platform=plat,
+                status=PostStatus.PENDING,
+                content=result["content"],
+                hashtags=result.get("hashtags", ""),
+                topic=topic,
+                tone=tone,
+                generated_by=result.get("generated_by", "ai"),
+            )
+            db.add(post)
+            db.commit()
+            created += 1
+        except Exception as exc:
+            logger.error("Errore generazione post %s: %s", plat_str, exc)
+    return RedirectResponse(f"/generate?msg=ok&generated={created}", status_code=303)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     pending_posts = db.query(Post).filter(Post.status == PostStatus.PENDING).order_by(Post.created_at.desc()).limit(100).all()
@@ -304,10 +345,23 @@ async def home(request: Request, db: Session = Depends(get_db)):
 
 
 @app.post("/posts/{post_id}/approve")
-async def approve_post(post_id: int, note: str = Form(default=""), db: Session = Depends(get_db)):
+async def approve_post(
+    post_id: int,
+    note: str = Form(default=""),
+    scheduled_at: str = Form(default=""),
+    db: Session = Depends(get_db),
+):
     post = db.query(Post).filter(Post.id == post_id).first()
     if post:
-        post.status = PostStatus.APPROVED
+        if scheduled_at:
+            try:
+                # Formato atteso: "YYYY-MM-DDTHH:MM" (da input datetime-local)
+                post.scheduled_at = datetime.fromisoformat(scheduled_at)
+                post.status = PostStatus.SCHEDULED
+            except ValueError:
+                post.status = PostStatus.APPROVED
+        else:
+            post.status = PostStatus.APPROVED
         post.approval_note = note
         db.commit()
     return RedirectResponse("/?msg=approved", status_code=303)
@@ -498,110 +552,209 @@ async def scrape_website(site_id: int, db: Session = Depends(get_db)):
     return RedirectResponse("/context", status_code=303)
 
 
-# ── Competitor Analysis ────────────────────────────────────────────────────────
+# ── Analisi comparativa prodotti ───────────────────────────────────────────────
 
 @app.get("/competitors/analysis", response_class=HTMLResponse)
 async def analysis_page(request: Request, db: Session = Depends(get_db)):
-    analyses = db.query(CompetitorAnalysis).order_by(CompetitorAnalysis.created_at.desc()).limit(50).all()
-    competitors = db.query(Competitor).filter(Competitor.is_active == True).all()
+    own_products = db.query(OwnProduct).order_by(OwnProduct.product_line, OwnProduct.name).all()
 
-    # Seleziona l'analisi da visualizzare: ?id= oppure l'ultima
+    # Prodotti concorrenti raggruppati per competitor
+    competitor_products = (
+        db.query(CompetitorProduct)
+        .join(Competitor, CompetitorProduct.competitor_id == Competitor.id)
+        .filter(Competitor.is_active == True)
+        .order_by(Competitor.name, CompetitorProduct.name)
+        .all()
+    )
+
+    # Storico analisi
+    comparisons = (
+        db.query(ProductComparison)
+        .order_by(ProductComparison.created_at.desc())
+        .limit(50)
+        .all()
+    )
+
+    # Analisi selezionata (da ?id= o l'ultima)
+    def _load(field, default):
+        try:
+            return json.loads(field) if field else default
+        except Exception:
+            return default
+
     selected_id = request.query_params.get("id")
+    target = None
     if selected_id:
         try:
-            selected_id = int(selected_id)
-            target = next((a for a in analyses if a.id == selected_id), analyses[0] if analyses else None)
+            sid = int(selected_id)
+            target = next((c for c in comparisons if c.id == sid), comparisons[0] if comparisons else None)
         except (ValueError, TypeError):
-            target = analyses[0] if analyses else None
+            target = comparisons[0] if comparisons else None
     else:
-        target = analyses[0] if analyses else None
-
-    def load(field):
-        try:
-            return json.loads(field) if field else []
-        except Exception:
-            return []
+        target = comparisons[0] if comparisons else None
 
     parsed = None
     if target:
-        sources_used = {}
-        try:
-            sources_used = json.loads(target.sources_used) if target.sources_used else {}
-        except Exception:
-            pass
-
         parsed = {
             "id": target.id,
+            "title": target.title or f"Analisi #{target.id}",
+            "own_product_name": target.own_product_name,
+            "competitor_products_snapshot": _load(target.competitor_products_snapshot, []),
             "summary": target.summary,
-            "landscape": target.landscape,
-            "data_quality": target.data_quality or "",
-            "per_competitor": load(target.per_competitor),
-            "opportunities": load(target.opportunities),
-            "threats": load(target.threats),
-            "recommendations": load(target.recommendations),
-            "content_gaps": load(target.content_gaps) if hasattr(target, 'content_gaps') else [],
-            "sources_used": sources_used,
+            "comparison_table": _load(target.comparison_table, []),
+            "per_competitor": _load(target.per_competitor, []),
+            "recommendations": _load(target.recommendations, []),
             "generated_by": target.generated_by,
             "created_at": target.created_at.strftime("%d/%m/%Y %H:%M"),
         }
 
-    # Lista sintetica per il selettore storico
-    analyses_list = [
-        {"id": a.id, "label": a.created_at.strftime("%d/%m/%Y %H:%M")}
-        for a in analyses
+    comparisons_list = [
+        {
+            "id": c.id,
+            "label": c.title or f"Analisi #{c.id}",
+            "created_at": c.created_at.strftime("%d/%m/%Y %H:%M"),
+        }
+        for c in comparisons
     ]
 
     return _template_response(request, "competitor_analysis.html", {
-        "analysis": parsed,
-        "analyses_list": analyses_list,
-        "competitors_count": len(competitors),
-        "analyses_count": len(analyses),
-        "generating": request.query_params.get("generating", False),
+        "own_products": own_products,
+        "competitor_products": competitor_products,
+        "comparisons_list": comparisons_list,
+        "comparison": parsed,
+        "msg": request.query_params.get("msg", ""),
     })
 
 
 @app.post("/competitors/analysis/generate")
-async def generate_analysis(db: Session = Depends(get_db)):
-    from agents.competitor_analyst import run_analysis
-    competitors = (
-        db.query(Competitor)
-        .filter(Competitor.is_active == True)
-        .all()
-    )
-    if not competitors:
-        return RedirectResponse("/competitors/analysis?error=no_competitors", status_code=303)
+async def generate_comparison(
+    request: Request,
+    db: Session = Depends(get_db),
+    own_product_id: int = Form(default=0),
+    competitor_product_ids: list[int] = Form(default=[]),
+    title: str = Form(default=""),
+):
+    from agents.product_comparator import run_comparison
 
-    company_ctx = db.query(CompanyContext).first()
-    result = run_analysis(competitors, company_ctx, db_session=db)
+    own_product = db.query(OwnProduct).filter(OwnProduct.id == own_product_id).first() if own_product_id else None
+
+    competitor_products = (
+        db.query(CompetitorProduct)
+        .filter(CompetitorProduct.id.in_(competitor_product_ids))
+        .all()
+    ) if competitor_product_ids else []
+
+    if not competitor_products:
+        return RedirectResponse("/competitors/analysis?msg=no_products", status_code=303)
+
+    result = run_comparison(own_product, competitor_products)
 
     def dump(val):
-        if isinstance(val, (list, dict)):
-            return json.dumps(val, ensure_ascii=False)
-        return str(val) if val else ""
+        return json.dumps(val, ensure_ascii=False) if isinstance(val, (list, dict)) else str(val or "")
 
-    analysis = CompetitorAnalysis(
+    # Snapshot dei prodotti confrontati
+    snapshot = [
+        {
+            "id": cp.id,
+            "name": cp.name,
+            "competitor_name": cp.competitor.name if cp.competitor else "",
+        }
+        for cp in competitor_products
+    ]
+
+    comp = ProductComparison(
+        own_product_id=own_product.id if own_product else None,
+        own_product_name=own_product.name if own_product else "",
+        competitor_products_snapshot=dump(snapshot),
+        title=title.strip() or (
+            f"{own_product.name if own_product else 'Confronto'} vs "
+            + ", ".join(cp.name for cp in competitor_products[:2])
+            + ("…" if len(competitor_products) > 2 else "")
+        ),
         summary=result.get("summary", ""),
-        landscape=result.get("landscape", ""),
-        data_quality=result.get("data_quality", ""),
+        comparison_table=dump(result.get("comparison_table", [])),
         per_competitor=dump(result.get("per_competitor", [])),
-        opportunities=dump(result.get("opportunities", [])),
-        threats=dump(result.get("threats", [])),
         recommendations=dump(result.get("recommendations", [])),
-        content_gaps=dump(result.get("content_gaps", [])),
-        sources_used=dump(result.get("sources_used", {})),
         raw_response=json.dumps(result, ensure_ascii=False)[:MAX_RAW_RESPONSE],
         generated_by=result.get("generated_by", ""),
     )
-    db.add(analysis)
+    db.add(comp)
+    db.commit()
+    return RedirectResponse(f"/competitors/analysis?id={comp.id}", status_code=303)
+
+
+@app.post("/competitors/analysis/delete/{cid}")
+async def delete_comparison(cid: int, db: Session = Depends(get_db)):
+    db.query(ProductComparison).filter(ProductComparison.id == cid).delete()
     db.commit()
     return RedirectResponse("/competitors/analysis", status_code=303)
 
 
-@app.post("/competitors/analysis/delete-all")
-async def delete_all_analyses(db: Session = Depends(get_db)):
-    db.query(CompetitorAnalysis).delete()
+# ── Gestione prodotti nostri ────────────────────────────────────────────────────
+
+@app.post("/competitors/own-products/add")
+async def add_own_product(
+    db: Session = Depends(get_db),
+    name: str = Form(...),
+    product_line: str = Form(default=""),
+    category: str = Form(default=""),
+    description: str = Form(default=""),
+    working_height: str = Form(default=""),
+    tech_summary: str = Form(default=""),
+    page_url: str = Form(default=""),
+    brochure_url: str = Form(default=""),
+):
+    wh = None
+    try:
+        wh = float(working_height) if working_height.strip() else None
+    except ValueError:
+        pass
+
+    p = OwnProduct(
+        name=name.strip(),
+        product_line=product_line.strip(),
+        category=category.strip(),
+        description=description.strip(),
+        working_height=wh,
+        tech_summary=tech_summary.strip(),
+        page_url=page_url.strip(),
+        brochure_url=brochure_url.strip(),
+    )
+    db.add(p)
     db.commit()
-    return RedirectResponse("/competitors/analysis", status_code=303)
+    return RedirectResponse("/competitors/analysis?msg=product_added", status_code=303)
+
+
+@app.post("/competitors/own-products/{pid}/delete")
+async def delete_own_product(pid: int, db: Session = Depends(get_db)):
+    db.query(OwnProduct).filter(OwnProduct.id == pid).delete()
+    db.commit()
+    return RedirectResponse("/competitors/analysis?msg=product_deleted", status_code=303)
+
+
+@app.post("/competitors/own-products/import-url")
+async def import_own_product_from_url(
+    db: Session = Depends(get_db),
+    url: str = Form(...),
+):
+    from agents.product_comparator import scrape_own_product_page
+    data = scrape_own_product_page(url.strip())
+
+    # Prova a ricavare il nome dal path URL se il sito non lo restituisce
+    if not data.get("name"):
+        parts = url.rstrip("/").split("/")
+        data["name"] = parts[-1].replace("-", " ").replace("_", " ").upper() if parts else "Prodotto"
+
+    p = OwnProduct(
+        name=data.get("name", ""),
+        page_url=url.strip(),
+        tech_summary=data.get("tech_summary", ""),
+        brochure_url=data.get("brochure_url", ""),
+        scraped_at=datetime.now(timezone.utc),
+    )
+    db.add(p)
+    db.commit()
+    return RedirectResponse("/competitors/analysis?msg=product_imported", status_code=303)
 
 
 # ── Competitors ────────────────────────────────────────────────────────────────

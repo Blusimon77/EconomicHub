@@ -43,7 +43,8 @@ social-media-manager/
 │   ├── monitor.py             # Monitora commenti/menzioni via API social
 │   ├── reply_agent.py         # Bozze risposte ai commenti
 │   ├── analytics.py           # Raccoglie metriche da API social
-│   ├── competitor_analyst.py  # Analisi competitiva: scraping + Tavily + AI
+│   ├── competitor_analyst.py  # Analisi social media competitiva (non più usata da /competitors/analysis)
+│   ├── product_comparator.py  # Comparazione prodotti: nostro prodotto vs N prodotti competitor
 │   ├── product_scout.py       # Cerca dati tecnici/PDF sul sito costruttore e dealer
 │   └── dealer_scout.py        # Individua concessionari/rivenditori del costruttore
 ├── workflows/
@@ -57,6 +58,7 @@ social-media-manager/
 │   ├── context.py             # CompanyContext, ContextWebsite
 │   ├── competitor.py          # Competitor, CompetitorSocial, CompetitorObservation,
 │   │                          # CompetitorDealer, CompetitorProduct, CompetitorAnalysis
+│   ├── product_comparison.py  # OwnProduct, ProductComparison (analisi comparativa prodotti)
 │   └── dealer.py              # Dealer, DealerBrand (anagrafica globale multi-brand)
 ├── dashboard/
 │   ├── main.py                # TUTTE le route FastAPI (unico file, ~1200 righe)
@@ -118,7 +120,9 @@ with engine.connect() as conn:
 - `competitor_observations` — id, competitor_id, category, content
 - `competitor_dealers` — id, competitor_id, name, website, address, city, region, country, phone, email, notes, source, source_url, found_at
 - `competitor_products` — id, competitor_id, dealer_id (nullable), name, product_line, category, tech_specs (JSON), tech_summary, brochure_url, brochure_filename, page_url, source, file_size_kb, found_at
-- `competitor_analyses` — id, summary, landscape, data_quality, per_competitor (JSON), opportunities (JSON), threats (JSON), recommendations (JSON), content_gaps (JSON), sources_used (JSON), raw_response, generated_by
+- `competitor_analyses` — id, summary, landscape, data_quality, per_competitor (JSON), opportunities (JSON), threats (JSON), recommendations (JSON), content_gaps (JSON), sources_used (JSON), raw_response, generated_by *(legacy — non più usata da /competitors/analysis)*
+- `own_products` — id, name, product_line, category, description, working_height, tech_specs (JSON), tech_summary, page_url, brochure_url, brochure_filename, scraped_at
+- `product_comparisons` — id, own_product_id (FK→own_products nullable), own_product_name, competitor_products_snapshot (JSON), title, summary, comparison_table (JSON), per_competitor (JSON), recommendations (JSON), raw_response, generated_by
 - `dealers` — id, name, website, email, phone, address, city, state, country, postal_code, latitude, longitude, notes, created_at, updated_at
 - `dealer_brands` — id, dealer_id (FK→dealers), competitor_id (FK→competitors, nullable), is_own_brand
   - `is_own_brand=True` + `competitor_id=NULL` → dealer del brand proprio
@@ -174,18 +178,27 @@ Il server Qwen locale è sempre disponibile come fallback su `http://10.99.97.10
 
 ---
 
-## Analisi competitor — principio fondamentale
+## Analisi comparativa prodotti — product_comparator.py
 
-Il modello **NON deve usare la propria memoria di training** per dati sui competitor.
-Il `SYSTEM_PROMPT` in `agents/competitor_analyst.py` lo istruisce esplicitamente.
+La pagina `/competitors/analysis` consente di confrontare **1 prodotto Cela** vs **N prodotti competitor**.
 
-Pipeline prima di ogni analisi:
-1. Scraping sito web (`scrape_get` + BeautifulSoup) — aggiornato se >7 giorni
-2. Ricerca Tavily — 2 query per competitor (`TAVILY_API_KEY` in `.env`)
-3. Ricerca automatica profili social mancanti (LinkedIn, Facebook, Instagram)
-4. Dati manuali dal DB
-5. Tutto nel prompt → AI → JSON strutturato
-6. `sources_used` salvato in `competitor_analyses` e mostrato nel template
+Pipeline:
+1. Utente seleziona il proprio prodotto (`own_products`) e i prodotti competitor (`competitor_products`)
+2. L'agente legge `tech_specs` (JSON), `tech_summary` (testo) e PDF locali per ogni prodotto
+3. Tutto nel prompt → AI → JSON strutturato con tabella comparativa, verdict per competitor, raccomandazioni
+4. Risultato salvato in `product_comparisons` con snapshot dei prodotti confrontati
+
+**Prodotti Cela** (`own_products`): aggiunti manualmente o importati da celaplatforms.com.
+Il sito è JS-rendered quindi l'importazione da URL restituisce dati parziali — integrare manualmente.
+I PDF scaricati finiscono in `storage/own_brochures/` e vengono letti con PyMuPDF se installato.
+
+**Regola AI**: il modello NON usa la propria memoria di training — tutte le specifiche vengono iniettate nel prompt.
+
+## Analisi social competitor — competitor_analyst.py (legacy)
+
+Il vecchio agente `competitor_analyst.py` (analisi social media) è ancora nel codebase ma
+**non è più chiamato da `/competitors/analysis`**. Il suo output finiva in `competitor_analyses`
+(tabella ancora presente nel DB per retrocompatibilità).
 
 ---
 
@@ -308,7 +321,8 @@ Se aggiungi una nuova pagina, aggiorna la nav in **tutti e 8 i template**.
 - [x] Sezione Contesto aziendale con scraping siti di riferimento
 - [x] Sezione Competitor con pannello interattivo a 6 tab
 - [x] Ricerca automatica profili social mancanti durante analisi
-- [x] Analisi competitiva AI con scraping + Tavily + fonti verificabili
+- [x] Analisi comparativa prodotti AI (nostro prodotto vs N prodotti competitor, tabella specs + verdict + raccomandazioni)
+- [x] Gestione prodotti Cela (own_products): aggiunta manuale, importazione URL celaplatforms.com, PDF scheda tecnica
 - [x] Ricerca dati tecnici/PDF prodotti (sito costruttore + Tavily + dealer)
 - [x] Ricerca e anagrafica concessionari/rivenditori per ogni competitor
 - [x] Anagrafica globale rivenditori (`/dealers`) con supporto multi-brand e geocodifica

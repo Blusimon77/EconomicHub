@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Analisi Concorrenza — Social Media Manager</title>
+  <title>Analisi Prodotti — Social Media Manager</title>
   <meta name="csrf-token" content="{{ csrf_token }}">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,114 +13,165 @@
     nav a { color: #aaa; text-decoration: none; margin-left: 1.5rem; font-size: 0.9rem; }
     nav a:hover { color: white; }
     nav a.active { color: white; border-bottom: 2px solid white; padding-bottom: 2px; }
+    .container { max-width: 1140px; margin: 2rem auto; padding: 0 1.25rem 4rem; }
 
-    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem 4rem; }
+    /* Toast */
+    .toast { background: #22c55e; color: white; padding: 0.7rem 1.2rem; border-radius: 8px;
+      margin-bottom: 1.25rem; font-size: 0.88rem; }
+    .toast-warn { background: #f59e0b; }
 
-    /* Hero trigger */
-    .trigger-bar { background: white; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 2rem;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    .trigger-bar .info h2 { font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem; }
-    .trigger-bar .info p { font-size: 0.85rem; color: #888; }
-    .btn-generate { padding: 0.7rem 1.8rem; background: #1a1a2e; color: white; border: none; border-radius: 8px;
-      font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
-    .btn-generate:hover { background: #2d2d4e; }
-    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-sm { padding: 0.35rem 0.8rem; border: none; border-radius: 5px; font-size: 0.78rem; cursor: pointer; font-weight: 500; }
-    .btn-danger-sm { background: #fee2e2; color: #dc2626; }
-    .btn-danger-sm:hover { background: #fecaca; }
-    .btn-outline-sm { background: white; border: 1px solid #ddd; color: #555; }
-    .btn-outline-sm:hover { background: #f5f5f5; }
+    /* Section title */
+    .sec-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.07em; color: #888; margin-bottom: 0.85rem; display: flex;
+      align-items: center; justify-content: space-between; }
 
-    /* Empty state */
-    .empty-state { text-align: center; padding: 5rem 2rem; color: #ccc; }
-    .empty-state .icon { font-size: 3.5rem; margin-bottom: 1rem; }
-    .empty-state p { font-size: 0.95rem; }
+    /* Cards generici */
+    .card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      padding: 1.25rem; margin-bottom: 1.25rem; }
 
-    /* Meta bar */
-    .meta-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .meta-bar .meta-text { font-size: 0.82rem; color: #aaa; }
-    .meta-bar .actions { display: flex; gap: 0.5rem; }
+    /* Layout 2 col */
+    .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 820px) { .cols2 { grid-template-columns: 1fr; } }
 
-    /* Summary card */
-    .summary-card { background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%);
+    /* Buttons */
+    .btn { padding: 0.5rem 1.2rem; border: none; border-radius: 6px; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; }
+    .btn-primary { background: #1a1a2e; color: white; }
+    .btn-primary:hover { background: #2d2d4e; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.78rem; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-outline { background: white; border: 1px solid #ddd; color: #555; }
+    .btn-outline:hover { background: #f5f5f5; }
+    .btn-green { background: #dcfce7; color: #15803d; }
+    .btn-green:hover { background: #bbf7d0; }
+
+    /* Form fields */
+    .field { margin-bottom: 0.85rem; }
+    .field label { display: block; font-size: 0.78rem; font-weight: 600; color: #555;
+      margin-bottom: 0.3rem; }
+    .field input, .field select, .field textarea {
+      width: 100%; padding: 0.45rem 0.7rem; border: 1px solid #ddd; border-radius: 6px;
+      font-size: 0.88rem; font-family: inherit; }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      outline: none; border-color: #1a1a2e; }
+    .field .hint { font-size: 0.73rem; color: #aaa; margin-top: 0.2rem; }
+
+    /* Prodotti nostri — tabella */
+    .prod-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .prod-table th { background: #f8f9fa; padding: 0.55rem 0.75rem; text-align: left;
+      font-size: 0.75rem; font-weight: 600; color: #666; border-bottom: 2px solid #eee; }
+    .prod-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f0f0f0;
+      vertical-align: middle; }
+    .prod-table tr:last-child td { border-bottom: none; }
+    .prod-table tr:hover td { background: #fafafa; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px;
+      font-size: 0.72rem; font-weight: 600; background: #e0e7ff; color: #3730a3; }
+
+    /* Multi-select prodotti concorrenti */
+    .cp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.5rem; max-height: 320px; overflow-y: auto; padding: 0.25rem; }
+    .cp-item { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.6rem 0.75rem;
+      border: 2px solid #eee; border-radius: 6px; cursor: pointer; transition: border-color .15s; }
+    .cp-item input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
+    .cp-item:has(input:checked) { border-color: #1a1a2e; background: #f8f9fc; }
+    .cp-item .cp-name { font-size: 0.85rem; font-weight: 600; }
+    .cp-item .cp-sub { font-size: 0.75rem; color: #888; }
+
+    /* Loading overlay */
+    .loading-overlay { display: none; position: fixed; inset: 0;
+      background: rgba(26,26,46,.85); z-index: 100; align-items: center;
+      justify-content: center; flex-direction: column; gap: 1rem; color: white; }
+    .loading-overlay.show { display: flex; }
+    .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,.25);
+      border-top-color: white; border-radius: 50%; animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Risultato analisi */
+    .summary-card { background: linear-gradient(135deg, #1a1a2e 0%, #312e81 100%);
       color: white; border-radius: 12px; padding: 1.75rem 2rem; margin-bottom: 1.5rem; }
-    .summary-card .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.6; margin-bottom: 0.5rem; }
-    .summary-card .summary-text { font-size: 1.05rem; line-height: 1.6; }
-    .summary-card .landscape-text { font-size: 0.88rem; line-height: 1.7; opacity: 0.85; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.15); }
+    .summary-card .label { font-size: 0.72rem; text-transform: uppercase;
+      letter-spacing: .08em; opacity: .6; margin-bottom: .5rem; }
+    .summary-card .summary-text { font-size: 1rem; line-height: 1.65; }
 
-    /* Grid layout */
-    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
-    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; }
-    @media (max-width: 768px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+    /* Tabella confronto */
+    .cmp-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .cmp-table thead th { background: #1a1a2e; color: white; padding: .6rem .9rem;
+      text-align: left; white-space: nowrap; }
+    .cmp-table tbody td { padding: .55rem .9rem; border-bottom: 1px solid #f0f0f0;
+      vertical-align: top; }
+    .cmp-table tbody tr:last-child td { border-bottom: none; }
+    .cmp-table tbody tr:hover td { background: #fafafa; }
+    .adv-ours { background: #f0fdf4; }
+    .adv-theirs { background: #fff1f2; }
+    .adv-badge { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0; }
+    .adv-badge.ours { background: #22c55e; }
+    .adv-badge.theirs { background: #ef4444; }
+    .adv-badge.neutral { background: #9ca3af; }
+    .feature-name { font-weight: 600; color: #1a1a2e; }
+    .note-cell { font-size: 0.75rem; color: #888; }
 
-    /* Section header */
-    .section-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.07em; color: #888; font-weight: 600; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.4rem; }
-
-    /* Competitor cards */
-    .comp-card { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); padding: 1.25rem; }
-    .comp-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-    .comp-card-name { font-weight: 700; font-size: 1rem; }
-    .verdict-badge { padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    /* Per-competitor cards */
+    .comp-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+      gap: 1rem; margin-bottom: 1.5rem; }
+    .comp-card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+      padding: 1.25rem; border-left: 4px solid #ddd; }
+    .comp-card.forte { border-color: #ef4444; }
+    .comp-card.medio { border-color: #f59e0b; }
+    .comp-card.debole { border-color: #22c55e; }
+    .comp-card-header { display: flex; justify-content: space-between; margin-bottom: .75rem; }
+    .comp-card-name { font-weight: 700; font-size: .95rem; }
+    .verdict-badge { padding: .2rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700; }
     .v-forte { background: #fee2e2; color: #dc2626; }
     .v-medio { background: #fef3c7; color: #d97706; }
     .v-debole { background: #dcfce7; color: #16a34a; }
-    .social-score-bar { margin-bottom: 0.75rem; }
-    .score-label { font-size: 0.75rem; color: #888; margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
-    .score-track { background: #f0f0f0; border-radius: 4px; height: 6px; }
-    .score-fill { height: 6px; border-radius: 4px; background: linear-gradient(90deg, #6366f1, #8b5cf6); }
-    .comp-field { margin-bottom: 0.6rem; }
-    .comp-field .field-label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: 0.05em; color: #aaa; margin-bottom: 0.15rem; }
-    .comp-field .field-val { font-size: 0.85rem; line-height: 1.5; color: #444; }
+    .score-bar { margin-bottom: .75rem; }
+    .score-label { font-size: .72rem; color: #888; display: flex; justify-content: space-between; margin-bottom: .25rem; }
+    .score-track { height: 5px; background: #f0f0f0; border-radius: 3px; }
+    .score-fill { height: 5px; border-radius: 3px; background: linear-gradient(90deg,#6366f1,#8b5cf6); }
+    .comp-list { font-size: .82rem; padding-left: 1.1rem; color: #444; }
+    .comp-list li { margin-bottom: .25rem; line-height: 1.45; }
+    .comp-field-lbl { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em;
+      color: #aaa; margin: .65rem 0 .2rem; }
 
-    /* Lists */
-    .list-card { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); padding: 1.25rem; }
-    .list-item { display: flex; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid #f5f5f5; align-items: flex-start; }
-    .list-item:last-child { border-bottom: none; }
-    .list-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
-    .dot-opp { background: #22c55e; }
-    .dot-threat { background: #ef4444; }
-    .dot-gap { background: #6366f1; }
-    .list-text { font-size: 0.87rem; line-height: 1.5; color: #444; }
-
-    /* Recommendations */
-    .rec-card { background: white; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); padding: 1.25rem; margin-bottom: 1.5rem; }
-    .rec-item { display: flex; gap: 1rem; padding: 0.9rem 0; border-bottom: 1px solid #f5f5f5; align-items: flex-start; }
+    /* Raccomandazioni */
+    .rec-item { display: flex; gap: 1rem; padding: .8rem 0; border-bottom: 1px solid #f0f0f0; align-items: flex-start; }
     .rec-item:last-child { border-bottom: none; }
-    .priority-badge { padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; flex-shrink: 0; }
+    .priority-badge { padding: .2rem .55rem; border-radius: 4px; font-size: .7rem;
+      font-weight: 700; text-transform: uppercase; flex-shrink: 0; }
     .p-alta { background: #fee2e2; color: #dc2626; }
     .p-media { background: #fef3c7; color: #d97706; }
     .p-bassa { background: #dcfce7; color: #16a34a; }
-    .rec-content .rec-action { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.2rem; }
-    .rec-content .rec-rationale { font-size: 0.82rem; color: #777; line-height: 1.5; }
+    .rec-action { font-size: .88rem; font-weight: 600; margin-bottom: .15rem; }
+    .rec-rationale { font-size: .8rem; color: #777; }
 
-    /* Fonti */
-    .sources-details { margin-top: 0.75rem; border-top: 1px solid #f0f0f0; padding-top: 0.6rem; }
-    .sources-details summary { font-size: 0.75rem; color: #aaa; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 0.4rem; }
-    .sources-details summary::-webkit-details-marker { display: none; }
-    .sources-details summary::before { content: '▶'; font-size: 0.6rem; transition: transform 0.2s; }
-    .sources-details[open] summary::before { transform: rotate(90deg); }
-    .source-tag { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 3px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; }
-    .source-sito_web { background: #e0f2fe; color: #0369a1; }
-    .source-tavily { background: #f3e8ff; color: #7c3aed; }
-    .source-manuale { background: #f0fdf4; color: #166534; }
-    .sources-list { margin-top: 0.6rem; display: flex; flex-direction: column; gap: 0.5rem; }
-    .source-item a { font-size: 0.8rem; color: #1a1a2e; text-decoration: none; font-weight: 500; display: block; }
-    .source-item a:hover { text-decoration: underline; }
-    .source-snippet { font-size: 0.75rem; color: #888; line-height: 1.4; margin-top: 0.15rem; }
-    .scraped-preview-box { margin-top: 0.6rem; background: #f8f9fa; border-radius: 4px; padding: 0.5rem 0.6rem; font-size: 0.75rem; color: #666; line-height: 1.5; }
+    /* Storico */
+    .history-list { display: flex; flex-direction: column; gap: .4rem; }
+    .history-item { display: flex; align-items: center; justify-content: space-between;
+      padding: .55rem .75rem; border: 1px solid #eee; border-radius: 6px;
+      font-size: .83rem; cursor: pointer; }
+    .history-item:hover { background: #f8f9fa; }
+    .history-item.active { border-color: #1a1a2e; background: #f8f9fc; font-weight: 600; }
+    .history-meta { font-size: .73rem; color: #aaa; }
 
-    /* Provider badge */
-    .provider-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.6rem;
-      background: #f3f4f6; border-radius: 4px; font-size: 0.72rem; color: #666; }
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 2rem; max-width: 520px;
+      width: 100%; margin: 1rem; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1.25rem; }
 
-    /* Loading */
-    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(26,26,46,0.85);
-      z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; color: white; }
-    .loading-overlay.show { display: flex; }
-    .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.2);
-      border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 0.95rem; opacity: 0.8; }
+    /* Collapse */
+    .collapse-toggle { background: none; border: none; cursor: pointer; font-size: .82rem;
+      color: #1a1a2e; font-weight: 600; padding: 0; display: flex; align-items: center; gap: .3rem; }
+    .collapse-body { display: none; margin-top: .75rem; }
+    .collapse-body.open { display: block; }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; color: #ccc; }
+    .empty-state .icon { font-size: 2.5rem; margin-bottom: .75rem; }
   </style>
 </head>
 <body>
@@ -138,239 +189,449 @@
   </nav>
 </header>
 
+<!-- Loading overlay -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <div class="loading-text">Analisi AI in corso…</div>
-  <div style="font-size:0.8rem;opacity:0.5">Può richiedere fino a 30 secondi</div>
+  <div style="font-size:.95rem">Analisi AI in corso…</div>
+  <div style="font-size:.8rem;opacity:.5">Può richiedere 20–60 secondi</div>
+</div>
+
+<!-- Modal: aggiungi nostro prodotto -->
+<div class="modal-overlay" id="modal-add-product">
+  <div class="modal">
+    <h3>Aggiungi prodotto Cela</h3>
+    <form method="post" action="/competitors/own-products/add">
+      <input type="hidden" name="csrf_token" id="modal-csrf">
+      <div class="field">
+        <label>Nome modello *</label>
+        <input type="text" name="name" required placeholder="Es: DT22, DT30, WT180">
+      </div>
+      <div class="cols2">
+        <div class="field">
+          <label>Linea di prodotto</label>
+          <input type="text" name="product_line" placeholder="Es: DT-Truck, Fire, Crawler">
+        </div>
+        <div class="field">
+          <label>Categoria</label>
+          <input type="text" name="category" placeholder="Es: Industriale, Antincendio">
+        </div>
+      </div>
+      <div class="field">
+        <label>Altezza di lavoro (m)</label>
+        <input type="number" name="working_height" step="0.1" placeholder="22">
+      </div>
+      <div class="field">
+        <label>Descrizione</label>
+        <textarea name="description" rows="2" placeholder="Breve descrizione del prodotto"></textarea>
+      </div>
+      <div class="field">
+        <label>Specifiche tecniche (testo libero)</label>
+        <textarea name="tech_summary" rows="5"
+          placeholder="Incolla qui le specifiche dalla scheda tecnica:&#10;Altezza lavoro: 22m&#10;Portata: 230kg&#10;Larghezza: 2.4m&#10;…"></textarea>
+        <span class="hint">Copia e incolla le specifiche dalla scheda tecnica PDF o dal sito</span>
+      </div>
+      <div class="field">
+        <label>URL pagina prodotto (celaplatforms.com)</label>
+        <input type="url" name="page_url" placeholder="https://www.celaplatforms.com/industry/dt-truck/dt22/">
+      </div>
+      <div class="field">
+        <label>URL PDF scheda tecnica (opzionale)</label>
+        <input type="url" name="brochure_url" placeholder="https://...">
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:1rem">
+        <button type="submit" class="btn btn-primary">Salva prodotto</button>
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-add-product')">Annulla</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: importa da URL -->
+<div class="modal-overlay" id="modal-import-url">
+  <div class="modal">
+    <h3>Importa da celaplatforms.com</h3>
+    <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
+      Incolla l'URL della pagina prodotto. Il sistema tenterà di estrarre le informazioni disponibili
+      (il sito usa rendering JS quindi il risultato potrebbe essere parziale — potrai integrare manualmente dopo l'importazione).
+    </p>
+    <form method="post" action="/competitors/own-products/import-url" onsubmit="document.getElementById('loading').classList.add('show')">
+      <input type="hidden" name="csrf_token" id="import-csrf">
+      <div class="field">
+        <label>URL pagina prodotto</label>
+        <input type="url" name="url" required
+          placeholder="https://www.celaplatforms.com/industry/dt-truck/dt22/">
+      </div>
+      <div style="display:flex;gap:.75rem;margin-top:1rem">
+        <button type="submit" class="btn btn-primary">Importa</button>
+        <button type="button" class="btn btn-outline" onclick="closeModal('modal-import-url')">Annulla</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div class="container">
 
-  <!-- Trigger bar -->
-  <div class="trigger-bar">
-    <div class="info">
-      <h2>Analisi competitiva AI</h2>
-      <p>
-        {% if competitors_count == 0 %}
-          Aggiungi almeno un concorrente nella sezione <a href="/competitors" style="color:#1a1a2e">Concorrenti</a> per avviare l'analisi.
-        {% else %}
-          {{ competitors_count }} concorrent{{ 'e' if competitors_count == 1 else 'i' }} nel database ·
-          {{ analyses_count }} analisi salvat{{ 'a' if analyses_count == 1 else 'e' }}
-        {% endif %}
-      </p>
-      {% if analyses_list|length > 1 %}
-      <div style="margin-top:0.6rem;display:flex;align-items:center;gap:0.5rem">
-        <label style="font-size:0.78rem;color:#888">Storico:</label>
-        <select id="history-select" onchange="navigateHistory(this.value)"
-                style="font-size:0.82rem;padding:0.25rem 0.5rem;border:1px solid #ddd;border-radius:5px;color:#333">
-          {% for a in analyses_list %}
-          <option value="{{ a.id }}" {% if analysis and analysis.id == a.id %}selected{% endif %}>
-            {{ a.label }}{% if loop.first %} — ultima{% endif %}
-          </option>
-          {% endfor %}
-        </select>
+  {% if msg == 'product_added' %}
+  <div class="toast">Prodotto aggiunto con successo.</div>
+  {% elif msg == 'product_imported' %}
+  <div class="toast">Prodotto importato. Verifica e integra le specifiche se necessario.</div>
+  {% elif msg == 'product_deleted' %}
+  <div class="toast toast-warn">Prodotto eliminato.</div>
+  {% elif msg == 'no_products' %}
+  <div class="toast toast-warn">Seleziona almeno un prodotto concorrente da confrontare.</div>
+  {% endif %}
+
+  <!-- ── I NOSTRI PRODOTTI ─────────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="sec-title">
+      <span>I nostri prodotti (Cela)</span>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btn-sm btn-outline" onclick="openModal('modal-import-url')">
+          ⬇ Importa da URL
+        </button>
+        <button class="btn btn-sm btn-primary" onclick="openModal('modal-add-product')">
+          + Aggiungi manuale
+        </button>
       </div>
-      {% endif %}
     </div>
-    <form method="post" action="/competitors/analysis/generate" onsubmit="startLoading()">
-      <button class="btn-generate" type="submit" {% if competitors_count == 0 %}disabled{% endif %}>
-        <span>🤖</span>
-        {% if analysis %}Rigenera analisi{% else %}Genera analisi{% endif %}
+
+    {% if not own_products %}
+    <div class="empty-state" style="padding:2rem 1rem">
+      <div class="icon">📦</div>
+      <p>Nessun prodotto Cela ancora.<br>
+        Aggiungi manualmente o importa da <a href="https://www.celaplatforms.com" target="_blank">celaplatforms.com</a>.</p>
+    </div>
+    {% else %}
+    <div style="overflow-x:auto">
+      <table class="prod-table">
+        <thead>
+          <tr>
+            <th>Modello</th>
+            <th>Linea</th>
+            <th>Categoria</th>
+            <th>Altezza</th>
+            <th>Specifiche</th>
+            <th>Link</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in own_products %}
+          <tr>
+            <td><strong>{{ p.name }}</strong></td>
+            <td>{% if p.product_line %}<span class="badge">{{ p.product_line }}</span>{% else %}—{% endif %}</td>
+            <td>{{ p.category or '—' }}</td>
+            <td>{{ p.working_height | string + ' m' if p.working_height else '—' }}</td>
+            <td>
+              {% if p.tech_summary %}
+              <button class="btn btn-sm btn-outline collapse-toggle" onclick="toggleCollapse('specs-{{ p.id }}')">
+                Vedi ▾
+              </button>
+              <div class="collapse-body" id="specs-{{ p.id }}" style="font-size:.78rem;color:#555;white-space:pre-wrap">{{ p.tech_summary[:400] }}{% if p.tech_summary|length > 400 %}…{% endif %}</div>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% if p.page_url %}
+              <a href="{{ p.page_url }}" target="_blank" style="font-size:.78rem">Pagina</a>
+              {% endif %}
+              {% if p.brochure_url %}
+              · <a href="{{ p.brochure_url }}" target="_blank" style="font-size:.78rem">PDF</a>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="/competitors/own-products/{{ p.id }}/delete"
+                    onsubmit="return confirm('Eliminare {{ p.name }}?')">
+                <input type="hidden" name="csrf_token" class="csrf-auto">
+                <button type="submit" class="btn btn-sm btn-danger">✕</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── NUOVA ANALISI ─────────────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="sec-title">Nuova analisi comparativa</div>
+    <form method="post" action="/competitors/analysis/generate" onsubmit="startLoading(this)">
+      <input type="hidden" name="csrf_token" id="gen-csrf">
+
+      <div class="cols2" style="margin-bottom:.85rem">
+        <div class="field">
+          <label>Nostro prodotto (Cela)</label>
+          <select name="own_product_id">
+            <option value="0">— non specificato —</option>
+            {% for p in own_products %}
+            <option value="{{ p.id }}">{{ p.name }}{% if p.product_line %} · {{ p.product_line }}{% endif %}</option>
+            {% endfor %}
+          </select>
+          <span class="hint">Seleziona il prodotto Cela da mettere a confronto</span>
+        </div>
+        <div class="field">
+          <label>Titolo analisi (opzionale)</label>
+          <input type="text" name="title" placeholder="Es: DT22 vs concorrenti 22m — Q2 2026">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Prodotti concorrenti da confrontare *</label>
+        {% if not competitor_products %}
+        <p style="font-size:.85rem;color:#aaa;padding:.75rem 0">
+          Nessun prodotto concorrente nel database.
+          Cerca prodotti nella sezione
+          <a href="/competitors" style="color:#1a1a2e">Concorrenti</a>
+          (tab "Prodotti" → "Cerca prodotti").
+        </p>
+        {% else %}
+        <div class="cp-grid">
+          {% for cp in competitor_products %}
+          <label class="cp-item">
+            <input type="checkbox" name="competitor_product_ids" value="{{ cp.id }}">
+            <div>
+              <div class="cp-name">{{ cp.name or '—' }}</div>
+              <div class="cp-sub">
+                {{ cp.competitor.name if cp.competitor else '?' }}
+                {% if cp.product_line %} · {{ cp.product_line }}{% endif %}
+                {% if cp.tech_summary %} · ✓ specs{% endif %}
+                {% if cp.brochure_filename %} · ✓ PDF{% endif %}
+              </div>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+        <span class="hint">Seleziona uno o più prodotti concorrenti da confrontare con il nostro. I prodotti con "✓ specs" o "✓ PDF" danno risultati migliori.</span>
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary"
+              {% if not competitor_products %}disabled{% endif %}>
+        🤖 Genera analisi comparativa
       </button>
     </form>
   </div>
 
-  {% if not analysis %}
-  <div class="empty-state">
-    <div class="icon">📊</div>
-    <p>Nessuna analisi ancora.<br>Aggiungi i tuoi concorrenti e premi <strong>Genera analisi</strong>.</p>
-  </div>
+  <!-- ── RISULTATO + STORICO ───────────────────────────────────────────────── -->
+  <div class="cols2">
 
-  {% else %}
-
-  <!-- Meta bar -->
-  <div class="meta-bar">
-    <div class="meta-text">
-      Generata il {{ analysis.created_at }} ·
-      <span class="provider-badge">{{ analysis.generated_by }}</span>
-    </div>
-    <div class="actions">
-      <form method="post" action="/competitors/analysis/delete-all"
-            onsubmit="return confirm('Eliminare tutte le analisi salvate?')">
-        <button type="submit" class="btn-sm btn-danger-sm">Elimina storico</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Summary -->
-  <div class="summary-card">
-    <div class="label">Sintesi esecutiva</div>
-    <div class="summary-text">{{ analysis.summary }}</div>
-    {% if analysis.landscape %}
-    <div class="landscape-text">{{ analysis.landscape }}</div>
-    {% endif %}
-    {% if analysis.data_quality %}
-    <div style="margin-top:0.9rem;padding-top:0.9rem;border-top:1px solid rgba(255,255,255,0.15);font-size:0.78rem;opacity:0.6">
-      📋 Qualità dati: {{ analysis.data_quality }}
-    </div>
-    {% endif %}
-  </div>
-
-  <!-- Per-competitor cards -->
-  {% if analysis.per_competitor %}
-  <div class="section-title">🏁 Analisi per concorrente</div>
-  <div class="grid{% if analysis.per_competitor|length <= 2 %}2{% else %}3{% endif %}" style="margin-bottom:1.5rem">
-    {% for c in analysis.per_competitor %}
-    <div class="comp-card">
-      <div class="comp-card-header">
-        <div class="comp-card-name">{{ c.name }}</div>
-        <span class="verdict-badge v-{{ c.verdict | default('medio') }}">
-          {{ '⚠️ Forte' if c.verdict == 'forte' else ('➖ Medio' if c.verdict == 'medio' else '✅ Debole') }}
-        </span>
-      </div>
-
-      <div class="social-score-bar">
-        <div class="score-label">
-          <span>Presenza social</span>
-          <span>{{ c.social_score }}/10</span>
-        </div>
-        <div class="score-track">
-          <div class="score-fill" style="width:{{ (c.social_score | default(5)) * 10 }}%"></div>
-        </div>
-      </div>
-
-      {% if c.insights %}
-      <div class="comp-field">
-        <div class="field-label">Insight</div>
-        <div class="field-val">{{ c.insights }}</div>
-      </div>
-      {% endif %}
-      {% if c.differentiator %}
-      <div class="comp-field">
-        <div class="field-label">Differenziatore</div>
-        <div class="field-val">{{ c.differentiator }}</div>
-      </div>
-      {% endif %}
-      {% if c.vulnerability %}
-      <div class="comp-field">
-        <div class="field-label">Vulnerabilità da sfruttare</div>
-        <div class="field-val" style="color:#16a34a">{{ c.vulnerability }}</div>
-      </div>
-      {% endif %}
-
-      {% set src = analysis.sources_used.get(c.name, {}) %}
-      {% if src %}
-      <details class="sources-details">
-        <summary>
-          Fonti usate
-          {% for t in src.get('types', []) %}
-            <span class="source-tag source-{{ t.replace('_cache','') }}">{{ t }}</span>
-          {% endfor %}
-        </summary>
-        {% if src.get('search_results') %}
-        <div class="sources-list">
-          {% for r in src.get('search_results', [])[:4] %}
-          <div class="source-item">
-            <a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.title or r.url }}</a>
-            {% if r.content %}<div class="source-snippet">{{ r.content[:180] }}…</div>{% endif %}
+    <!-- Storico a sinistra -->
+    <div class="card" style="height:fit-content">
+      <div class="sec-title">Storico analisi ({{ comparisons_list|length }})</div>
+      {% if not comparisons_list %}
+      <p style="font-size:.85rem;color:#aaa">Nessuna analisi ancora.</p>
+      {% else %}
+      <div class="history-list">
+        {% for c in comparisons_list %}
+        <div class="history-item {% if comparison and comparison.id == c.id %}active{% endif %}"
+             onclick="window.location='/competitors/analysis?id={{ c.id }}'">
+          <div>
+            <div>{{ c.label }}</div>
+            <div class="history-meta">{{ c.created_at }}</div>
           </div>
-          {% endfor %}
+          <form method="post" action="/competitors/analysis/delete/{{ c.id }}"
+                onsubmit="event.stopPropagation();return confirm('Eliminare questa analisi?')"
+                onclick="event.stopPropagation()">
+            <input type="hidden" name="csrf_token" class="csrf-auto">
+            <button type="submit" class="btn btn-sm btn-danger">✕</button>
+          </form>
         </div>
-        {% endif %}
-        {% if src.get('scraped_preview') %}
-        <div class="scraped-preview-box">
-          <span class="source-tag source-sito_web">sito_web</span>
-          {{ src.scraped_preview }}…
-        </div>
-        {% endif %}
-      </details>
+        {% endfor %}
+      </div>
       {% endif %}
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
-  <!-- Opportunità, Minacce, Gap -->
-  <div class="grid3">
-
-    {% if analysis.opportunities %}
-    <div class="list-card">
-      <div class="section-title">🟢 Opportunità</div>
-      {% for item in analysis.opportunities %}
-      <div class="list-item">
-        <span class="list-dot dot-opp"></span>
-        <span class="list-text">{{ item }}</span>
+    <!-- Risultato a destra -->
+    <div>
+      {% if not comparison %}
+      <div class="card">
+        <div class="empty-state">
+          <div class="icon">📊</div>
+          <p>Nessuna analisi da visualizzare.<br>
+            Compila il form qui sopra e premi <strong>Genera</strong>.</p>
+        </div>
       </div>
-      {% endfor %}
-    </div>
-    {% endif %}
 
-    {% if analysis.threats %}
-    <div class="list-card">
-      <div class="section-title">🔴 Minacce</div>
-      {% for item in analysis.threats %}
-      <div class="list-item">
-        <span class="list-dot dot-threat"></span>
-        <span class="list-text">{{ item }}</span>
+      {% else %}
+
+      <!-- Summary -->
+      <div class="summary-card">
+        <div class="label">{{ comparison.title }}</div>
+        <div class="summary-text">{{ comparison.summary }}</div>
+        <div style="margin-top:.75rem;font-size:.75rem;opacity:.5">
+          {{ comparison.created_at }} · {{ comparison.generated_by }}
+          · confronta <strong>{{ comparison.own_product_name or 'prodotto non specificato' }}</strong>
+          con {{ comparison.competitor_products_snapshot|length }} prodotti
+        </div>
       </div>
-      {% endfor %}
-    </div>
-    {% endif %}
 
-    {% if analysis.content_gaps %}
-    <div class="list-card">
-      <div class="section-title">🟣 Gap di contenuto</div>
-      {% for item in analysis.content_gaps %}
-      <div class="list-item">
-        <span class="list-dot dot-gap"></span>
-        <span class="list-text">{{ item }}</span>
+      <!-- Tabella comparativa -->
+      {% if comparison.comparison_table %}
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:1.25rem">
+        <div style="padding:1rem 1.25rem .5rem" class="sec-title">Tabella comparativa</div>
+        <div style="overflow-x:auto">
+          <table class="cmp-table">
+            <thead>
+              <tr>
+                <th style="min-width:140px">Caratteristica</th>
+                <th style="min-width:120px">
+                  {{ comparison.own_product_name or 'Nostro prodotto' }}
+                </th>
+                {% if comparison.comparison_table %}
+                {% set first_row = comparison.comparison_table[0] %}
+                {% for comp_name in first_row.competitors.keys() %}
+                <th style="min-width:130px">{{ comp_name }}</th>
+                {% endfor %}
+                {% endif %}
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in comparison.comparison_table %}
+              <tr class="{% if row.advantage == 'ours' %}adv-ours{% elif row.advantage == 'theirs' %}adv-theirs{% endif %}">
+                <td class="feature-name">
+                  <span class="adv-badge {% if row.advantage == 'ours' %}ours{% elif row.advantage == 'theirs' %}theirs{% else %}neutral{% endif %}"></span>
+                  {{ row.feature }}
+                </td>
+                <td><strong>{{ row.our_value or 'n/d' }}</strong></td>
+                {% for comp_name, comp_val in row.competitors.items() %}
+                <td>{{ comp_val or 'n/d' }}</td>
+                {% endfor %}
+                <td class="note-cell">{{ row.note or '' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:.6rem 1.25rem;font-size:.73rem;color:#aaa;border-top:1px solid #f0f0f0">
+          <span style="display:inline-flex;align-items:center;gap:.35rem;margin-right:1rem">
+            <span class="adv-badge ours"></span> Vantaggio nostro
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:.35rem">
+            <span class="adv-badge theirs"></span> Vantaggio concorrente
+          </span>
+        </div>
       </div>
-      {% endfor %}
-    </div>
-    {% endif %}
+      {% endif %}
 
-  </div>
+      <!-- Per-competitor cards -->
+      {% if comparison.per_competitor %}
+      <div class="sec-title" style="margin-bottom:.75rem">Analisi per prodotto</div>
+      <div class="comp-cards">
+        {% for c in comparison.per_competitor %}
+        <div class="comp-card {{ c.verdict | default('medio') }}">
+          <div class="comp-card-header">
+            <div>
+              <div class="comp-card-name">{{ c.name }}</div>
+              {% if c.competitor_name %}
+              <div style="font-size:.75rem;color:#888">{{ c.competitor_name }}</div>
+              {% endif %}
+            </div>
+            <span class="verdict-badge v-{{ c.verdict | default('medio') }}">
+              {% if c.verdict == 'forte' %}⚠ Forte
+              {% elif c.verdict == 'debole' %}✓ Debole
+              {% else %}— Medio{% endif %}
+            </span>
+          </div>
 
-  <!-- Raccomandazioni -->
-  {% if analysis.recommendations %}
-  <div class="section-title" style="margin-top:0.5rem">🎯 Raccomandazioni strategiche</div>
-  <div class="rec-card">
-    {% for rec in analysis.recommendations | sort(attribute='priority', reverse=False) %}
-    <div class="rec-item">
-      <span class="priority-badge p-{{ rec.priority | default('media') }}">{{ rec.priority | default('media') }}</span>
-      <div class="rec-content">
-        <div class="rec-action">{{ rec.action }}</div>
-        {% if rec.rationale %}
-        <div class="rec-rationale">{{ rec.rationale }}</div>
-        {% endif %}
+          <div class="score-bar">
+            <div class="score-label">
+              <span>Punteggio competitività</span>
+              <span>{{ c.score | default(5) }}/10</span>
+            </div>
+            <div class="score-track">
+              <div class="score-fill" style="width:{{ (c.score | default(5)) * 10 }}%"></div>
+            </div>
+          </div>
+
+          {% if c.strengths %}
+          <div class="comp-field-lbl">Punti di forza vs il nostro</div>
+          <ul class="comp-list">
+            {% for s in c.strengths[:4] %}
+            <li>{{ s }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if c.weaknesses %}
+          <div class="comp-field-lbl">Debolezze vs il nostro</div>
+          <ul class="comp-list" style="color:#16a34a">
+            {% for w in c.weaknesses[:4] %}
+            <li>{{ w }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+          {% if c.insights %}
+          <div class="comp-field-lbl">Insight</div>
+          <div style="font-size:.82rem;color:#555;line-height:1.5">{{ c.insights }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
       </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
+      {% endif %}
 
-  {% endif %}
+      <!-- Raccomandazioni -->
+      {% if comparison.recommendations %}
+      <div class="card">
+        <div class="sec-title">Raccomandazioni</div>
+        {% for rec in comparison.recommendations %}
+        <div class="rec-item">
+          <span class="priority-badge p-{{ rec.priority | default('media') }}">
+            {{ rec.priority | default('media') }}
+          </span>
+          <div>
+            <div class="rec-action">{{ rec.action }}</div>
+            {% if rec.rationale %}
+            <div class="rec-rationale">{{ rec.rationale }}</div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% endif %}
+    </div><!-- /risultato -->
+  </div><!-- /cols2 -->
+
 </div>
 
 <script>
-function startLoading() {
-  const btn = document.querySelector('.btn-generate');
-  if (btn) btn.disabled = true;
+const _csrf = document.querySelector('meta[name="csrf-token"]').content;
+document.getElementById('modal-csrf').value = _csrf;
+document.getElementById('gen-csrf').value = _csrf;
+document.getElementById('import-csrf').value = _csrf;
+document.querySelectorAll('.csrf-auto').forEach(el => el.value = _csrf);
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// Chiudi modal cliccando fuori
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+function startLoading(form) {
+  const checked = form.querySelectorAll('input[name="competitor_product_ids"]:checked');
+  if (checked.length === 0) {
+    alert('Seleziona almeno un prodotto concorrente.');
+    return false;
+  }
   document.getElementById('loading').classList.add('show');
 }
 
-function navigateHistory(id) {
-  window.location.href = '/competitors/analysis?id=' + id;
+function toggleCollapse(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
 }
-// CSRF
-document.querySelectorAll('form[method="post"]').forEach(f => {
-  if (!f.querySelector('[name="csrf_token"]')) {
-    const inp = document.createElement('input');
-    inp.type = 'hidden'; inp.name = 'csrf_token';
-    inp.value = document.querySelector('meta[name="csrf-token"]').content;
-    f.prepend(inp);
-  }
-});
 </script>
 </body>
 </html>
