@@ -403,3 +403,559 @@
 2026-04-06 19:51:06 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/r130/ "HTTP/1.1 200 OK"
 2026-04-06 19:51:06 [INFO] product_scout: Prodotto tecnico salvato: Scarica la scheda tecnica [Scheda tecnica]
 2026-04-06 19:51:06 [INFO] product_scout: Ricerca completata per competitor 2: 15 nuovi documenti
+2026-04-07 13:20:55 [INFO] agents.competitor_analyst: Profili social trovati per Socage: {'instagram': 'https://www.instagram.com/socage', 'facebook': 'https://www.facebook.com/socageplatforms'}
+2026-04-07 13:20:59 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Easylift: {'instagram'}
+2026-04-07 13:21:00 [INFO] agents.competitor_analyst: Profili social trovati per Easylift: {'facebook': 'https://www.facebook.com/EasyLift.Italy', 'linkedin': 'https://www.linkedin.com/company/easy-lift-transportation'}
+2026-04-07 13:22:07 [INFO] httpx: HTTP Request: POST http://10.99.97.102:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-07 13:25:11 [INFO] httpx: HTTP Request: GET https://socage.it "HTTP/1.1 200 OK"
+2026-04-07 13:25:12 [INFO] httpx: HTTP Request: GET https://socage.it/download "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:14 [INFO] httpx: HTTP Request: GET https://socage.it/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:15 [INFO] httpx: HTTP Request: GET https://socage.it/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:17 [INFO] httpx: HTTP Request: GET https://socage.it/documents "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:19 [INFO] httpx: HTTP Request: GET https://socage.it/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:21 [INFO] httpx: HTTP Request: GET https://socage.it/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:21 [INFO] httpx: HTTP Request: GET https://socage.it/prodotti-usati/ "HTTP/1.1 200 OK"
+2026-04-07 13:25:21 [INFO] product_scout: Sito https://socage.it: trovati 0 documenti tecnici
+2026-04-07 13:25:25 [INFO] httpx: HTTP Request: GET https://www.scribd.com/document/717882088/Socage-20D "HTTP/1.1 302 Found"
+2026-04-07 13:25:26 [INFO] httpx: HTTP Request: GET https://it.scribd.com/document/717882088/Socage-20D "HTTP/1.1 200 OK"
+2026-04-07 13:25:26 [INFO] product_scout: Tavily tech docs 'Socage': 15 trovati
+2026-04-07 13:25:26 [INFO] product_scout: Scansione dealer 'France': https://socage.it/privacy-policy/
+2026-04-07 13:25:27 [INFO] httpx: HTTP Request: GET https://socage.it/privacy-policy/ "HTTP/1.1 200 OK"
+2026-04-07 13:25:28 [INFO] httpx: HTTP Request: GET https://socage.it/download "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:30 [INFO] httpx: HTTP Request: GET https://socage.it/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:31 [INFO] httpx: HTTP Request: GET https://socage.it/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:33 [INFO] httpx: HTTP Request: GET https://socage.it/documents "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:34 [INFO] httpx: HTTP Request: GET https://socage.it/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:36 [INFO] httpx: HTTP Request: GET https://socage.it/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:37 [INFO] httpx: HTTP Request: GET https://socage.it/prodotti-usati/ "HTTP/1.1 200 OK"
+2026-04-07 13:25:37 [INFO] product_scout: Sito https://socage.it/privacy-policy/: trovati 0 documenti tecnici
+2026-04-07 13:25:37 [INFO] product_scout: Scansione dealer 'Socage: Piattaforme autocarrate | Piattaforma aerea autocarrata': https://socage.it/
+2026-04-07 13:25:37 [INFO] httpx: HTTP Request: GET https://socage.it/ "HTTP/1.1 200 OK"
+2026-04-07 13:25:39 [INFO] httpx: HTTP Request: GET https://socage.it/download "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:40 [INFO] httpx: HTTP Request: GET https://socage.it/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:42 [INFO] httpx: HTTP Request: GET https://socage.it/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:43 [INFO] httpx: HTTP Request: GET https://socage.it/documents "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:45 [INFO] httpx: HTTP Request: GET https://socage.it/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:46 [INFO] httpx: HTTP Request: GET https://socage.it/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:47 [INFO] httpx: HTTP Request: GET https://socage.it/prodotti-usati/ "HTTP/1.1 200 OK"
+2026-04-07 13:25:47 [INFO] product_scout: Sito https://socage.it/: trovati 0 documenti tecnici
+2026-04-07 13:25:47 [INFO] product_scout: Scansione dealer '[PDF] Magazine Socage 2025': https://socage.it/wp-content/uploads/2019/07/Magazine-Socage-2025.pdf
+2026-04-07 13:25:47 [INFO] httpx: HTTP Request: GET https://socage.it/wp-content/uploads/2019/07/Magazine-Socage-2025.pdf "HTTP/1.1 200 OK"
+2026-04-07 13:25:54 [INFO] httpx: HTTP Request: GET https://socage.it/download "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:56 [INFO] httpx: HTTP Request: GET https://socage.it/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:57 [INFO] httpx: HTTP Request: GET https://socage.it/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 13:25:59 [INFO] httpx: HTTP Request: GET https://socage.it/documents "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:00 [INFO] httpx: HTTP Request: GET https://socage.it/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:02 [INFO] httpx: HTTP Request: GET https://socage.it/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:02 [INFO] product_scout: Sito https://socage.it/wp-content/uploads/2019/07/Magazine-Socage-2025.pdf: trovati 0 documenti tecnici
+2026-04-07 13:26:02 [INFO] product_scout: Scansione dealer 'THE COMPANY - Socage North America': https://socagenorthamerica.com/the-company/
+2026-04-07 13:26:03 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/the-company/ "HTTP/1.1 200 OK"
+2026-04-07 13:26:05 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/download "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:07 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:08 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:10 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/documents "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:12 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:13 [INFO] httpx: HTTP Request: GET https://socagenorthamerica.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:13 [INFO] product_scout: Sito https://socagenorthamerica.com/the-company/: trovati 0 documenti tecnici
+2026-04-07 13:26:13 [INFO] product_scout: Scansione dealer 'Socage | Carpi - Facebook': https://www.facebook.com/socageplatforms/?locale=it_IT
+2026-04-07 13:26:14 [INFO] httpx: HTTP Request: GET https://www.facebook.com/socageplatforms/?locale=it_IT "HTTP/1.1 200 OK"
+2026-04-07 13:26:15 [INFO] httpx: HTTP Request: GET https://www.facebook.com/download "HTTP/1.1 200 OK"
+2026-04-07 13:26:15 [INFO] httpx: HTTP Request: GET https://www.facebook.com/downloads "HTTP/1.1 200 OK"
+2026-04-07 13:26:16 [INFO] httpx: HTTP Request: GET https://www.facebook.com/documenti "HTTP/1.1 200 OK"
+2026-04-07 13:26:16 [INFO] httpx: HTTP Request: GET https://www.facebook.com/documents "HTTP/1.1 200 OK"
+2026-04-07 13:26:18 [INFO] httpx: HTTP Request: GET https://www.facebook.com/schede-tecniche "HTTP/1.1 302 Found"
+2026-04-07 13:26:18 [INFO] httpx: HTTP Request: GET https://www.facebook.com/SchedeTecniche/ "HTTP/1.1 200 OK"
+2026-04-07 13:26:19 [INFO] httpx: HTTP Request: GET https://www.facebook.com/technical-data "HTTP/1.1 302 Found"
+2026-04-07 13:26:19 [INFO] httpx: HTTP Request: GET https://www.facebook.com/TechnicalData/ "HTTP/1.1 200 OK"
+2026-04-07 13:26:20 [INFO] product_scout: Sito https://www.facebook.com/socageplatforms/?locale=it_IT: trovati 0 documenti tecnici
+2026-04-07 13:26:20 [INFO] product_scout: Scansione dealer 'EN-UK EN-US FR IT ES': https://socageraptor.com/en/spider-boom-lifts/
+2026-04-07 13:26:20 [INFO] httpx: HTTP Request: GET https://socageraptor.com/en/spider-boom-lifts/ "HTTP/1.1 200 OK"
+2026-04-07 13:26:23 [INFO] httpx: HTTP Request: GET https://socageraptor.com/download "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:26 [INFO] httpx: HTTP Request: GET https://socageraptor.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:28 [INFO] httpx: HTTP Request: GET https://socageraptor.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:30 [INFO] httpx: HTTP Request: GET https://socageraptor.com/documents "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:33 [INFO] httpx: HTTP Request: GET https://socageraptor.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:35 [INFO] httpx: HTTP Request: GET https://socageraptor.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:35 [INFO] product_scout: Sito https://socageraptor.com/en/spider-boom-lifts/: trovati 0 documenti tecnici
+2026-04-07 13:26:37 [INFO] httpx: HTTP Request: GET https://socage.it/scheda/24DJ+speed.pdf "HTTP/1.1 404 Not Found"
+2026-04-07 13:26:37 [INFO] product_scout: Prodotto tecnico salvato: Socage [Documento tecnico]
+2026-04-07 13:26:37 [INFO] product_scout: Ricerca completata per competitor 1: 1 nuovi documenti
+2026-04-07 14:41:41 [INFO] agents.competitor_analyst: Profili social trovati per Socage: {'facebook': 'https://www.facebook.com/socageplatforms', 'instagram': 'https://www.instagram.com/socage', 'linkedin': 'https://www.linkedin.com/company/socage-s-r-l-'}
+2026-04-07 14:41:44 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Easylift: {'instagram'}
+2026-04-07 14:41:46 [INFO] agents.competitor_analyst: Profili social trovati per Easylift: {'facebook': 'https://www.facebook.com/EasyLift.Italy', 'linkedin': 'https://www.linkedin.com/company/easy-lift-equipment-company-inc-'}
+2026-04-07 14:42:46 [INFO] httpx: HTTP Request: POST http://10.99.97.102:8080/v1/chat/completions "HTTP/1.1 200 OK"
+2026-04-07 15:25:54 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/ "HTTP/1.1 200 OK"
+2026-04-07 15:25:55 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/download "HTTP/1.1 301 Moved Permanently"
+2026-04-07 15:25:55 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/en/download-app/ "HTTP/1.1 200 OK"
+2026-04-07 15:25:56 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 15:25:57 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 15:25:58 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/documents "HTTP/1.1 404 Not Found"
+2026-04-07 15:25:59 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 15:25:59 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 15:25:59 [INFO] product_scout: Sito https://www.platformbasket.com/: trovati 0 documenti tecnici
+2026-04-07 15:26:00 [WARNING] product_scout: Errore Tavily tech search 'Platform Basket': Unauthorized: missing or invalid API key.
+2026-04-07 15:26:00 [INFO] product_scout: Ricerca completata per competitor 3: 0 nuovi documenti
+2026-04-07 15:26:36 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/ "HTTP/1.1 200 OK"
+2026-04-07 15:26:38 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/download "HTTP/1.1 301 Moved Permanently"
+2026-04-07 15:26:38 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/en/download-app/ "HTTP/1.1 200 OK"
+2026-04-07 15:26:39 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-07 15:26:39 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-07 15:26:40 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/documents "HTTP/1.1 404 Not Found"
+2026-04-07 15:26:41 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-07 15:26:41 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-07 15:26:41 [INFO] product_scout: Sito https://www.platformbasket.com/: trovati 0 documenti tecnici
+2026-04-07 15:26:42 [WARNING] product_scout: Errore Tavily tech search 'Platform Basket': Unauthorized: missing or invalid API key.
+2026-04-07 15:26:42 [INFO] product_scout: Ricerca completata per competitor 3: 0 nuovi documenti
+2026-04-07 15:27:45 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Socage" piattaforme aeree social media marketing strategy
+2026-04-07 15:27:46 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Socage" LinkedIn Facebook Instagram contenuti
+2026-04-07 15:27:46 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Easylift" Piattaforme Aeree social media marketing strategy
+2026-04-07 15:27:46 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Easylift" LinkedIn Facebook Instagram contenuti
+2026-04-07 15:27:46 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Easylift: {'instagram'}
+2026-04-07 15:27:47 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Easylift" Piattaforme Aeree linkedin.com/company OR facebook.com OR instagram.com profilo ufficiale
+2026-04-07 15:27:47 [INFO] httpx: HTTP Request: GET https://www.platformbasket.com/ "HTTP/1.1 200 OK"
+2026-04-07 15:27:48 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Platform Basket" Piattaforme Aeree social media marketing strategy
+2026-04-07 15:27:48 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Platform Basket" LinkedIn Facebook Instagram contenuti
+2026-04-07 15:27:48 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Platform Basket: {'instagram', 'linkedin', 'facebook'}
+2026-04-07 15:27:49 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Platform Basket" Piattaforme Aeree linkedin.com/company OR facebook.com OR instagram.com profilo ufficiale
+2026-04-07 15:27:49 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-07 15:27:49 [WARNING] agents.competitor_analyst: Errore Anthropic in analisi competitor
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/competitor_analyst.py", line 436, in _try_anthropic
+    msg = client.messages.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_utils/_utils.py", line 282, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/resources/messages/messages.py", line 996, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1370, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1143, in request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CZpVJwXtLcp9gGHLRPzFv'}
+2026-04-07 15:27:49 [INFO] openai._base_client: Retrying request to /chat/completions in 0.390234 seconds
+2026-04-07 15:27:50 [INFO] openai._base_client: Retrying request to /chat/completions in 0.992814 seconds
+2026-04-07 15:27:51 [WARNING] agents.competitor_analyst: Errore OpenAI in analisi competitor
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpcore/_sync/connection_pool.py", line 207, in handle_request
+    raise UnsupportedProtocol(
+httpcore.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1005, in request
+    response = self._client.send(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 135, in __exit__
+    self.gen.throw(type, value, traceback)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/competitor_analyst.py", line 456, in _try_openai
+    resp = client.chat.completions.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1037, in request
+    raise APIConnectionError(request=request) from err
+openai.APIConnectionError: Connection error.
+2026-04-08 15:38:14 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Socage" piattaforme aeree social media marketing strategy
+2026-04-08 15:38:14 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Socage" LinkedIn Facebook Instagram contenuti
+2026-04-08 15:38:15 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Easylift" Piattaforme Aeree social media marketing strategy
+2026-04-08 15:38:16 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Easylift" LinkedIn Facebook Instagram contenuti
+2026-04-08 15:38:16 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Easylift: {'instagram'}
+2026-04-08 15:38:16 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Easylift" Piattaforme Aeree linkedin.com/company OR facebook.com OR instagram.com profilo ufficiale
+2026-04-08 15:38:17 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Platform Basket" Piattaforme Aeree social media marketing strategy
+2026-04-08 15:38:18 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Platform Basket" LinkedIn Facebook Instagram contenuti
+2026-04-08 15:38:18 [INFO] agents.competitor_analyst: Cercando profili social mancanti per Platform Basket: {'linkedin', 'facebook', 'instagram'}
+2026-04-08 15:38:18 [WARNING] agents.competitor_analyst: Errore ricerca Tavily per: "Platform Basket" Piattaforme Aeree linkedin.com/company OR facebook.com OR instagram.com profilo ufficiale
+2026-04-08 15:38:18 [INFO] openai._base_client: Retrying request to /chat/completions in 0.486816 seconds
+2026-04-08 15:38:19 [INFO] openai._base_client: Retrying request to /chat/completions in 0.838558 seconds
+2026-04-08 15:38:20 [WARNING] agents.competitor_analyst: Errore OpenAI in analisi competitor
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpcore/_sync/connection_pool.py", line 207, in handle_request
+    raise UnsupportedProtocol(
+httpcore.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1005, in request
+    response = self._client.send(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 135, in __exit__
+    self.gen.throw(type, value, traceback)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/competitor_analyst.py", line 456, in _try_openai
+    resp = client.chat.completions.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1037, in request
+    raise APIConnectionError(request=request) from err
+openai.APIConnectionError: Connection error.
+2026-04-08 15:38:20 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-08 15:38:20 [WARNING] agents.competitor_analyst: Errore Anthropic in analisi competitor
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/competitor_analyst.py", line 436, in _try_anthropic
+    msg = client.messages.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_utils/_utils.py", line 282, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/resources/messages/messages.py", line 996, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1370, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1143, in request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CZrPvPa5idUvGDgoZ4tgs'}
+2026-04-09 10:18:59 [INFO] agents.product_comparator: Avvio comparazione: 'CELA DT Crawler 25' vs 1 prodotti concorrenti
+2026-04-09 10:18:59 [INFO] openai._base_client: Retrying request to /chat/completions in 0.490853 seconds
+2026-04-09 10:19:00 [INFO] openai._base_client: Retrying request to /chat/completions in 0.999767 seconds
+2026-04-09 10:19:01 [WARNING] agents.product_comparator: Errore OpenAI in comparazione prodotti
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpcore/_sync/connection_pool.py", line 207, in handle_request
+    raise UnsupportedProtocol(
+httpcore.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1005, in request
+    response = self._client.send(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 135, in __exit__
+    self.gen.throw(type, value, traceback)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/product_comparator.py", line 267, in _try_openai
+    resp = client.chat.completions.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1037, in request
+    raise APIConnectionError(request=request) from err
+openai.APIConnectionError: Connection error.
+2026-04-09 10:19:01 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:19:01 [WARNING] agents.product_comparator: Errore Anthropic in comparazione prodotti
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/product_comparator.py", line 247, in _try_anthropic
+    msg = client.messages.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_utils/_utils.py", line 282, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/resources/messages/messages.py", line 996, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1370, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1143, in request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CZssNyrU2bAsJkQ7gDm4a'}
+2026-04-09 10:19:01 [INFO] agents.product_comparator: Comparazione completata via fallback
+2026-04-09 10:19:53 [INFO] dashboard: Orchestrator avviato dal dashboard (PID 7370)
+2026-04-09 10:19:54 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-09 10:19:54 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-09 10:19:54 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-09 10:19:54 [INFO] apscheduler.scheduler: Added job "Orchestrator._run_monitor" to job store "default"
+2026-04-09 10:19:54 [INFO] apscheduler.scheduler: Added job "Orchestrator._run_analytics" to job store "default"
+2026-04-09 10:19:54 [INFO] apscheduler.scheduler: Added job "Orchestrator._run_reply_drafts" to job store "default"
+2026-04-09 10:19:54 [INFO] apscheduler.scheduler: Scheduler started
+2026-04-09 10:19:54 [INFO] orchestrator: Orchestrator avviato (PID 7370). Premi Ctrl+C per fermare.
+2026-04-09 10:34:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 10:34:54 CEST)" (scheduled at 2026-04-09 10:34:54.977722+02:00)
+2026-04-09 10:34:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 10:49:54 CEST)" executed successfully
+2026-04-09 10:40:45 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:40:52 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:41:43 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:41:46 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:41:48 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:41:49 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:43:56 [INFO] agents.product_comparator: Avvio comparazione: 'CELA DT Crawler 25' vs 1 prodotti concorrenti
+2026-04-09 10:43:56 [INFO] openai._base_client: Retrying request to /chat/completions in 0.394449 seconds
+2026-04-09 10:43:57 [INFO] openai._base_client: Retrying request to /chat/completions in 0.991166 seconds
+2026-04-09 10:43:58 [WARNING] agents.product_comparator: Errore OpenAI in comparazione prodotti
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpcore/_sync/connection_pool.py", line 207, in handle_request
+    raise UnsupportedProtocol(
+httpcore.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1005, in request
+    response = self._client.send(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 135, in __exit__
+    self.gen.throw(type, value, traceback)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.UnsupportedProtocol: Request URL is missing an 'http://' or 'https://' protocol.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/product_comparator.py", line 267, in _try_openai
+    resp = client.chat.completions.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/openai/_base_client.py", line 1037, in request
+    raise APIConnectionError(request=request) from err
+openai.APIConnectionError: Connection error.
+2026-04-09 10:43:58 [INFO] httpx: HTTP Request: POST https://api.anthropic.com/v1/messages "HTTP/1.1 401 Unauthorized"
+2026-04-09 10:43:58 [WARNING] agents.product_comparator: Errore Anthropic in comparazione prodotti
+Traceback (most recent call last):
+  File "/Users/simone/Documents/social-media-manager/agents/product_comparator.py", line 247, in _try_anthropic
+    msg = client.messages.create(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_utils/_utils.py", line 282, in wrapper
+    return func(*args, **kwargs)
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/resources/messages/messages.py", line 996, in create
+    return self._post(
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1370, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/Users/simone/Documents/social-media-manager/.venv/lib/python3.9/site-packages/anthropic/_base_client.py", line 1143, in request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.AuthenticationError: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-api-key'}, 'request_id': 'req_011CZsuHM9Sr2SPR4jJAm7NW'}
+2026-04-09 10:43:58 [INFO] agents.product_comparator: Comparazione completata via fallback
+2026-04-09 10:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 11:04:54 CEST)" (scheduled at 2026-04-09 10:49:54.977722+02:00)
+2026-04-09 10:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-09 11:19:54 CEST)" (scheduled at 2026-04-09 10:49:54.977934+02:00)
+2026-04-09 10:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 11:04:54 CEST)" executed successfully
+2026-04-09 10:49:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-09 11:19:54 CEST)" executed successfully
+2026-04-09 11:04:55 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 11:19:54 CEST)" (scheduled at 2026-04-09 11:04:54.977722+02:00)
+2026-04-09 11:04:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 11:19:54 CEST)" executed successfully
+2026-04-09 11:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 11:34:54 CEST)" (scheduled at 2026-04-09 11:19:54.977722+02:00)
+2026-04-09 11:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-09 12:19:54 CEST)" (scheduled at 2026-04-09 11:19:54.977872+02:00)
+2026-04-09 11:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-09 11:49:54 CEST)" (scheduled at 2026-04-09 11:19:54.977934+02:00)
+2026-04-09 11:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 11:34:54 CEST)" executed successfully
+2026-04-09 11:19:54 [INFO] orchestrator: [Analytics] Metriche aggiornate
+2026-04-09 11:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-09 12:19:54 CEST)" executed successfully
+2026-04-09 11:19:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-09 11:49:54 CEST)" executed successfully
+2026-04-09 15:31:21 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 15:34:54 CEST)" was missed by 0:11:26.849226
+2026-04-09 15:31:21 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-09 15:49:54 CEST)" was missed by 0:11:26.850132
+2026-04-09 15:31:21 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-09 16:19:54 CEST)" was missed by 0:11:26.850289
+2026-04-09 18:08:06 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 18:19:54 CEST)" was missed by 0:03:11.447329
+2026-04-09 18:08:06 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-09 18:19:54 CEST)" was missed by 0:18:11.447939
+2026-04-09 18:08:06 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-09 18:19:54 CEST)" was missed by 0:48:11.448074
+2026-04-09 22:38:20 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-09 22:49:54 CEST)" was missed by 0:03:25.624930
+2026-04-09 22:38:20 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-09 23:19:54 CEST)" was missed by 0:18:25.625717
+2026-04-09 22:38:20 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-09 22:49:54 CEST)" was missed by 0:18:25.625756
+2026-04-10 09:41:57 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 09:49:54 CEST)" was missed by 0:07:02.570579
+2026-04-10 09:41:57 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 09:49:54 CEST)" was missed by 0:22:02.571266
+2026-04-10 09:41:57 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-10 10:19:54 CEST)" was missed by 0:22:02.571408
+2026-04-10 10:16:35 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 10:19:54 CEST)" was missed by 0:11:40.533016
+2026-04-10 10:16:35 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 10:19:54 CEST)" was missed by 0:26:40.533798
+2026-04-10 10:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 10:34:54 CEST)" (scheduled at 2026-04-10 10:19:54.977722+02:00)
+2026-04-10 10:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-10 11:19:54 CEST)" (scheduled at 2026-04-10 10:19:54.977872+02:00)
+2026-04-10 10:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 10:49:54 CEST)" (scheduled at 2026-04-10 10:19:54.977934+02:00)
+2026-04-10 10:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 10:34:54 CEST)" executed successfully
+2026-04-10 10:19:54 [INFO] orchestrator: [Analytics] Metriche aggiornate
+2026-04-10 10:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-10 11:19:54 CEST)" executed successfully
+2026-04-10 10:19:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 10:49:54 CEST)" executed successfully
+2026-04-10 13:50:24 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 14:04:54 CEST)" was missed by 0:00:29.397451
+2026-04-10 13:50:24 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 14:19:54 CEST)" was missed by 0:00:29.398087
+2026-04-10 13:50:24 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-10 14:19:54 CEST)" was missed by 0:30:29.398238
+2026-04-10 17:50:55 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 18:04:54 CEST)" was missed by 0:01:00.771914
+2026-04-10 17:50:55 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-10 18:19:54 CEST)" was missed by 0:31:00.772566
+2026-04-10 17:50:55 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 18:19:54 CEST)" was missed by 0:01:00.772578
+2026-04-10 18:28:59 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 18:34:54 CEST)" was missed by 0:09:04.533487
+2026-04-10 18:28:59 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-10 19:19:54 CEST)" was missed by 0:09:04.534111
+2026-04-10 18:28:59 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 18:49:54 CEST)" was missed by 0:09:04.534137
+2026-04-10 18:43:01 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 18:49:54 CEST)" was missed by 0:08:06.471493
+2026-04-10 21:27:14 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-10 21:34:54 CEST)" was missed by 0:07:19.451245
+2026-04-10 21:27:14 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-10 21:49:54 CEST)" was missed by 0:07:19.451863
+2026-04-10 21:27:14 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-10 22:19:54 CEST)" was missed by 0:07:19.452016
+2026-04-13 10:43:20 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 10:49:54 CEST)" was missed by 0:08:25.817820
+2026-04-13 10:43:20 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 10:49:54 CEST)" was missed by 0:23:25.820432
+2026-04-13 10:43:20 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 11:19:54 CEST)" was missed by 0:23:25.820573
+2026-04-13 10:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 11:04:54 CEST)" (scheduled at 2026-04-13 10:49:54.977722+02:00)
+2026-04-13 10:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 11:19:54 CEST)" (scheduled at 2026-04-13 10:49:54.977934+02:00)
+2026-04-13 10:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 11:04:54 CEST)" executed successfully
+2026-04-13 10:49:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 11:19:54 CEST)" executed successfully
+2026-04-13 15:54:05 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 16:04:54 CEST)" was missed by 0:04:10.851873
+2026-04-13 15:54:05 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 16:19:54 CEST)" was missed by 0:34:10.852637
+2026-04-13 15:54:05 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 16:19:54 CEST)" was missed by 0:04:10.852696
+2026-04-13 18:48:39 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 18:49:54 CEST)" was missed by 0:13:44.810460
+2026-04-13 18:48:39 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 19:19:54 CEST)" was missed by 0:28:44.815949
+2026-04-13 18:48:39 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 18:49:54 CEST)" was missed by 0:28:44.815990
+2026-04-13 18:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 19:04:54 CEST)" (scheduled at 2026-04-13 18:49:54.977722+02:00)
+2026-04-13 18:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 19:19:54 CEST)" (scheduled at 2026-04-13 18:49:54.977934+02:00)
+2026-04-13 18:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 19:04:54 CEST)" executed successfully
+2026-04-13 18:49:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 19:19:54 CEST)" executed successfully
+2026-04-13 19:04:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 19:19:54 CEST)" (scheduled at 2026-04-13 19:04:54.977722+02:00)
+2026-04-13 19:04:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 19:19:54 CEST)" executed successfully
+2026-04-13 19:20:06 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 19:34:54 CEST)" was missed by 0:00:11.519079
+2026-04-13 19:20:06 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 20:19:54 CEST)" was missed by 0:00:11.519366
+2026-04-13 19:20:06 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 19:49:54 CEST)" was missed by 0:00:11.519382
+2026-04-13 19:34:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 19:49:54 CEST)" (scheduled at 2026-04-13 19:34:54.977722+02:00)
+2026-04-13 19:34:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 19:49:54 CEST)" executed successfully
+2026-04-13 19:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 20:04:54 CEST)" (scheduled at 2026-04-13 19:49:54.977722+02:00)
+2026-04-13 19:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 20:19:54 CEST)" (scheduled at 2026-04-13 19:49:54.977934+02:00)
+2026-04-13 19:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 20:04:54 CEST)" executed successfully
+2026-04-13 19:49:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 20:19:54 CEST)" executed successfully
+2026-04-13 20:04:55 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 20:19:54 CEST)" (scheduled at 2026-04-13 20:04:54.977722+02:00)
+2026-04-13 20:04:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 20:19:54 CEST)" executed successfully
+2026-04-13 20:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 20:34:54 CEST)" (scheduled at 2026-04-13 20:19:54.977722+02:00)
+2026-04-13 20:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 21:19:54 CEST)" (scheduled at 2026-04-13 20:19:54.977872+02:00)
+2026-04-13 20:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 20:49:54 CEST)" (scheduled at 2026-04-13 20:19:54.977934+02:00)
+2026-04-13 20:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 20:34:54 CEST)" executed successfully
+2026-04-13 20:19:54 [INFO] orchestrator: [Analytics] Metriche aggiornate
+2026-04-13 20:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 21:19:54 CEST)" executed successfully
+2026-04-13 20:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 20:49:54 CEST)" executed successfully
+2026-04-13 20:49:06 [WARNING] apscheduler.executors.default: Run time of job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 20:49:54 CEST)" was missed by 0:14:11.236440
+2026-04-13 20:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:04:54 CEST)" (scheduled at 2026-04-13 20:49:54.977722+02:00)
+2026-04-13 20:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 21:19:54 CEST)" (scheduled at 2026-04-13 20:49:54.977934+02:00)
+2026-04-13 20:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:04:54 CEST)" executed successfully
+2026-04-13 20:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 21:19:54 CEST)" executed successfully
+2026-04-13 21:04:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:19:54 CEST)" (scheduled at 2026-04-13 21:04:54.977722+02:00)
+2026-04-13 21:04:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:19:54 CEST)" executed successfully
+2026-04-13 21:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:34:54 CEST)" (scheduled at 2026-04-13 21:19:54.977722+02:00)
+2026-04-13 21:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 22:19:54 CEST)" (scheduled at 2026-04-13 21:19:54.977872+02:00)
+2026-04-13 21:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 21:49:54 CEST)" (scheduled at 2026-04-13 21:19:54.977934+02:00)
+2026-04-13 21:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:34:54 CEST)" executed successfully
+2026-04-13 21:19:54 [INFO] orchestrator: [Analytics] Metriche aggiornate
+2026-04-13 21:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 22:19:54 CEST)" executed successfully
+2026-04-13 21:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 21:49:54 CEST)" executed successfully
+2026-04-13 21:34:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:49:54 CEST)" (scheduled at 2026-04-13 21:34:54.977722+02:00)
+2026-04-13 21:34:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 21:49:54 CEST)" executed successfully
+2026-04-13 21:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:04:54 CEST)" (scheduled at 2026-04-13 21:49:54.977722+02:00)
+2026-04-13 21:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 22:19:54 CEST)" (scheduled at 2026-04-13 21:49:54.977934+02:00)
+2026-04-13 21:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:04:54 CEST)" executed successfully
+2026-04-13 21:49:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 22:19:54 CEST)" executed successfully
+2026-04-13 22:04:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:19:54 CEST)" (scheduled at 2026-04-13 22:04:54.977722+02:00)
+2026-04-13 22:04:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:19:54 CEST)" executed successfully
+2026-04-13 22:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:34:54 CEST)" (scheduled at 2026-04-13 22:19:54.977722+02:00)
+2026-04-13 22:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 23:19:54 CEST)" (scheduled at 2026-04-13 22:19:54.977872+02:00)
+2026-04-13 22:19:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 22:49:54 CEST)" (scheduled at 2026-04-13 22:19:54.977934+02:00)
+2026-04-13 22:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:34:54 CEST)" executed successfully
+2026-04-13 22:19:54 [INFO] orchestrator: [Analytics] Metriche aggiornate
+2026-04-13 22:19:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_analytics (trigger: interval[1:00:00], next run at: 2026-04-13 23:19:54 CEST)" executed successfully
+2026-04-13 22:19:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 22:49:54 CEST)" executed successfully
+2026-04-13 22:34:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:49:54 CEST)" (scheduled at 2026-04-13 22:34:54.977722+02:00)
+2026-04-13 22:34:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 22:49:54 CEST)" executed successfully
+2026-04-13 22:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 23:04:54 CEST)" (scheduled at 2026-04-13 22:49:54.977722+02:00)
+2026-04-13 22:49:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 23:19:54 CEST)" (scheduled at 2026-04-13 22:49:54.977934+02:00)
+2026-04-13 22:49:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 23:04:54 CEST)" executed successfully
+2026-04-13 22:49:55 [INFO] apscheduler.executors.default: Job "Orchestrator._run_reply_drafts (trigger: interval[0:30:00], next run at: 2026-04-13 23:19:54 CEST)" executed successfully
+2026-04-13 23:04:54 [INFO] apscheduler.executors.default: Running job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 23:19:54 CEST)" (scheduled at 2026-04-13 23:04:54.977722+02:00)
+2026-04-13 23:04:54 [INFO] apscheduler.executors.default: Job "Orchestrator._run_monitor (trigger: interval[0:15:00], next run at: 2026-04-13 23:19:54 CEST)" executed successfully
+2026-04-19 20:01:23 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:01:27 [INFO] watchfiles.main: 2 changes detected
+2026-04-19 20:01:54 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:02:00 [INFO] watchfiles.main: 2 changes detected
+2026-04-19 20:02:01 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:02:04 [INFO] watchfiles.main: 2 changes detected
+2026-04-19 20:02:07 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:02:08 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:02:11 [INFO] watchfiles.main: 2 changes detected
+2026-04-19 20:03:43 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:03:46 [INFO] watchfiles.main: 2 changes detected
+2026-04-19 20:04:00 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:04:03 [INFO] watchfiles.main: 2 changes detected
+2026-04-19 20:04:11 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:04:12 [INFO] watchfiles.main: 1 change detected
+2026-04-19 20:04:14 [INFO] watchfiles.main: 2 changes detected
+2026-04-19 20:04:40 [INFO] httpx: HTTP Request: GET https://easy-lift.com/ "HTTP/1.1 200 OK"
+2026-04-19 20:04:43 [INFO] httpx: HTTP Request: GET https://easy-lift.com/download "HTTP/1.1 404 Not Found"
+2026-04-19 20:04:46 [INFO] httpx: HTTP Request: GET https://easy-lift.com/downloads "HTTP/1.1 404 Not Found"
+2026-04-19 20:04:49 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documenti "HTTP/1.1 404 Not Found"
+2026-04-19 20:04:52 [INFO] httpx: HTTP Request: GET https://easy-lift.com/documents "HTTP/1.1 404 Not Found"
+2026-04-19 20:04:55 [INFO] httpx: HTTP Request: GET https://easy-lift.com/schede-tecniche "HTTP/1.1 404 Not Found"
+2026-04-19 20:04:58 [INFO] httpx: HTTP Request: GET https://easy-lift.com/technical-data "HTTP/1.1 404 Not Found"
+2026-04-19 20:05:02 [INFO] httpx: HTTP Request: GET https://easy-lift.com/azienda/certificazioni/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:07 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:11 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-13-a-18-metri-ragni-piccoli/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:14 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:17 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/oltre-26-metri-ragni-grandi/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:21 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/accessori/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:25 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra21/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:29 [INFO] httpx: HTTP Request: GET https://easy-lift.com/prodotti/piattaforme/da-19-a-25-metri-ragni-medi/ra24/ "HTTP/1.1 200 OK"
+2026-04-19 20:05:29 [INFO] product_scout: Sito https://easy-lift.com/: trovati 2 documenti tecnici
+2026-04-19 20:05:30 [WARNING] product_scout: Errore Tavily tech search 'Easylift': Unauthorized: missing or invalid API key.
+2026-04-19 20:05:30 [INFO] product_scout: Ricerca completata per competitor 2: 0 nuovi documenti
+2026-04-19 21:59:27 [INFO] dashboard: Orchestrator avviato dal dashboard (PID 33575)
+2026-04-19 21:59:28 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-19 21:59:28 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-19 21:59:28 [INFO] apscheduler.scheduler: Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2026-04-19 21:59:28 [INFO] apscheduler.scheduler: Added job "Orchestrator._run_monitor" to job store "default"
+2026-04-19 21:59:28 [INFO] apscheduler.scheduler: Added job "Orchestrator._run_analytics" to job store "default"
+2026-04-19 21:59:28 [INFO] apscheduler.scheduler: Added job "Orchestrator._run_reply_drafts" to job store "default"
+2026-04-19 21:59:28 [INFO] apscheduler.scheduler: Scheduler started
+2026-04-19 21:59:28 [INFO] orchestrator: Orchestrator avviato (PID 33575). Premi Ctrl+C per fermare.
+2026-04-19 21:59:28 [INFO] watchfiles.main: 1 change detected
+2026-04-19 21:59:28 [INFO] watchfiles.main: 1 change detected
+2026-04-19 21:59:33 [INFO] watchfiles.main: 3 changes detected
