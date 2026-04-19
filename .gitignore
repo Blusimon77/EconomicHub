@@ -24,3 +24,6 @@ storage/*.db
 # OS
 .DS_Store
 Thumbs.db
+
+# Explicitly allow the NestJS subdirectory (has its own .gitignore)
+!nest/

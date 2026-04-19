@@ -1,0 +1,311 @@
+// schema.prisma — Social Media Manager (NestJS migration)
+// Phase 1: Foundation scaffold
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url is configured in prisma.config.ts (Prisma 7+)
+  // The DATABASE_URL env var is read from .env via dotenv in prisma.config.ts
+}
+
+enum Platform {
+  linkedin
+  facebook
+  instagram
+}
+
+enum PostStatus {
+  draft
+  pending
+  approved
+  rejected
+  scheduled
+  published
+  failed
+}
+
+model Post {
+  id               Int        @id @default(autoincrement())
+  platform         Platform
+  status           PostStatus @default(draft)
+  content          String
+  hashtags         String     @default("")
+  imageUrl         String?    @db.VarChar(500)
+  mediaPath        String?    @db.VarChar(500)
+  topic            String?    @db.VarChar(200)
+  tone             String     @default("professionale") @db.VarChar(50)
+  generatedBy      String     @default("anthropic") @db.VarChar(50)
+  scheduledAt      DateTime?
+  publishedAt      DateTime?
+  platformPostId   String?    @db.VarChar(200)
+  approvedBy       String?    @db.VarChar(100)
+  approvalNote     String?
+  likes            Int?
+  commentsCount    Int?
+  shares           Int?
+  reach            Int?
+  impressions      Int?
+  engagementRate   Float?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@map("posts")
+}
+
+model Comment {
+  id                 Int         @id @default(autoincrement())
+  platform           Platform
+  platformCommentId  String      @unique @db.VarChar(200)
+  platformPostId     String      @db.VarChar(200)
+  authorName         String      @default("") @db.VarChar(200)
+  content            String
+  isMention          Boolean     @default(false)
+  replyDraft         String?
+  replyStatus        PostStatus?
+  replyPublishedAt   DateTime?
+  createdAt          DateTime    @default(now())
+
+  @@map("comments")
+}
+
+model CompanyContext {
+  id               Int      @id @default(autoincrement())
+  companyName      String   @default("") @db.VarChar(200)
+  description      String   @default("")
+  mission          String   @default("")
+  values           String   @default("")
+  founded          String   @default("") @db.VarChar(50)
+  productsServices String   @default("")
+  targetAudience   String   @default("")
+  sector           String   @default("") @db.VarChar(200)
+  competitors      String   @default("")
+  toneOfVoice      String   @default("")
+  topicsToAvoid    String   @default("")
+  contentPillars   String   @default("")
+  additionalNotes  String   @default("")
+  updatedAt        DateTime @updatedAt
+
+  @@map("company_context")
+}
+
+model ContextWebsite {
+  id              Int       @id @default(autoincrement())
+  url             String    @db.VarChar(500)
+  label           String    @default("") @db.VarChar(200)
+  category        String    @default("") @db.VarChar(100)
+  notes           String    @default("")
+  scrapedContent  String    @default("")
+  lastScrapedAt   DateTime?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+
+  @@map("context_websites")
+}
+
+model Competitor {
+  id               Int                     @id @default(autoincrement())
+  name             String                  @db.VarChar(200)
+  website          String                  @default("") @db.VarChar(500)
+  sector           String                  @default("") @db.VarChar(200)
+  description      String                  @default("")
+  strengths        String                  @default("")
+  weaknesses       String                  @default("")
+  contentStrategy  String                  @default("")
+  targetAudience   String                  @default("")
+  toneOfVoice      String                  @default("")
+  uniqueTopics     String                  @default("")
+  postingFrequency String                  @default("") @db.VarChar(100)
+  threatLevel      Int                     @default(2)
+  isActive         Boolean                 @default(true)
+  scrapedContent   String                  @default("")
+  lastScrapedAt    DateTime?
+  searchResults    Json?
+  lastSearchedAt   DateTime?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  socials          CompetitorSocial[]
+  observations     CompetitorObservation[]
+  products         CompetitorProduct[]
+  dealers          CompetitorDealer[]
+  dealerBrands     DealerBrand[]
+
+  @@map("competitors")
+}
+
+model CompetitorSocial {
+  id             Int        @id @default(autoincrement())
+  competitorId   Int
+  platform       String     @db.VarChar(50)
+  profileUrl     String     @default("") @db.VarChar(500)
+  handle         String     @default("") @db.VarChar(200)
+  followers      String     @default("") @db.VarChar(50)
+  avgLikes       String     @default("") @db.VarChar(50)
+  avgComments    String     @default("") @db.VarChar(50)
+  postingDays    String     @default("") @db.VarChar(200)
+  contentTypes   String     @default("")
+  notes          String     @default("")
+
+  competitor     Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+
+  @@map("competitor_socials")
+}
+
+model CompetitorObservation {
+  id           Int        @id @default(autoincrement())
+  competitorId Int
+  category     String     @default("generale") @db.VarChar(100)
+  content      String
+  createdAt    DateTime   @default(now())
+
+  competitor   Competitor @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+
+  @@map("competitor_observations")
+}
+
+model CompetitorDealer {
+  id           Int                 @id @default(autoincrement())
+  competitorId Int
+  name         String              @db.VarChar(500)
+  website      String              @default("") @db.VarChar(1000)
+  address      String              @default("") @db.VarChar(500)
+  city         String              @default("") @db.VarChar(200)
+  region       String              @default("") @db.VarChar(200)
+  country      String              @default("") @db.VarChar(100)
+  phone        String              @default("") @db.VarChar(100)
+  email        String              @default("") @db.VarChar(200)
+  notes        String              @default("")
+  source       String              @default("") @db.VarChar(100)
+  sourceUrl    String              @default("") @db.VarChar(1000)
+  foundAt      DateTime            @default(now())
+
+  competitor   Competitor          @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  products     CompetitorProduct[]
+
+  @@map("competitor_dealers")
+}
+
+model CompetitorProduct {
+  id               Int               @id @default(autoincrement())
+  competitorId     Int
+  dealerId         Int?
+  name             String            @default("") @db.VarChar(500)
+  productLine      String            @default("") @db.VarChar(300)
+  category         String            @default("") @db.VarChar(200)
+  techSpecs        Json?
+  techSummary      String            @default("")
+  brochureUrl      String            @default("") @db.VarChar(1000)
+  brochureFilename String            @default("") @db.VarChar(300)
+  pageUrl          String            @default("") @db.VarChar(1000)
+  source           String            @default("") @db.VarChar(100)
+  fileSizeKb       Int               @default(0)
+  foundAt          DateTime          @default(now())
+
+  competitor       Competitor        @relation(fields: [competitorId], references: [id], onDelete: Cascade)
+  dealer           CompetitorDealer? @relation(fields: [dealerId], references: [id])
+
+  @@map("competitor_products")
+}
+
+model CompetitorAnalysis {
+  id              Int      @id @default(autoincrement())
+  summary         String   @default("")
+  landscape       String   @default("")
+  perCompetitor   Json?
+  opportunities   Json?
+  threats         Json?
+  recommendations Json?
+  contentGaps     Json?
+  dataQuality     String   @default("")
+  sourcesUsed     Json?
+  rawResponse     String   @default("")
+  generatedBy     String   @default("anthropic") @db.VarChar(50)
+  createdAt       DateTime @default(now())
+
+  @@map("competitor_analyses")
+}
+
+model OwnProduct {
+  id               Int                 @id @default(autoincrement())
+  name             String              @db.VarChar(300)
+  productLine      String              @default("") @db.VarChar(200)
+  category         String              @default("") @db.VarChar(200)
+  description      String              @default("")
+  workingHeight    Float?
+  techSpecs        Json?
+  techSummary      String              @default("")
+  pageUrl          String              @default("") @db.VarChar(1000)
+  brochureUrl      String              @default("") @db.VarChar(1000)
+  brochureFilename String              @default("") @db.VarChar(300)
+  scrapedAt        DateTime?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  comparisons      ProductComparison[]
+
+  @@map("own_products")
+}
+
+model ProductComparison {
+  id                         Int        @id @default(autoincrement())
+  ownProductId               Int?
+  ownProductName             String     @default("") @db.VarChar(300)
+  competitorProductsSnapshot Json?
+  title                      String     @default("") @db.VarChar(300)
+  summary                    String     @default("")
+  comparisonTable            Json?
+  perCompetitor              Json?
+  recommendations            Json?
+  rawResponse                String     @default("")
+  generatedBy                String     @default("anthropic") @db.VarChar(50)
+  createdAt                  DateTime   @default(now())
+
+  ownProduct   OwnProduct? @relation(fields: [ownProductId], references: [id])
+
+  @@map("product_comparisons")
+}
+
+model Dealer {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(500)
+  website     String        @default("") @db.VarChar(1000)
+  email       String        @default("") @db.VarChar(200)
+  phone       String        @default("") @db.VarChar(100)
+  address     String        @default("") @db.VarChar(500)
+  city        String        @default("") @db.VarChar(200)
+  state       String        @default("") @db.VarChar(200)
+  country     String        @default("") @db.VarChar(100)
+  postalCode  String        @default("") @db.VarChar(20)
+  latitude    Float?
+  longitude   Float?
+  notes       String        @default("")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  brands      DealerBrand[]
+
+  @@map("dealers")
+}
+
+model DealerBrand {
+  id           Int        @id @default(autoincrement())
+  dealerId     Int
+  competitorId Int?
+  isOwnBrand   Boolean    @default(false)
+
+  dealer       Dealer      @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+  competitor   Competitor? @relation(fields: [competitorId], references: [id])
+
+  @@map("dealer_brands")
+}
+
+model AppSettings {
+  key       String   @id @db.VarChar(100)
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("app_settings")
+}
